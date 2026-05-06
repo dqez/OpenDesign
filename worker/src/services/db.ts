@@ -120,3 +120,91 @@ export async function getOrderByCode(db: D1Database, orderCode: string) {
     .bind(orderCode)
     .first();
 }
+
+export async function recordWebhookEvent(
+  db: D1Database,
+  input: {
+    webhookEventId: string;
+    providerEventId: string;
+    orderCode: string | null;
+    status: "received" | "processed" | "ignored" | "failed";
+    rawPayload: unknown;
+  },
+) {
+  return db
+    .prepare(
+      "INSERT INTO webhook_events (webhook_event_id, provider, provider_event_id, order_code, status, raw_payload, received_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+    )
+    .bind(
+      input.webhookEventId,
+      "sepay",
+      input.providerEventId,
+      input.orderCode,
+      input.status,
+      JSON.stringify(input.rawPayload),
+      new Date().toISOString(),
+    )
+    .run();
+}
+
+export async function getWebhookEventByProviderEventId(
+  db: D1Database,
+  providerEventId: string,
+) {
+  return db
+    .prepare(
+      "SELECT * FROM webhook_events WHERE provider = ? AND provider_event_id = ?",
+    )
+    .bind("sepay", providerEventId)
+    .first();
+}
+
+export async function recordPayment(
+  db: D1Database,
+  input: {
+    paymentId: string;
+    orderCode: string;
+    providerTransactionId: string;
+    referenceCode: string | null;
+    amount: number;
+    rawPayload: unknown;
+  },
+) {
+  const now = new Date().toISOString();
+  return db
+    .prepare(
+      "INSERT INTO payments (payment_id, order_code, provider, provider_transaction_id, reference_code, amount, raw_payload, received_at, verified_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    )
+    .bind(
+      input.paymentId,
+      input.orderCode,
+      "sepay",
+      input.providerTransactionId,
+      input.referenceCode,
+      input.amount,
+      JSON.stringify(input.rawPayload),
+      now,
+      now,
+    )
+    .run();
+}
+
+export async function markOrderPaid(db: D1Database, orderCode: string) {
+  return db
+    .prepare("UPDATE orders SET status = ?, paid_at = ? WHERE order_code = ?")
+    .bind("paid", new Date().toISOString(), orderCode)
+    .run();
+}
+
+export async function markWebhookEventProcessed(
+  db: D1Database,
+  providerEventId: string,
+  status: "processed" | "ignored" | "failed",
+) {
+  return db
+    .prepare(
+      "UPDATE webhook_events SET status = ?, processed_at = ? WHERE provider = ? AND provider_event_id = ?",
+    )
+    .bind(status, new Date().toISOString(), "sepay", providerEventId)
+    .run();
+}
