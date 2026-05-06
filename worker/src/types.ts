@@ -1,5 +1,3 @@
-import type { DurableObjectNamespace } from "@cloudflare/workers-types";
-
 export type ExtractionPayload = {
   jobId: string;
   url: string;

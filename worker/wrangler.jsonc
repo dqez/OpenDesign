@@ -1,0 +1,41 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "2design-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-05-06",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+  "kv_namespaces": [{ "binding": "KV", "id": "local-kv-placeholder" }],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "2design-prod",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "preview_database_id": "00000000-0000-0000-0000-000000000001",
+      "migrations_dir": "migrations",
+      "migrations_table": "d1_migrations"
+    }
+  ],
+  "r2_buckets": [{ "binding": "R2", "bucket_name": "2design-outputs" }],
+  "queues": {
+    "producers": [{ "queue": "extraction-queue", "binding": "EXTRACT_QUEUE" }],
+    "consumers": [
+      {
+        "queue": "extraction-queue",
+        "max_batch_size": 1,
+        "max_batch_timeout": 30
+      }
+    ]
+  },
+  "vars": {
+    "DEV_ORIGIN": "http://localhost:5173",
+    "FRONTEND_ORIGIN": "https://2design.pages.dev",
+    "R2_BUCKET_NAME": "2design-outputs",
+    "SEPAY_BANK_ACCOUNT": "",
+    "SEPAY_BANK_NAME": "",
+    "SEPAY_BANK_ACCOUNT_NAME": ""
+  }
+}
