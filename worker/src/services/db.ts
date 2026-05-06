@@ -238,3 +238,15 @@ export async function recordEmailLog(
     )
     .run();
 }
+
+export async function expirePendingOrders(
+  db: D1Database,
+  now = new Date().toISOString(),
+) {
+  return db
+    .prepare(
+      "UPDATE orders SET status = 'expired' WHERE status = 'pending' AND expires_at < ?",
+    )
+    .bind(now)
+    .run();
+}

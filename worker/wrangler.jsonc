@@ -59,6 +59,9 @@
       "new_sqlite_classes": ["DembrandtContainer"]
     }
   ],
+  "triggers": {
+    "crons": ["*/30 * * * *"]
+  },
   "vars": {
     "DEV_ORIGIN": "http://localhost:5173",
     "FRONTEND_ORIGIN": "https://2design.pages.dev",
