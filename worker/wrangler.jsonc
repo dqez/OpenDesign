@@ -30,6 +30,35 @@
       }
     ]
   },
+  "workflows": [
+    {
+      "binding": "EXTRACTION_WORKFLOW",
+      "name": "extraction-workflow",
+      "class_name": "ExtractionWorkflow"
+    }
+  ],
+  "containers": [
+    {
+      "class_name": "DembrandtContainer",
+      "image": "../container/Dockerfile",
+      "instance_type": "lite",
+      "max_instances": 2
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "DEMBRANDT_CONTAINER",
+        "class_name": "DembrandtContainer"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["DembrandtContainer"]
+    }
+  ],
   "vars": {
     "DEV_ORIGIN": "http://localhost:5173",
     "FRONTEND_ORIGIN": "https://2design.pages.dev",
