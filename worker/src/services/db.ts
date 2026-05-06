@@ -83,3 +83,40 @@ export async function updateJobStatus(
     .bind(status, now, jobId)
     .run();
 }
+
+export async function createOrder(
+  db: D1Database,
+  input: {
+    orderCode: string;
+    url: string;
+    email: string;
+    ipHash: string;
+    amount: number;
+  },
+) {
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
+  return db
+    .prepare(
+      "INSERT INTO orders (order_code, url, email, ip_hash, amount, currency, status, created_at, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    )
+    .bind(
+      input.orderCode,
+      input.url,
+      input.email,
+      input.ipHash,
+      input.amount,
+      "VND",
+      "pending",
+      now.toISOString(),
+      expiresAt,
+    )
+    .run();
+}
+
+export async function getOrderByCode(db: D1Database, orderCode: string) {
+  return db
+    .prepare("SELECT * FROM orders WHERE order_code = ?")
+    .bind(orderCode)
+    .first();
+}
