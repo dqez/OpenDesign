@@ -1,0 +1,475 @@
+{
+  "$extensions": {
+    "com.dembrandt": {
+      "url": "https://neon.com/",
+      "domain": "neon.com",
+      "extractedAt": "2026-05-05T04:17:11.791Z"
+    }
+  },
+  "color": {
+    "semantic": {
+      "primary": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1,
+            1,
+            1
+          ],
+          "hex": "#ffffff"
+        }
+      }
+    },
+    "palette": {
+      "palette-1": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.173,
+            0.427,
+            0.298
+          ],
+          "hex": "#2c6d4c"
+        },
+        "$description": "Count: 1800, Confidence: high"
+      },
+      "palette-2": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0,
+            0,
+            0
+          ],
+          "hex": "#000000"
+        },
+        "$description": "Count: 449, Confidence: high"
+      },
+      "palette-3": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.58,
+            0.592,
+            0.62
+          ],
+          "hex": "#94979e"
+        },
+        "$description": "Count: 1027, Confidence: high"
+      },
+      "palette-4": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.141,
+            0.149,
+            0.157
+          ],
+          "hex": "#242628"
+        },
+        "$description": "Count: 240, Confidence: high"
+      },
+      "palette-5": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.894,
+            0.898,
+            0.906
+          ],
+          "hex": "#e4e5e7"
+        },
+        "$description": "Count: 53, Confidence: high"
+      },
+      "palette-6": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.788,
+            0.796,
+            0.812
+          ],
+          "hex": "#c9cbcf"
+        },
+        "$description": "Count: 291, Confidence: high"
+      },
+      "palette-7": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.38,
+            0.392,
+            0.42
+          ],
+          "hex": "#61646b"
+        },
+        "$description": "Count: 83, Confidence: high"
+      },
+      "palette-8": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1,
+            0.8,
+            0.898
+          ],
+          "hex": "#ffcce5"
+        },
+        "$description": "Count: 18, Confidence: medium"
+      },
+      "palette-9": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.678,
+            0.878,
+            0.922
+          ],
+          "hex": "#ade0eb"
+        },
+        "$description": "Count: 18, Confidence: medium"
+      },
+      "palette-10": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0,
+            0,
+            0
+          ],
+          "hex": "#000000"
+        },
+        "$description": "Count: 17, Confidence: medium"
+      },
+      "palette-11": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0,
+            0.898,
+            0.6
+          ],
+          "hex": "#00e599"
+        },
+        "$description": "Count: 12, Confidence: high"
+      }
+    }
+  },
+  "typography": {
+    "font-family": {
+      "inter": {
+        "$type": "fontFamily",
+        "$value": "Inter"
+      },
+      "esbuild": {
+        "$type": "fontFamily",
+        "$value": "esbuild"
+      },
+      "geistmono": {
+        "$type": "fontFamily",
+        "$value": "GeistMono"
+      }
+    },
+    "style": {
+      "text-heading-1": {
+        "$type": "typography",
+        "$value": {
+          "fontFamily": "{typography.font-family.inter}",
+          "fontSize": {
+            "$type": "dimension",
+            "$value": {
+              "value": 28,
+              "unit": "px"
+            }
+          },
+          "fontWeight": {
+            "$type": "fontWeight",
+            "$value": 400
+          },
+          "lineHeight": {
+            "$type": "number",
+            "$value": 1.38
+          }
+        }
+      }
+    }
+  },
+  "spacing": {
+    "spacing-1": {
+      "$type": "dimension",
+      "$value": {
+        "value": 1,
+        "unit": "px"
+      }
+    },
+    "spacing-2": {
+      "$type": "dimension",
+      "$value": {
+        "value": 12,
+        "unit": "px"
+      }
+    },
+    "spacing-3": {
+      "$type": "dimension",
+      "$value": {
+        "value": 14,
+        "unit": "px"
+      }
+    },
+    "spacing-4": {
+      "$type": "dimension",
+      "$value": {
+        "value": 10,
+        "unit": "px"
+      }
+    },
+    "spacing-5": {
+      "$type": "dimension",
+      "$value": {
+        "value": 24,
+        "unit": "px"
+      }
+    },
+    "spacing-6": {
+      "$type": "dimension",
+      "$value": {
+        "value": 20,
+        "unit": "px"
+      }
+    },
+    "spacing-7": {
+      "$type": "dimension",
+      "$value": {
+        "value": 8,
+        "unit": "px"
+      }
+    },
+    "spacing-8": {
+      "$type": "dimension",
+      "$value": {
+        "value": 16,
+        "unit": "px"
+      }
+    },
+    "spacing-9": {
+      "$type": "dimension",
+      "$value": {
+        "value": 28,
+        "unit": "px"
+      }
+    },
+    "spacing-10": {
+      "$type": "dimension",
+      "$value": {
+        "value": 40,
+        "unit": "px"
+      }
+    },
+    "spacing-11": {
+      "$type": "dimension",
+      "$value": {
+        "value": 4,
+        "unit": "px"
+      }
+    },
+    "spacing-12": {
+      "$type": "dimension",
+      "$value": {
+        "value": 3,
+        "unit": "px"
+      }
+    }
+  },
+  "radius": {
+    "radius-1": {
+      "$type": "dimension",
+      "$value": {
+        "value": 4,
+        "unit": "px"
+      }
+    },
+    "radius-2": {
+      "$type": "dimension",
+      "$value": {
+        "value": 33554400,
+        "unit": "px"
+      }
+    },
+    "radius-3": {
+      "$type": "dimension",
+      "$value": {
+        "value": 10,
+        "unit": "px"
+      }
+    }
+  },
+  "border": {
+    "width": {
+      "border-width-1": {
+        "$type": "dimension",
+        "$value": {
+          "value": 1,
+          "unit": "px"
+        }
+      },
+      "border-width-2": {
+        "$type": "dimension",
+        "$value": {
+          "value": 3,
+          "unit": "px"
+        }
+      },
+      "border-width-3": {
+        "$type": "dimension",
+        "$value": {
+          "value": 0,
+          "unit": "px"
+        }
+      },
+      "border-width-4": {
+        "$type": "dimension",
+        "$value": {
+          "value": 1,
+          "unit": "px"
+        }
+      },
+      "border-width-5": {
+        "$type": "dimension",
+        "$value": {
+          "value": 1,
+          "unit": "px"
+        }
+      }
+    },
+    "color": {
+      "border-color-1": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.141,
+            0.149,
+            0.157
+          ],
+          "hex": "#242628"
+        }
+      },
+      "border-color-2": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0,
+            0,
+            0
+          ],
+          "hex": "#000000"
+        }
+      },
+      "border-color-3": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0,
+            0,
+            0
+          ],
+          "hex": "#000000"
+        }
+      },
+      "border-color-4": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.38,
+            0.392,
+            0.42
+          ],
+          "hex": "#61646b"
+        }
+      },
+      "border-color-5": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.188,
+            0.196,
+            0.212
+          ],
+          "hex": "#303236"
+        }
+      },
+      "border-color-6": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.788,
+            0.796,
+            0.812
+          ],
+          "hex": "#c9cbcf"
+        }
+      },
+      "border-color-7": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0,
+            0,
+            0
+          ],
+          "hex": "#000000"
+        }
+      }
+    }
+  },
+  "shadow": {
+    "shadow-1": {
+      "$type": "shadow",
+      "$value": {
+        "offsetX": {
+          "value": 0,
+          "unit": "px"
+        },
+        "offsetY": {
+          "value": 0,
+          "unit": "px"
+        },
+        "blur": {
+          "value": 0,
+          "unit": "px"
+        },
+        "spread": {
+          "value": 0,
+          "unit": "px"
+        },
+        "color": {
+          "colorSpace": "srgb",
+          "components": [
+            0,
+            0,
+            0
+          ],
+          "hex": "#000000"
+        }
+      }
+    }
+  }
+}
