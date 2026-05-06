@@ -10,7 +10,7 @@ export type Env = {
   R2: R2Bucket;
   EXTRACT_QUEUE: Queue<ExtractionPayload>;
   EXTRACTION_WORKFLOW: Workflow<ExtractionPayload>;
-  DEMBRANDT_CONTAINER: DurableObjectNamespace;
+  DEMBRANDT_CONTAINER: DurableObjectNamespace<DembrandtContainer>;
   IP_HASH_SALT: string;
   SEPAY_API_KEY: string;
   RESEND_API_KEY: string;
@@ -26,3 +26,4 @@ export type Env = {
 };
 
 export type AppEnv = { Bindings: Env };
+import type { DembrandtContainer } from "./containers/dembrandt";
