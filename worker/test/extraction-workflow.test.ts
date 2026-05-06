@@ -6,7 +6,9 @@ const mocks = vi.hoisted(() => ({
   runContainerExtraction: vi.fn(),
   createSignedFileUrls: vi.fn(),
   updateJobStatus: vi.fn(),
+  recordEmailLog: vi.fn(),
   writeAuditEvent: vi.fn(),
+  sendCompletionEmail: vi.fn(),
 }));
 
 vi.mock("../src/services/container", () => ({
@@ -19,10 +21,15 @@ vi.mock("../src/services/r2", () => ({
 
 vi.mock("../src/services/db", () => ({
   updateJobStatus: mocks.updateJobStatus,
+  recordEmailLog: mocks.recordEmailLog,
 }));
 
 vi.mock("../src/services/audit", () => ({
   writeAuditEvent: mocks.writeAuditEvent,
+}));
+
+vi.mock("../src/services/email", () => ({
+  sendCompletionEmail: mocks.sendCompletionEmail,
 }));
 
 const { runExtractionWorkflow } = await import("../src/workflows/extraction");
@@ -67,22 +74,38 @@ beforeEach(() => {
     designMd: "https://signed/design",
     brandGuide: "https://signed/pdf",
   });
+  mocks.sendCompletionEmail.mockResolvedValue({
+    data: { id: "email_123" },
+    error: null,
+  });
+  mocks.recordEmailLog.mockResolvedValue({ success: true });
 });
 
 it("marks jobs completed after container extraction", async () => {
-  await runExtractionWorkflow({ DB: {} } as Env, payload, stepMock());
+  const db = {
+    prepare: vi.fn(() => ({
+      bind: vi.fn(() => ({
+        first: vi.fn().mockResolvedValue(null),
+      })),
+    })),
+  };
+  await runExtractionWorkflow(
+    { DB: db, RESEND_API_KEY: "resend-secret" } as unknown as Env,
+    payload,
+    stepMock(),
+  );
 
   expect(mocks.updateJobStatus).toHaveBeenCalledWith(
-    {},
+    db,
     "job_123",
     "processing",
   );
   expect(mocks.runContainerExtraction).toHaveBeenCalledWith(
-    { DB: {} },
+    { DB: db, RESEND_API_KEY: "resend-secret" },
     { jobId: "job_123", url: "https://neon.com/" },
   );
   expect(mocks.updateJobStatus).toHaveBeenCalledWith(
-    {},
+    db,
     "job_123",
     "completed",
     {
@@ -92,6 +115,20 @@ it("marks jobs completed after container extraction", async () => {
         brandGuide: "neon.com/job_123/brand-guide.pdf",
       },
     },
+  );
+  expect(mocks.sendCompletionEmail).toHaveBeenCalledWith(
+    expect.objectContaining({
+      apiKey: "resend-secret",
+      to: "user@example.com",
+    }),
+  );
+  expect(mocks.recordEmailLog).toHaveBeenCalledWith(
+    db,
+    expect.objectContaining({
+      jobId: "job_123",
+      providerMessageId: "email_123",
+      status: "sent",
+    }),
   );
 });
 

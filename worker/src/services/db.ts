@@ -208,3 +208,33 @@ export async function markWebhookEventProcessed(
     .bind(status, new Date().toISOString(), "sepay", providerEventId)
     .run();
 }
+
+export async function recordEmailLog(
+  db: D1Database,
+  input: {
+    emailLogId: string;
+    jobId: string;
+    email: string;
+    template: string;
+    providerMessageId: string | null;
+    status: "sent" | "failed";
+    error?: string | null;
+  },
+) {
+  return db
+    .prepare(
+      "INSERT INTO email_logs (email_log_id, job_id, email, template, provider, provider_message_id, status, error, sent_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    )
+    .bind(
+      input.emailLogId,
+      input.jobId,
+      input.email,
+      input.template,
+      "resend",
+      input.providerMessageId,
+      input.status,
+      input.error ?? null,
+      new Date().toISOString(),
+    )
+    .run();
+}

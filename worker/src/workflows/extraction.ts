@@ -5,7 +5,8 @@ import {
 } from "cloudflare:workers";
 import { writeAuditEvent } from "../services/audit";
 import { runContainerExtraction } from "../services/container";
-import { updateJobStatus } from "../services/db";
+import { recordEmailLog, updateJobStatus } from "../services/db";
+import { sendCompletionEmail } from "../services/email";
 import { createSignedFileUrls } from "../services/r2";
 import type { Env, ExtractionPayload } from "../types";
 
@@ -49,6 +50,29 @@ export async function runExtractionWorkflow(
     await step.do("mark-completed", async () => {
       await updateJobStatus(env.DB, payload.jobId, "completed", {
         r2Keys: result.files,
+      });
+    });
+
+    await step.do("send-email", async () => {
+      const existing = await env.DB.prepare(
+        "SELECT email_log_id FROM email_logs WHERE job_id = ? AND template = ? AND status = ?",
+      )
+        .bind(payload.jobId, "job-completed", "sent")
+        .first();
+      if (existing) return;
+
+      const emailResult = await sendCompletionEmail({
+        apiKey: env.RESEND_API_KEY,
+        to: payload.email,
+        downloadUrls: signedUrls,
+      });
+      await recordEmailLog(env.DB, {
+        emailLogId: crypto.randomUUID(),
+        jobId: payload.jobId,
+        email: payload.email,
+        template: "job-completed",
+        providerMessageId: emailResult.data?.id ?? null,
+        status: "sent",
       });
     });
 
