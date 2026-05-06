@@ -1,0 +1,26 @@
+{
+  "name": "2design-container",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/server.ts",
+    "start": "node dist/server.js",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc",
+    "build:image": "docker build -t 2design-dembrandt ."
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.0.0",
+    "@hono/node-server": "^1.0.0",
+    "dembrandt": "^0.11.0",
+    "hono": "^4.0.0",
+    "playwright": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^3.0.0"
+  }
+}
