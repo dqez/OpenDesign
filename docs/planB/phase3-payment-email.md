@@ -754,3 +754,19 @@ Expected: expiry test passes and TypeScript exits with code 0.
 git add worker/src/services/db.ts worker/src/index.ts worker/wrangler.jsonc worker/test/order-expiry.test.ts
 git commit -m "feat: expire stale payment orders"
 ```
+
+## SePay Production Hardening Addendum
+
+The production SePay flow must include the hardening plan from `docs/superpowers/plans/2026-05-08-sepay-production-hardening.md`.
+
+Required behavior:
+
+- Webhook processing is resumable after partial failure.
+- Duplicate processed webhook events return `200` without creating a second job.
+- Existing received webhook events are processed again until marked `processed`.
+- Order matching normalizes lowercase bank memo content.
+- Underpayment is ignored and logged.
+- Exact payment and overpayment are accepted.
+- Recipient account number is verified when SePay sends `accountNumber`.
+- Returning users reuse an active pending order for the same URL, email, IP hash, and amount.
+- Frontend polls order status after displaying the SePay QR.

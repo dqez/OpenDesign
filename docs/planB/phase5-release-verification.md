@@ -224,3 +224,14 @@ git commit -m "docs: add Cloudflare release checklist"
 git add docs/planB/prd-coverage.md
 git commit -m "docs: map Plan B tasks to PRD coverage"
 ```
+
+### SePay Hardening Verification
+
+- [ ] Lowercase webhook content such as `2d-a1b2c3` matches order `2D-A1B2C3`.
+- [ ] Overpayment marks the order paid and creates exactly one job.
+- [ ] Underpayment does not create a job.
+- [ ] Duplicate processed webhook returns `200` and creates no second job.
+- [ ] Existing `received` webhook can resume and create the paid job.
+- [ ] Webhook with mismatched `accountNumber` is ignored.
+- [ ] Returning user receives the same active pending order while it is unexpired.
+- [ ] Frontend navigates from QR state to job status after payment creates `job_id`.
