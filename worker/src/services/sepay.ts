@@ -1,11 +1,18 @@
 export type SePayWebhookPayload = {
   id: number | string;
-  code?: string;
-  content?: string;
+  gateway?: string;
+  transactionDate?: string;
+  accountNumber?: string;
+  code?: string | null;
+  content?: string | null;
   transferType?: string;
   transferAmount?: number;
+  accumulated?: number;
+  subAccount?: string | null;
   referenceCode?: string;
 };
+
+export type SePayAmountStatus = "paid" | "overpaid" | "underpaid";
 
 export function buildSePayQrUrl(input: {
   bankName: string;
@@ -16,7 +23,7 @@ export function buildSePayQrUrl(input: {
   const params = new URLSearchParams({
     acc: input.accountNumber,
     bank: input.bankName,
-    amount: String(input.amount),
+    amount: String(Math.floor(input.amount)),
     des: input.orderCode,
   });
   return `https://qr.sepay.vn/img?${params.toString()}`;
@@ -25,8 +32,24 @@ export function buildSePayQrUrl(input: {
 export function extractOrderCodeFromWebhook(
   payload: Pick<SePayWebhookPayload, "code" | "content">,
 ) {
-  if (payload.code?.startsWith("2D-")) return payload.code;
-  return payload.content?.match(/2D-[A-Z0-9]{6}/)?.[0] ?? null;
+  return normalizeOrderCode(payload.code) ?? normalizeOrderCode(payload.content);
+}
+
+export function classifySePayAmount(
+  transferAmount: number,
+  expectedAmount: number,
+): SePayAmountStatus {
+  if (transferAmount < expectedAmount) return "underpaid";
+  if (transferAmount > expectedAmount) return "overpaid";
+  return "paid";
+}
+
+export function isExpectedSePayAccount(
+  payloadAccountNumber: string | undefined,
+  expectedAccountNumber: string,
+) {
+  if (!payloadAccountNumber) return true;
+  return payloadAccountNumber === expectedAccountNumber;
 }
 
 export function verifySePayAuthorization(
@@ -47,6 +70,11 @@ export const SEPAY_ALLOWED_IPS = [
 
 export function isAllowedSePayIp(ip: string) {
   return SEPAY_ALLOWED_IPS.includes(ip);
+}
+
+function normalizeOrderCode(value: string | null | undefined) {
+  const match = value?.match(/2D-[A-Z0-9]{6}/i);
+  return match ? match[0].toUpperCase() : null;
 }
 
 function constantTimeEqual(a: string, b: string) {
