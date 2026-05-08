@@ -1,6 +1,9 @@
 import { vi } from "vitest";
 
-export function mockEnvWithIpCount(count: number) {
+export function mockEnvWithIpCount(
+  count: number,
+  options: { pendingOrder?: unknown } = {},
+) {
   const queueSend = vi.fn().mockResolvedValue(undefined);
   const kvGet = vi.fn((key: string, type?: string) => {
     if (key.startsWith("rate:")) return Promise.resolve("0");
@@ -18,9 +21,16 @@ export function mockEnvWithIpCount(count: number) {
     return Promise.resolve(null);
   });
   const run = vi.fn().mockResolvedValue({ success: true });
-  const first = vi.fn().mockResolvedValue({ count: 0 });
+  const first = vi.fn((sql?: string) => {
+    if (sql?.includes("orders WHERE ip_hash")) {
+      return Promise.resolve(options.pendingOrder ?? null);
+    }
+    return Promise.resolve({ count: 0 });
+  });
   const bind = vi.fn(() => ({ run, first }));
-  const prepare = vi.fn(() => ({ bind }));
+  const prepare = vi.fn((sql: string) => ({
+    bind: vi.fn(() => ({ run, first: () => first(sql) })),
+  }));
 
   return {
     DB: { prepare },

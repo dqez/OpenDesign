@@ -26,6 +26,20 @@ export type JobRecord = {
   completed_at: string | null;
 };
 
+export type OrderRecord = {
+  order_code: string;
+  job_id: string | null;
+  url: string;
+  email: string;
+  ip_hash: string;
+  amount: number;
+  currency: string;
+  status: "pending" | "paid" | "expired" | "cancelled";
+  created_at: string;
+  paid_at: string | null;
+  expires_at: string;
+};
+
 export async function createJob(db: D1Database, input: CreateJobInput) {
   const now = new Date().toISOString();
   return db
@@ -119,6 +133,44 @@ export async function getOrderByCode(db: D1Database, orderCode: string) {
     .prepare("SELECT * FROM orders WHERE order_code = ?")
     .bind(orderCode)
     .first();
+}
+
+export async function getActivePendingOrder(
+  db: D1Database,
+  input: { ipHash: string; url: string; email: string; amount: number },
+) {
+  return db
+    .prepare(
+      "SELECT * FROM orders WHERE ip_hash = ? AND url = ? AND email = ? AND amount = ? AND status = 'pending' AND expires_at > ? ORDER BY created_at DESC LIMIT 1",
+    )
+    .bind(
+      input.ipHash,
+      input.url,
+      input.email,
+      input.amount,
+      new Date().toISOString(),
+    )
+    .first<OrderRecord>();
+}
+
+export async function getOrderStatusByCode(
+  db: D1Database,
+  orderCode: string,
+) {
+  return db
+    .prepare(
+      "SELECT order_code, job_id, amount, currency, status, expires_at, paid_at FROM orders WHERE order_code = ?",
+    )
+    .bind(orderCode)
+    .first<{
+      order_code: string;
+      job_id: string | null;
+      amount: number;
+      currency: string;
+      status: string;
+      expires_at: string;
+      paid_at: string | null;
+    }>();
 }
 
 export async function getPaymentByProviderTransactionId(

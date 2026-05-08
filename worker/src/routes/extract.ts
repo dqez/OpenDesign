@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { rateLimitMiddleware } from "../middleware/rate-limit";
 import { writeAuditEvent } from "../services/audit";
-import { createJob, createOrder } from "../services/db";
+import { createJob, createOrder, getActivePendingOrder } from "../services/db";
 import { createJobId, createOrderCode } from "../services/ids";
 import { getClientIp, hashIp } from "../services/ip";
 import { getIpUsage, incrementIpUsage } from "../services/kv";
@@ -18,14 +18,24 @@ export const extractRoute = new Hono<{ Bindings: Env }>().post(
     const usage = await getIpUsage(c.env.KV, ipHash);
 
     if ((usage?.count ?? 0) >= 1) {
-      const orderCode = createOrderCode();
-      await createOrder(c.env.DB, {
-        orderCode,
+      const amount = 25000;
+      const pendingOrder = await getActivePendingOrder(c.env.DB, {
+        ipHash,
         url: body.url,
         email: body.email,
-        ipHash,
-        amount: 25000,
+        amount,
       });
+      const orderCode = pendingOrder?.order_code ?? createOrderCode();
+
+      if (!pendingOrder) {
+        await createOrder(c.env.DB, {
+          orderCode,
+          url: body.url,
+          email: body.email,
+          ipHash,
+          amount,
+        });
+      }
 
       return c.json(
         {
@@ -33,7 +43,7 @@ export const extractRoute = new Hono<{ Bindings: Env }>().post(
           message:
             "Ban da su dung luot mien phi. Chuyen khoan 25.000d de tiep tuc.",
           orderCode,
-          amount: 25000,
+          amount,
           bankInfo: {
             bank: c.env.SEPAY_BANK_NAME,
             accountNumber: c.env.SEPAY_BANK_ACCOUNT,
@@ -43,9 +53,10 @@ export const extractRoute = new Hono<{ Bindings: Env }>().post(
           qrUrl: buildSePayQrUrl({
             bankName: c.env.SEPAY_BANK_NAME,
             accountNumber: c.env.SEPAY_BANK_ACCOUNT,
-            amount: 25000,
+            amount,
             orderCode,
           }),
+          orderStatusUrl: `/api/orders/${orderCode}`,
         },
         402,
       );
