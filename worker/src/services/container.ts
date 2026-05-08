@@ -1,4 +1,3 @@
-import { getContainer } from "@cloudflare/containers";
 import type { Env } from "../types";
 
 export type ContainerResult = {
@@ -15,16 +14,21 @@ export async function runContainerExtraction(
   env: Env,
   payload: { jobId: string; url: string },
 ) {
-  const container = getContainer(env.DEMBRANDT_CONTAINER, payload.jobId);
-  const response = await container.fetch(
-    new Request("http://container/extract", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(payload),
-    }),
-  );
+  const response = await fetch(joinUrl(env.EXTRACTOR_URL, "/extract"), {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: `Bearer ${env.EXTRACTOR_API_KEY}`,
+    },
+    body: JSON.stringify(payload),
+  });
   if (!response.ok) {
-    throw new Error(`container_extract_failed:${response.status}`);
+    const errorBody = await response.text();
+    throw new Error(`extractor_failed:${response.status}:${errorBody}`);
   }
   return response.json<ContainerResult>();
+}
+
+function joinUrl(baseUrl: string, path: string) {
+  return `${baseUrl.replace(/\/+$/, "")}/${path.replace(/^\/+/, "")}`;
 }

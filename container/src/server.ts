@@ -4,11 +4,21 @@ import { buildOutputKeys, runDembrandt } from "./execute.js";
 import { healthPayload } from "./health.js";
 import { uploadObject } from "./r2.js";
 
-const app = new Hono();
+export const app = new Hono();
+
+function isAuthorized(header: string | undefined | null) {
+  const expected = process.env.EXTRACTOR_API_KEY;
+  if (!expected) return false;
+  return header === `Bearer ${expected}`;
+}
 
 app.get("/health", (c) => c.json(healthPayload()));
 
 app.post("/extract", async (c) => {
+  if (!isAuthorized(c.req.header("authorization"))) {
+    return c.json({ error: "unauthorized" }, 401);
+  }
+
   const { jobId, url } = await c.req.json<{ jobId: string; url: string }>();
   const result = await runDembrandt(url, jobId);
   const keys = buildOutputKeys(result.domain, jobId);
@@ -24,4 +34,6 @@ app.post("/extract", async (c) => {
   return c.json({ ok: true, domain: result.domain, files: keys });
 });
 
-serve({ fetch: app.fetch, port: Number(process.env.PORT ?? 8080) });
+if (process.env.NODE_ENV !== "test") {
+  serve({ fetch: app.fetch, port: Number(process.env.PORT ?? 8080) });
+}
