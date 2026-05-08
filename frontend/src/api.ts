@@ -11,7 +11,19 @@ export type ExtractResponse =
         content: string;
       };
       qrUrl: string;
+      orderStatusUrl: string;
     };
+
+export type OrderStatusResponse = {
+  orderCode: string;
+  status: "pending" | "paid" | "expired" | "cancelled";
+  amount: number;
+  currency: string;
+  expiresAt: string;
+  paidAt: string | null;
+  jobId: string | null;
+  pollUrl: string | null;
+};
 
 export type JobResponse = {
   jobId: string;
@@ -44,5 +56,13 @@ export async function createExtraction(input: {
 export async function getJob(jobId: string): Promise<JobResponse> {
   const response = await fetch(`${API_BASE}/api/jobs/${jobId}`);
   if (!response.ok) throw new Error(`job_failed:${response.status}`);
+  return response.json();
+}
+
+export async function getOrderStatus(
+  orderCode: string,
+): Promise<OrderStatusResponse> {
+  const response = await fetch(`${API_BASE}/api/orders/${orderCode}`);
+  if (!response.ok) throw new Error(`order_failed:${response.status}`);
   return response.json();
 }

@@ -1,6 +1,6 @@
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { createExtraction, type ExtractResponse } from "../api";
+import { createExtraction, getOrderStatus, type ExtractResponse } from "../api";
 
 type PaymentResponse = Extract<ExtractResponse, { requiresPayment: true }>;
 
@@ -29,6 +29,28 @@ export function Home() {
       setSubmitting(false);
     }
   }
+
+  useEffect(() => {
+    if (!payment) return;
+
+    const timer = window.setInterval(async () => {
+      try {
+        const status = await getOrderStatus(payment.orderCode);
+        if (status.jobId) {
+          window.clearInterval(timer);
+          navigate(`/jobs/${status.jobId}`);
+        }
+        if (status.status === "expired" || status.status === "cancelled") {
+          window.clearInterval(timer);
+          setError(`Payment order ${status.status}`);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Order status failed");
+      }
+    }, 5000);
+
+    return () => window.clearInterval(timer);
+  }, [navigate, payment]);
 
   return (
     <main className="app-shell">

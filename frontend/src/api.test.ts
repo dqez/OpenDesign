@@ -1,5 +1,5 @@
 import { beforeEach, expect, it, vi } from "vitest";
-import { createExtraction, getJob } from "./api";
+import { createExtraction, getJob, getOrderStatus } from "./api";
 
 beforeEach(() => {
   vi.restoreAllMocks();
@@ -41,6 +41,7 @@ it("returns payment-required extraction responses", async () => {
             content: "2D-A1B2C3",
           },
           qrUrl: "https://qr.sepay.vn/img",
+          orderStatusUrl: "/api/orders/2D-A1B2C3",
         }),
     }),
   );
@@ -62,5 +63,29 @@ it("reads job status", async () => {
   await expect(getJob("job_123")).resolves.toEqual({
     jobId: "job_123",
     status: "processing",
+  });
+});
+
+it("fetches order status", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        orderCode: "2D-A1B2C3",
+        status: "paid",
+        amount: 25000,
+        currency: "VND",
+        expiresAt: "2026-05-09T00:00:00.000Z",
+        paidAt: "2026-05-08T00:00:00.000Z",
+        jobId: "job_paid",
+        pollUrl: "/api/jobs/job_paid",
+      }),
+    }),
+  );
+
+  await expect(getOrderStatus("2D-A1B2C3")).resolves.toMatchObject({
+    status: "paid",
+    jobId: "job_paid",
   });
 });
