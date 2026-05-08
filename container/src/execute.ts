@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { mkdir, readFile, rm } from "node:fs/promises";
+import { mkdir, readFile, readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -17,8 +17,35 @@ export function buildOutputKeys(domain: string, jobId: string): OutputKeys {
   };
 }
 
+export async function findDembrandtOutputFiles(workdir: string, domain: string) {
+  const outputDir = join(workdir, "output", domain);
+  const entries = await readdir(outputDir, { withFileTypes: true });
+  const files = entries
+    .filter((entry) => entry.isFile())
+    .map((entry) => entry.name)
+    .sort();
+
+  const tokens = files.find((file) => file.endsWith(".tokens.json"));
+  const designMd = files.find((file) => file === "DESIGN.md");
+  const brandGuide = files.find(
+    (file) => file.includes("brand-guide") && file.endsWith(".pdf"),
+  );
+
+  if (!tokens || !designMd || !brandGuide) {
+    throw new Error(
+      `missing_dembrandt_outputs:${outputDir}:found=${files.join(",")}`,
+    );
+  }
+
+  return {
+    tokens: join(outputDir, tokens),
+    designMd: join(outputDir, designMd),
+    brandGuide: join(outputDir, brandGuide),
+  };
+}
+
 export async function runDembrandt(url: string, jobId: string) {
-  const domain = new URL(url).hostname;
+  const domain = new URL(url).hostname.replace(/^www\./, "");
   const workdir = join(tmpdir(), `2design-${jobId}`);
   await mkdir(workdir, { recursive: true });
 
@@ -46,10 +73,11 @@ export async function runDembrandt(url: string, jobId: string) {
       child.on("error", reject);
     });
 
+    const outputFiles = await findDembrandtOutputFiles(workdir, domain);
     const files = {
-      tokens: await readFile(join(workdir, "tokens.json")),
-      designMd: await readFile(join(workdir, "DESIGN.md")),
-      brandGuide: await readFile(join(workdir, "brand-guide.pdf")),
+      tokens: await readFile(outputFiles.tokens),
+      designMd: await readFile(outputFiles.designMd),
+      brandGuide: await readFile(outputFiles.brandGuide),
     };
     return { domain, files };
   } finally {
