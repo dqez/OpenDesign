@@ -26,6 +26,9 @@ function mockWebhookEnv(options: {
             }
           );
         }
+        if (sql.includes("payments WHERE")) {
+          return null;
+        }
         return null;
       }),
     })),
@@ -35,6 +38,9 @@ function mockWebhookEnv(options: {
     DB: { prepare },
     EXTRACT_QUEUE: { send: queueSend },
     SEPAY_API_KEY: "secret",
+    SEPAY_BANK_ACCOUNT: "0123456789",
+    SEPAY_BANK_NAME: "Vietcombank",
+    SEPAY_BANK_ACCOUNT_NAME: "2Design",
     FRONTEND_ORIGIN: "https://2design.pages.dev",
     DEV_ORIGIN: "http://localhost:5173",
     __mocks: { queueSend, run, prepare },
@@ -43,6 +49,9 @@ function mockWebhookEnv(options: {
 
 const validPayload = {
   id: 42,
+  gateway: "Vietcombank",
+  transactionDate: "2026-05-08 14:00:00",
+  accountNumber: "0123456789",
   code: "2D-A1B2C3",
   content: "2D-A1B2C3",
   transferType: "in",
@@ -112,8 +121,111 @@ it("records valid webhooks and enqueues a paid job", async () => {
   );
 });
 
+it("accepts overpayment and enqueues a paid job", async () => {
+  const env = mockWebhookEnv();
+  const response = await app.request(
+    "/api/sepay/webhook",
+    {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        Authorization: "Apikey secret",
+        "CF-Connecting-IP": "172.236.138.20",
+      },
+      body: JSON.stringify({
+        ...validPayload,
+        id: 43,
+        transferAmount: 30000,
+      }),
+    },
+    env,
+  );
+
+  expect(response.status).toBe(200);
+  await expect(response.json()).resolves.toEqual({ success: true });
+  expect(env.__mocks.queueSend).toHaveBeenCalledOnce();
+});
+
+it("ignores underpayment without enqueueing a job", async () => {
+  const env = mockWebhookEnv();
+  const response = await app.request(
+    "/api/sepay/webhook",
+    {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        Authorization: "Apikey secret",
+        "CF-Connecting-IP": "172.236.138.20",
+      },
+      body: JSON.stringify({
+        ...validPayload,
+        id: 44,
+        transferAmount: 20000,
+      }),
+    },
+    env,
+  );
+
+  expect(response.status).toBe(200);
+  await expect(response.json()).resolves.toEqual({ success: true });
+  expect(env.__mocks.queueSend).not.toHaveBeenCalled();
+});
+
+it("resumes existing received webhook events instead of returning duplicate early", async () => {
+  const env = mockWebhookEnv({
+    existingWebhook: {
+      webhook_event_id: "wh_42",
+      status: "received",
+      order_code: "2D-A1B2C3",
+    },
+  });
+
+  const response = await app.request(
+    "/api/sepay/webhook",
+    {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        Authorization: "Apikey secret",
+        "CF-Connecting-IP": "172.236.138.20",
+      },
+      body: JSON.stringify(validPayload),
+    },
+    env,
+  );
+
+  expect(response.status).toBe(200);
+  expect(env.__mocks.queueSend).toHaveBeenCalledOnce();
+});
+
+it("rejects webhook for a different receiving account", async () => {
+  const env = mockWebhookEnv();
+  const response = await app.request(
+    "/api/sepay/webhook",
+    {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        Authorization: "Apikey secret",
+        "CF-Connecting-IP": "172.236.138.20",
+      },
+      body: JSON.stringify({
+        ...validPayload,
+        id: 45,
+        accountNumber: "0000000000",
+      }),
+    },
+    env,
+  );
+
+  expect(response.status).toBe(200);
+  expect(env.__mocks.queueSend).not.toHaveBeenCalled();
+});
+
 it("deduplicates repeated webhook events", async () => {
-  const env = mockWebhookEnv({ existingWebhook: { webhook_event_id: "wh_42" } });
+  const env = mockWebhookEnv({
+    existingWebhook: { webhook_event_id: "wh_42", status: "processed" },
+  });
   const response = await app.request(
     "/api/sepay/webhook",
     {

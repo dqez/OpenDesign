@@ -121,6 +121,18 @@ export async function getOrderByCode(db: D1Database, orderCode: string) {
     .first();
 }
 
+export async function getPaymentByProviderTransactionId(
+  db: D1Database,
+  providerTransactionId: string,
+) {
+  return db
+    .prepare(
+      "SELECT * FROM payments WHERE provider = ? AND provider_transaction_id = ?",
+    )
+    .bind("sepay", providerTransactionId)
+    .first();
+}
+
 export async function recordWebhookEvent(
   db: D1Database,
   input: {
@@ -193,6 +205,18 @@ export async function markOrderPaid(db: D1Database, orderCode: string) {
   return db
     .prepare("UPDATE orders SET status = ?, paid_at = ? WHERE order_code = ?")
     .bind("paid", new Date().toISOString(), orderCode)
+    .run();
+}
+
+export async function markOrderPaidWithJob(
+  db: D1Database,
+  input: { orderCode: string; jobId: string },
+) {
+  return db
+    .prepare(
+      "UPDATE orders SET status = ?, paid_at = COALESCE(paid_at, ?), job_id = COALESCE(job_id, ?) WHERE order_code = ?",
+    )
+    .bind("paid", new Date().toISOString(), input.jobId, input.orderCode)
     .run();
 }
 

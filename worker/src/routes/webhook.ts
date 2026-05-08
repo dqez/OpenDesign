@@ -3,21 +3,25 @@ import { sepayAuthMiddleware } from "../middleware/sepay-auth";
 import {
   createJob,
   getOrderByCode,
+  getPaymentByProviderTransactionId,
   getWebhookEventByProviderEventId,
-  markOrderPaid,
+  markOrderPaidWithJob,
   markWebhookEventProcessed,
   recordPayment,
   recordWebhookEvent,
 } from "../services/db";
 import { createEventId, createJobId } from "../services/ids";
 import {
+  classifySePayAmount,
   extractOrderCodeFromWebhook,
+  isExpectedSePayAccount,
   type SePayWebhookPayload,
 } from "../services/sepay";
 import type { Env } from "../types";
 
 type OrderRecord = {
   order_code: string;
+  job_id?: string | null;
   url: string;
   email: string;
   ip_hash: string;
@@ -35,22 +39,31 @@ export const webhookRoute = new Hono<{ Bindings: Env }>().post(
       c.env.DB,
       providerEventId,
     );
-    if (existing) return c.json({ success: true, duplicate: true });
+    if (existing && (existing as { status?: string }).status === "processed") {
+      return c.json({ success: true, duplicate: true });
+    }
 
     const orderCode = extractOrderCodeFromWebhook(payload);
-    try {
-      await recordWebhookEvent(c.env.DB, {
-        webhookEventId: createEventId().replace("evt_", "wh_"),
-        providerEventId,
-        orderCode,
-        status: orderCode ? "received" : "ignored",
-        rawPayload: payload,
-      });
-    } catch (error) {
-      if (error instanceof Error && error.message.includes("UNIQUE")) {
-        return c.json({ success: true, duplicate: true });
+    if (!existing) {
+      try {
+        await recordWebhookEvent(c.env.DB, {
+          webhookEventId: createEventId().replace("evt_", "wh_"),
+          providerEventId,
+          orderCode,
+          status: orderCode ? "received" : "ignored",
+          rawPayload: payload,
+        });
+      } catch (error) {
+        if (error instanceof Error && error.message.includes("UNIQUE")) {
+          return c.json({ success: true, duplicate: true });
+        }
+        throw error;
       }
-      throw error;
+    }
+
+    if (!isExpectedSePayAccount(payload.accountNumber, c.env.SEPAY_BANK_ACCOUNT)) {
+      await markWebhookEventProcessed(c.env.DB, providerEventId, "ignored");
+      return c.json({ success: true });
     }
 
     if (!orderCode || payload.transferType !== "in") {
@@ -61,25 +74,40 @@ export const webhookRoute = new Hono<{ Bindings: Env }>().post(
     const order = (await getOrderByCode(c.env.DB, orderCode)) as
       | OrderRecord
       | null;
-    if (
-      !order ||
-      order.status !== "pending" ||
-      Number(order.amount) !== Number(payload.transferAmount)
-    ) {
+    if (!order || order.status !== "pending") {
       await markWebhookEventProcessed(c.env.DB, providerEventId, "ignored");
       return c.json({ success: true });
     }
 
-    await recordPayment(c.env.DB, {
-      paymentId: `pay_${payload.id}`,
-      orderCode,
-      providerTransactionId: providerEventId,
-      referenceCode: payload.referenceCode ?? null,
-      amount: Number(payload.transferAmount),
-      rawPayload: payload,
-    });
-    await markOrderPaid(c.env.DB, orderCode);
-    await markWebhookEventProcessed(c.env.DB, providerEventId, "processed");
+    const transferAmount = Number(payload.transferAmount);
+    if (!Number.isFinite(transferAmount)) {
+      await markWebhookEventProcessed(c.env.DB, providerEventId, "ignored");
+      return c.json({ success: true });
+    }
+
+    const amountStatus = classifySePayAmount(
+      transferAmount,
+      Number(order.amount),
+    );
+    if (amountStatus === "underpaid") {
+      await markWebhookEventProcessed(c.env.DB, providerEventId, "ignored");
+      return c.json({ success: true });
+    }
+
+    const existingPayment = await getPaymentByProviderTransactionId(
+      c.env.DB,
+      providerEventId,
+    );
+    if (!existingPayment) {
+      await recordPayment(c.env.DB, {
+        paymentId: `pay_${payload.id}`,
+        orderCode,
+        providerTransactionId: providerEventId,
+        referenceCode: payload.referenceCode ?? null,
+        amount: transferAmount,
+        rawPayload: payload,
+      });
+    }
 
     const jobId = createJobId();
     await createJob(c.env.DB, {
@@ -91,6 +119,8 @@ export const webhookRoute = new Hono<{ Bindings: Env }>().post(
       paid: true,
       orderCode,
     });
+    await markOrderPaidWithJob(c.env.DB, { orderCode, jobId });
+    await markWebhookEventProcessed(c.env.DB, providerEventId, "processed");
     await c.env.EXTRACT_QUEUE.send({
       jobId,
       url: order.url,
