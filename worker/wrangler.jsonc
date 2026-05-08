@@ -1,73 +1,116 @@
 {
-  "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "2design-api",
-  "main": "src/index.ts",
-  "compatibility_date": "2026-05-06",
-  "compatibility_flags": ["nodejs_compat"],
-  "observability": {
-    "enabled": true,
-    "head_sampling_rate": 1
-  },
-  "kv_namespaces": [{ "binding": "KV", "id": "local-kv-placeholder" }],
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "2design-prod",
-      "database_id": "00000000-0000-0000-0000-000000000000",
-      "preview_database_id": "00000000-0000-0000-0000-000000000001",
-      "migrations_dir": "migrations",
-      "migrations_table": "d1_migrations"
-    }
-  ],
-  "r2_buckets": [{ "binding": "R2", "bucket_name": "2design-outputs" }],
-  "queues": {
-    "producers": [{ "queue": "extraction-queue", "binding": "EXTRACT_QUEUE" }],
-    "consumers": [
-      {
-        "queue": "extraction-queue",
-        "max_batch_size": 1,
-        "max_batch_timeout": 30
-      }
-    ]
-  },
-  "workflows": [
-    {
-      "binding": "EXTRACTION_WORKFLOW",
-      "name": "extraction-workflow",
-      "class_name": "ExtractionWorkflow"
-    }
-  ],
-  "containers": [
-    {
-      "class_name": "DembrandtContainer",
-      "image": "../container/Dockerfile",
-      "instance_type": "lite",
-      "max_instances": 2
-    }
-  ],
-  "durable_objects": {
-    "bindings": [
-      {
-        "name": "DEMBRANDT_CONTAINER",
-        "class_name": "DembrandtContainer"
-      }
-    ]
-  },
-  "migrations": [
-    {
-      "tag": "v1",
-      "new_sqlite_classes": ["DembrandtContainer"]
-    }
-  ],
-  "triggers": {
-    "crons": ["*/30 * * * *"]
-  },
-  "vars": {
-    "DEV_ORIGIN": "http://localhost:5173",
-    "FRONTEND_ORIGIN": "https://2design.pages.dev",
-    "R2_BUCKET_NAME": "2design-outputs",
-    "SEPAY_BANK_ACCOUNT": "",
-    "SEPAY_BANK_NAME": "",
-    "SEPAY_BANK_ACCOUNT_NAME": ""
-  }
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "2design-api",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-05-06",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"observability": {
+		"enabled": true,
+		"head_sampling_rate": 1
+	},
+	"kv_namespaces": [
+		{
+			"binding": "KV",
+			"id": "3f2dbe68177745adb166e03e0aa02cd0"
+		},
+		{
+			"binding": "_2design_kv",
+			"id": "3f2dbe68177745adb166e03e0aa02cd0",
+			"remote": true
+		}
+	],
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "2design-prod",
+			"database_id": "3004f0ce-74c0-467a-a55e-0b833dd4c4ed",
+			"preview_database_id": "084e9bfc-83d8-479e-bd1e-2df25430fa2c",
+			"migrations_dir": "migrations",
+			"migrations_table": "d1_migrations"
+		},
+		{
+			"binding": "_2design_prod",
+			"database_name": "2design-prod",
+			"database_id": "3004f0ce-74c0-467a-a55e-0b833dd4c4ed",
+			"remote": true
+		},
+		{
+			"binding": "_2design_preview",
+			"database_name": "2design-preview",
+			"database_id": "084e9bfc-83d8-479e-bd1e-2df25430fa2c",
+			"remote": true
+		}
+	],
+	"r2_buckets": [
+		{
+			"binding": "R2",
+			"bucket_name": "2design-outputs"
+		},
+		{
+			"bucket_name": "2design-outputs",
+			"binding": "_2design_outputs",
+			"remote": true
+		}
+	],
+	"queues": {
+		"producers": [
+			{
+				"queue": "extraction-queue",
+				"binding": "EXTRACT_QUEUE"
+			}
+		],
+		"consumers": [
+			{
+				"queue": "extraction-queue",
+				"max_batch_size": 1,
+				"max_batch_timeout": 30
+			}
+		]
+	},
+	"workflows": [
+		{
+			"binding": "EXTRACTION_WORKFLOW",
+			"name": "extraction-workflow",
+			"class_name": "ExtractionWorkflow"
+		}
+	],
+	"containers": [
+		{
+			"class_name": "DembrandtContainer",
+			"image": "../container/Dockerfile",
+			"instance_type": "lite",
+			"max_instances": 2
+		}
+	],
+	"durable_objects": {
+		"bindings": [
+			{
+				"name": "DEMBRANDT_CONTAINER",
+				"class_name": "DembrandtContainer"
+			}
+		]
+	},
+	"migrations": [
+		{
+			"tag": "v1",
+			"new_sqlite_classes": [
+				"DembrandtContainer"
+			]
+		}
+	],
+	"triggers": {
+		"crons": [
+			"*/30 * * * *"
+		]
+	},
+	"vars": {
+		"DEV_ORIGIN": "http://localhost:5173",
+		"FRONTEND_ORIGIN": "https://2design.pages.dev",
+		"R2_BUCKET_NAME": "2design-outputs",
+		"SEPAY_BANK_ACCOUNT": "101877455638",
+		"SEPAY_BANK_NAME": "VIETINBANK",
+		"SEPAY_BANK_ACCOUNT_NAME": "TRAN DINH QUY"
+	}
 }
