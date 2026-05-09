@@ -4,6 +4,7 @@ import { createExtraction, getOrderStatus, type ExtractResponse } from "../api";
 import { DesignCatalog } from "../components/design-catalog";
 import { PinnedProcess } from "../components/pinned-process";
 import { SiteFooter } from "../components/site-footer";
+import { SiteHeader } from "../components/site-header";
 import { TokenBento } from "../components/TokenBento";
 
 type PaymentResponse = Extract<ExtractResponse, { requiresPayment: true }>;
@@ -58,16 +59,7 @@ export function Home() {
 
   return (
     <main className="site-shell">
-      <nav className="site-nav" aria-label="Main navigation">
-        <a className="brand-mark" href="/">
-          2Design
-        </a>
-        <div className="nav-links">
-          <a href="#catalog">Catalog</a>
-          <a href="#extract">New URL</a>
-          <a href="#process">Process</a>
-        </div>
-      </nav>
+      <SiteHeader />
 
       <DesignCatalog />
 

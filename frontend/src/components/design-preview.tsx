@@ -5,6 +5,7 @@ type Props = {
   brand: string;
   sourceUrl: string;
   model: DesignPreviewModel | null;
+  mode?: "light" | "dark";
 };
 
 const cards = [
@@ -20,7 +21,7 @@ const specs = [
   ["AA", "Contrast target"],
 ];
 
-export function DesignPreview({ brand, sourceUrl, model }: Props) {
+export function DesignPreview({ brand, sourceUrl, model, mode = "dark" }: Props) {
   if (!model) {
     return (
       <section className="design-preview-empty">
@@ -32,7 +33,7 @@ export function DesignPreview({ brand, sourceUrl, model }: Props) {
   }
 
   const colors = model.colors.slice(0, 12);
-  const theme = buildTheme(model);
+  const theme = buildTheme(model, mode);
   const display = model.typography[0];
   const bodyFont = model.fonts[1]?.value ?? model.fonts[0]?.value;
 
@@ -40,7 +41,7 @@ export function DesignPreview({ brand, sourceUrl, model }: Props) {
     <article className="design-preview" style={theme}>
       <section className="dp-hero">
         <p className="dp-kicker">Design System Inspiration of {brand}</p>
-        <h2 style={sampleTypeStyle(display)}>
+        <h2 style={sampleTypeStyle(display, 56)}>
           {brand} interface language
         </h2>
         <p style={{ fontFamily: bodyFont }}>
@@ -54,73 +55,75 @@ export function DesignPreview({ brand, sourceUrl, model }: Props) {
         </div>
       </section>
 
-      <PreviewSection index="01" title="Color Palette">
-        <div className="dp-color-grid">
-          {colors.map((color) => (
-            <div className="dp-swatch" key={`${color.name}-${color.hex}`}>
-              <span style={{ background: color.hex }} />
-              <strong>{label(color.name)}</strong>
-              <code>{color.hex}</code>
-            </div>
-          ))}
-        </div>
-      </PreviewSection>
-
-      <PreviewSection index="02" title="Typography Scale">
-        <div className="dp-type-list">
-          {model.typography.slice(0, 6).map((type) => (
-            <div key={type.name}>
-              <span>{label(type.name)}</span>
-              <strong style={sampleTypeStyle(type)}>{type.name}</strong>
-              <code>{[type.fontSize, type.fontWeight, type.lineHeight].filter(Boolean).join(" / ")}</code>
-            </div>
-          ))}
-        </div>
-      </PreviewSection>
-
-      <PreviewSection index="03" title="Button Variants">
-        <div className="dp-button-row">
-          <button type="button">Primary action</button>
-          <button type="button" className="dp-outline">Outline action</button>
-          <a href={sourceUrl}>Text link</a>
-          <button type="button" className="dp-icon">›</button>
-        </div>
-      </PreviewSection>
-
-      <PreviewSection index="04" title="Cards & Containers">
-        <div className="dp-card-grid">
-          {cards.map(([kicker, title, body]) => (
-            <article key={title}>
-              <p>{kicker}</p>
-              <h3>{title}</h3>
-              <span>{body}</span>
-            </article>
-          ))}
-        </div>
-      </PreviewSection>
-
-      <PreviewSection index="05" title="Spec Cells">
-        <div className="dp-spec-grid">
-          {specs.map(([value, name]) => (
-            <div key={name}>
-              <strong>{value}</strong>
-              <span>{name}</span>
-            </div>
-          ))}
-        </div>
-      </PreviewSection>
-
-      <PreviewSection index="06" title="Form Elements">
-        <div className="dp-form-grid">
-          <input value="you@example.com" readOnly aria-label="Email example" />
-          <input value="Focused input" readOnly aria-label="Focused example" />
-          <textarea value="Tell us about your design system..." readOnly aria-label="Inquiry example" />
-          <div>
-            <strong>Cookies on {brand}.</strong>
-            <p>We use cookies to improve the browsing experience.</p>
+      <div className="dp-section-grid">
+        <PreviewSection index="01" title="Color Palette">
+          <div className="dp-color-grid">
+            {colors.map((color) => (
+              <div className="dp-swatch" key={`${color.name}-${color.hex}`}>
+                <span style={{ background: color.hex }} />
+                <strong>{label(color.name)}</strong>
+                <code>{color.hex}</code>
+              </div>
+            ))}
           </div>
-        </div>
-      </PreviewSection>
+        </PreviewSection>
+
+        <PreviewSection index="02" title="Typography Scale">
+          <div className="dp-type-list">
+            {model.typography.slice(0, 6).map((type) => (
+              <div key={type.name}>
+                <span>{label(type.name)}</span>
+                <strong style={sampleTypeStyle(type, 34)}>{type.name}</strong>
+                <code>{[type.fontSize, type.fontWeight, type.lineHeight].filter(Boolean).join(" / ")}</code>
+              </div>
+            ))}
+          </div>
+        </PreviewSection>
+
+        <PreviewSection index="03" title="Button Variants">
+          <div className="dp-button-row">
+            <button type="button">Primary action</button>
+            <button type="button" className="dp-outline">Outline action</button>
+            <a href={sourceUrl}>Text link</a>
+            <button type="button" className="dp-icon">›</button>
+          </div>
+        </PreviewSection>
+
+        <PreviewSection index="04" title="Cards & Containers">
+          <div className="dp-card-grid">
+            {cards.map(([kicker, title, body]) => (
+              <article key={title}>
+                <p>{kicker}</p>
+                <h3>{title}</h3>
+                <span>{body}</span>
+              </article>
+            ))}
+          </div>
+        </PreviewSection>
+
+        <PreviewSection index="05" title="Spec Cells">
+          <div className="dp-spec-grid">
+            {specs.map(([value, name]) => (
+              <div key={name}>
+                <strong>{value}</strong>
+                <span>{name}</span>
+              </div>
+            ))}
+          </div>
+        </PreviewSection>
+
+        <PreviewSection index="06" title="Form Elements">
+          <div className="dp-form-grid">
+            <input value="you@example.com" readOnly aria-label="Email example" />
+            <input value="Focused input" readOnly aria-label="Focused example" />
+            <textarea value="Tell us about your design system..." readOnly aria-label="Inquiry example" />
+            <div>
+              <strong>Cookies on {brand}.</strong>
+              <p>We use cookies to improve the browsing experience.</p>
+            </div>
+          </div>
+        </PreviewSection>
+      </div>
     </article>
   );
 }
@@ -135,26 +138,28 @@ function PreviewSection({ index, title, children }: { index: string; title: stri
   );
 }
 
-function buildTheme(model: DesignPreviewModel): CSSProperties {
+function buildTheme(model: DesignPreviewModel, mode: "light" | "dark"): CSSProperties {
   const colors = model.colors.map((color) => color.hex);
   const dark = colors.find((hex) => luminance(hex) < 0.08) ?? "#0f1115";
   const light = colors.find((hex) => luminance(hex) > 0.82) ?? "#ffffff";
   const accent = colors.find((hex) => luminance(hex) > 0.12 && luminance(hex) < 0.72) ?? "#2f6f59";
   const radius = model.radii.find((item) => item.value > 0)?.css ?? "8px";
+  const background = mode === "light" ? light : dark;
+  const ink = mode === "light" ? dark : light;
 
   return {
-    "--dp-bg": dark,
-    "--dp-surface": mix(dark, light, 0.09),
-    "--dp-card": mix(dark, light, 0.15),
-    "--dp-ink": light,
-    "--dp-muted": mix(dark, light, 0.68),
+    "--dp-bg": background,
+    "--dp-surface": mix(background, ink, mode === "light" ? 0.04 : 0.09),
+    "--dp-card": mix(background, ink, mode === "light" ? 0.08 : 0.15),
+    "--dp-ink": ink,
+    "--dp-muted": mix(background, ink, mode === "light" ? 0.54 : 0.68),
     "--dp-accent": accent,
     "--dp-radius": radius,
   } as CSSProperties;
 }
 
-function sampleTypeStyle(type?: { fontFamily?: string; fontSize?: string; fontWeight?: string | number; lineHeight?: string | number }) {
-  const size = type?.fontSize ? clampDimension(type.fontSize, 18, 72) : undefined;
+function sampleTypeStyle(type?: { fontFamily?: string; fontSize?: string; fontWeight?: string | number; lineHeight?: string | number }, max = 56) {
+  const size = type?.fontSize ? clampDimension(type.fontSize, 16, max) : undefined;
   return {
     fontFamily: cleanFont(type?.fontFamily),
     fontSize: size,

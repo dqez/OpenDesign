@@ -1,15 +1,15 @@
 type FooterLink = readonly [label: string, href: string];
 
 const productLinks: FooterLink[] = [
-  ["Tokens", "#tokens"],
-  ["Process", "#process"],
-  ["Output", "#output"],
+  ["Tokens", "/#tokens"],
+  ["Process", "/#process"],
+  ["Output", "/#output"],
 ];
 
 const artifactLinks: FooterLink[] = [
-  ["tokens.json", "#output"],
-  ["DESIGN.md", "#output"],
-  ["Brand guide", "#output"],
+  ["tokens.json", "/#output"],
+  ["DESIGN.md", "/#output"],
+  ["Brand guide", "/#output"],
 ];
 
 const companyLinks: FooterLink[] = [
@@ -32,7 +32,7 @@ export function SiteFooter() {
             implementation pass.
           </p>
         </div>
-        <a className="footer-primary" href="#extract">
+        <a className="footer-primary" href="/#extract">
           Paste URL
         </a>
       </section>

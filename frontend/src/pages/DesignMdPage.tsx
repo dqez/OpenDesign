@@ -3,14 +3,20 @@ import { Link, useParams } from "react-router-dom";
 import { getDesignCatalog, type DesignCatalogItem } from "../api";
 import { DesignPreview } from "../components/design-preview";
 import { RawDesignMdPanel } from "../components/raw-design-md-panel";
+import { SiteFooter } from "../components/site-footer";
+import { SiteHeader } from "../components/site-header";
 import {
   fetchJsonArtifact,
   fetchTextArtifact,
   findDesignBySlug,
 } from "../design-artifacts";
-import { createDesignPreviewModel, type DesignPreviewModel } from "../design-token-parser";
+import {
+  createDesignPreviewModel,
+  type DesignPreviewModel,
+} from "../design-token-parser";
 
 type ActiveTab = "preview" | "design-md";
+type DetailTheme = "light" | "dark";
 
 type DetailState =
   | { status: "loading" }
@@ -26,6 +32,7 @@ type DetailState =
 export function DesignMdPage() {
   const { brand = "" } = useParams();
   const [tab, setTab] = useState<ActiveTab>("preview");
+  const [detailTheme, setDetailTheme] = useState<DetailTheme>("light");
   const [state, setState] = useState<DetailState>({ status: "loading" });
   const [copied, setCopied] = useState(false);
 
@@ -79,7 +86,9 @@ export function DesignMdPage() {
   }
 
   if (state.status === "loading") {
-    return <DetailStatePanel kicker="DESIGN.md" title="Loading design system" />;
+    return (
+      <DetailStatePanel kicker="DESIGN.md" title="Loading design system" />
+    );
   }
 
   if (state.status === "not-found") {
@@ -106,13 +115,11 @@ export function DesignMdPage() {
 
   return (
     <main className="site-shell">
-      <section className="design-detail">
+      <SiteHeader />
+      <br />
+      <br />
+      <section className={`design-detail design-detail--${detailTheme}`}>
         <header className="design-detail-header">
-          <div className="design-detail-bar">
-            <Link className="brand-mark" to="/">2Design</Link>
-            <Link className="status-link" to="/">Back to catalog</Link>
-          </div>
-
           <div className="design-detail-title">
             <p className="section-kicker">DESIGN.md</p>
             <h1>{item.brand}</h1>
@@ -121,60 +128,128 @@ export function DesignMdPage() {
             </a>
             {item.updatedAt ? <time>{formatDate(item.updatedAt)}</time> : null}
           </div>
-
-          <div className="design-detail-actions">
-            <button type="button" onClick={() => copyMarkdown(markdown)} disabled={!markdown}>
-              {copied ? "Copied" : "Copy DESIGN.md"}
-            </button>
-            {item.designMdUrl ? (
-              <a className="status-link" href={item.designMdUrl} download>
-                Download DESIGN.md
-              </a>
-            ) : null}
-            {item.brandGuideUrl ? (
-              <a className="status-link" href={item.brandGuideUrl}>
-                Brand guide
-              </a>
-            ) : null}
+          <div className="design-detail-summary">
+            <span>Token preview</span>
+            <strong>{model ? "Ready" : "Raw only"}</strong>
+            <p>
+              Generated from the latest extracted artifacts in the design
+              catalog.
+            </p>
           </div>
         </header>
 
-        <nav className="design-tabs" aria-label="Design detail views">
-          <button
-            className={tab === "preview" ? "active" : ""}
-            type="button"
-            onClick={() => setTab("preview")}
+        <div className="design-detail-workspace">
+          <aside
+            className="design-detail-rail"
+            aria-label="Design detail controls"
           >
-            Preview
-          </button>
-          <button
-            className={tab === "design-md" ? "active" : ""}
-            type="button"
-            onClick={() => setTab("design-md")}
-          >
-            DESIGN.md
-          </button>
-        </nav>
+            <Link className="status-link" to="/">
+              Back to catalog
+            </Link>
 
-        {tab === "preview" ? (
-          <DesignPreview brand={item.brand} sourceUrl={item.sourceUrl} model={model} />
-        ) : (
-          <RawDesignMdPanel markdown={markdown} downloadUrl={item.designMdUrl} />
-        )}
+            <nav className="design-tabs" aria-label="Design detail views">
+              <button
+                className={tab === "preview" ? "active" : ""}
+                type="button"
+                onClick={() => setTab("preview")}
+              >
+                Preview
+              </button>
+              <button
+                className={tab === "design-md" ? "active" : ""}
+                type="button"
+                onClick={() => setTab("design-md")}
+              >
+                DESIGN.md
+              </button>
+            </nav>
+
+            <div className="design-detail-actions">
+              <div className="design-theme-toggle" aria-label="Design detail theme">
+                <button
+                  className={detailTheme === "light" ? "active" : ""}
+                  type="button"
+                  aria-pressed={detailTheme === "light"}
+                  onClick={() => setDetailTheme("light")}
+                >
+                  Light
+                </button>
+                <button
+                  className={detailTheme === "dark" ? "active" : ""}
+                  type="button"
+                  aria-pressed={detailTheme === "dark"}
+                  onClick={() => setDetailTheme("dark")}
+                >
+                  Dark
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={() => copyMarkdown(markdown)}
+                disabled={!markdown}
+              >
+                {copied ? "Copied" : "Copy DESIGN.md"}
+              </button>
+              {item.designMdUrl ? (
+                <a className="status-link" href={item.designMdUrl} download>
+                  Download
+                </a>
+              ) : null}
+              {item.brandGuideUrl ? (
+                <a className="status-link" href={item.brandGuideUrl}>
+                  Brand guide
+                </a>
+              ) : null}
+            </div>
+          </aside>
+
+          <div className="design-detail-main">
+            {tab === "preview" ? (
+              <DesignPreview
+                brand={item.brand}
+                sourceUrl={item.sourceUrl}
+                model={model}
+                mode={detailTheme}
+              />
+            ) : (
+              <RawDesignMdPanel
+                markdown={markdown}
+                downloadUrl={item.designMdUrl}
+              />
+            )}
+          </div>
+        </div>
       </section>
+      <SiteFooter />
     </main>
   );
 }
 
-function DetailStatePanel({ kicker, title, body }: { kicker: string; title: string; body?: string }) {
+function DetailStatePanel({
+  kicker,
+  title,
+  body,
+}: {
+  kicker: string;
+  title: string;
+  body?: string;
+}) {
   return (
     <main className="site-shell preview-layout">
+      <SiteHeader />
       <section className="state-panel">
         <p className="section-kicker">{kicker}</p>
         <h1>{title}</h1>
-        {body ? <p>{body}</p> : <div className="skeleton-lines" aria-hidden="true" />}
-        <Link className="status-link" to="/">Back to catalog</Link>
+        {body ? (
+          <p>{body}</p>
+        ) : (
+          <div className="skeleton-lines" aria-hidden="true" />
+        )}
+        <Link className="status-link" to="/">
+          Back to catalog
+        </Link>
       </section>
+      <SiteFooter />
     </main>
   );
 }
