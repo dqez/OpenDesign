@@ -21,6 +21,7 @@ export type Env = {
   EXTRACTOR_API_KEY: string;
   FRONTEND_ORIGIN: string;
   DEV_ORIGIN: string;
+  DEV_ORIGINS: string;
   SEPAY_BANK_ACCOUNT: string;
   SEPAY_BANK_NAME: string;
   SEPAY_BANK_ACCOUNT_NAME: string;
