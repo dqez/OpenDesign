@@ -109,7 +109,10 @@ export function Home() {
             <p className="section-kicker">Payment receipt</p>
             <h2>Scan the QR code to start the extraction job.</h2>
           </div>
-          <img src={payment.qrUrl} alt={`Payment QR for ${payment.orderCode}`} />
+          <img
+            src={payment.qrUrl}
+            alt={`Payment QR for ${payment.orderCode}`}
+          />
           <dl>
             <dt>Order</dt>
             <dd>{payment.orderCode}</dd>
@@ -125,8 +128,8 @@ export function Home() {
         </section>
       ) : null}
 
-      <PinnedProcess />
       <TokenBento />
+      <PinnedProcess />
       <SiteFooter />
     </main>
   );

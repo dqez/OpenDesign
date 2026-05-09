@@ -41,6 +41,8 @@ export type DesignCatalogItem = {
   brand: string;
   sourceUrl: string;
   designMdUrl?: string;
+  tokensUrl?: string;
+  brandGuideUrl?: string;
   updatedAt?: string;
 };
 

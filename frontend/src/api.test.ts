@@ -102,13 +102,19 @@ it("fetches extracted design catalog items", async () => {
           brand: "Supabase",
           sourceUrl: "https://supabase.com",
           designMdUrl: "https://r2.example/supabase/DESIGN.md",
+          tokensUrl: "https://r2.example/supabase/tokens.json",
+          brandGuideUrl: "https://r2.example/supabase/brand-guide.pdf",
         },
       ],
     }),
   );
 
   await expect(getDesignCatalog()).resolves.toEqual([
-    expect.objectContaining({ slug: "supabase", brand: "Supabase" }),
+    expect.objectContaining({
+      slug: "supabase",
+      brand: "Supabase",
+      tokensUrl: "https://r2.example/supabase/tokens.json",
+    }),
   ]);
 });
 
