@@ -13,11 +13,15 @@ export interface TokenTree {
 }
 
 export function flattenTokens(
-  tree: TokenTree,
+  tree: TokenTree | unknown,
   prefix = "",
 ): Array<{ name: string; value: unknown; type?: string }> {
+  if (!isRecord(tree)) return [];
+
   return Object.entries(tree).flatMap(([key, raw]) => {
     const name = prefix ? `${prefix}.${key}` : key;
+    if (!isRecord(raw)) return [];
+
     const token = raw as TokenValue;
     if ("value" in token || "$value" in token) {
       return [
@@ -30,6 +34,10 @@ export function flattenTokens(
     }
     return flattenTokens(raw as TokenTree, name);
   });
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function isColor(value: unknown) {
