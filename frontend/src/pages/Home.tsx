@@ -1,26 +1,12 @@
 import { type FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createExtraction, getOrderStatus, type ExtractResponse } from "../api";
+import { DesignCatalog } from "../components/design-catalog";
 import { PinnedProcess } from "../components/pinned-process";
 import { SiteFooter } from "../components/site-footer";
 import { TokenBento } from "../components/TokenBento";
 
 type PaymentResponse = Extract<ExtractResponse, { requiresPayment: true }>;
-
-const tokenCards = [
-  ["Color system", "Mineral swatches, contrast pairs, and semantic roles."],
-  ["Type scale", "Display, body, mono, and practical line-height notes."],
-  ["Spacing ruler", "Measured rhythm from gutters to component radius."],
-  ["Agent files", "tokens.json, DESIGN.md, and a PDF brand guide."],
-  ["Specimen tray", "A preview built for human review before agent handoff."],
-];
-
-const specimenRows = [
-  ["ink", "#171815"],
-  ["accent", "#2f6f59"],
-  ["surface", "#ffffff"],
-  ["radius", "14px"],
-];
 
 export function Home() {
   const navigate = useNavigate();
@@ -77,67 +63,44 @@ export function Home() {
           2Design
         </a>
         <div className="nav-links">
-          <a href="#tokens">Tokens</a>
+          <a href="#catalog">Catalog</a>
+          <a href="#extract">New URL</a>
           <a href="#process">Process</a>
-          <a href="#extract">Extract</a>
         </div>
       </nav>
 
-      <section className="hero-section" id="extract">
-        <div className="hero-copy">
-          <p className="section-kicker">Specimen Lab for Design Tokens</p>
-          <h1>Extract design tokens from any URL</h1>
-          <p>
-            Paste a live website, then review the separated color, type,
-            spacing, radius, and agent-ready artifacts before using them in a
-            build.
-          </p>
-          <form className="extract-panel" onSubmit={onSubmit}>
-            <label>
-              Website URL
-              <input
-                value={url}
-                onChange={(event) => setUrl(event.target.value)}
-                placeholder="https://neon.com"
-                required
-              />
-            </label>
-            <label>
-              Email
-              <input
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder="user@example.com"
-                type="email"
-                required
-              />
-            </label>
-            <button disabled={submitting}>
-              {submitting ? "Preparing specimen" : "Extract tokens"}
-            </button>
-            {error ? <p className="error">{error}</p> : null}
-          </form>
-        </div>
+      <DesignCatalog />
 
-        <aside className="specimen-panel" aria-label="Sample specimen tray">
-          <div className="specimen-header">
-            <span>Specimen tray</span>
-            <code>tokens.json</code>
-          </div>
-          <div className="specimen-swatches">
-            <span />
-            <span />
-            <span />
-          </div>
-          <dl className="specimen-list">
-            {specimenRows.map(([name, value]) => (
-              <div key={name}>
-                <dt>{name}</dt>
-                <dd>{value}</dd>
-              </div>
-            ))}
-          </dl>
-        </aside>
+      <section className="extract-section" id="extract">
+        <div className="hero-copy">
+          <p className="section-kicker">Add another URL</p>
+          <h2>Extract design tokens from a new site</h2>
+        </div>
+        <form className="extract-panel" onSubmit={onSubmit}>
+          <label>
+            Website URL
+            <input
+              value={url}
+              onChange={(event) => setUrl(event.target.value)}
+              placeholder="https://neon.com"
+              required
+            />
+          </label>
+          <label>
+            Email
+            <input
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="user@example.com"
+              type="email"
+              required
+            />
+          </label>
+          <button disabled={submitting}>
+            {submitting ? "Preparing specimen" : "Extract tokens"}
+          </button>
+          {error ? <p className="error">{error}</p> : null}
+        </form>
       </section>
 
       {payment ? (
@@ -161,15 +124,6 @@ export function Home() {
           </dl>
         </section>
       ) : null}
-
-      <section className="token-bento" id="tokens">
-        {tokenCards.map(([title, body]) => (
-          <article key={title}>
-            <h2>{title}</h2>
-            <p>{body}</p>
-          </article>
-        ))}
-      </section>
 
       <PinnedProcess />
       <TokenBento />

@@ -1,5 +1,5 @@
 import { beforeEach, expect, it, vi } from "vitest";
-import { createExtraction, getJob, getOrderStatus } from "./api";
+import { createExtraction, getDesignCatalog, getJob, getOrderStatus } from "./api";
 
 beforeEach(() => {
   vi.restoreAllMocks();
@@ -88,4 +88,41 @@ it("fetches order status", async () => {
     status: "paid",
     jobId: "job_paid",
   });
+});
+
+it("fetches extracted design catalog items", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn().mockResolvedValue({
+      ok: true,
+      headers: new Headers({ "content-type": "application/json" }),
+      json: async () => [
+        {
+          slug: "supabase",
+          brand: "Supabase",
+          sourceUrl: "https://supabase.com",
+          designMdUrl: "https://r2.example/supabase/DESIGN.md",
+        },
+      ],
+    }),
+  );
+
+  await expect(getDesignCatalog()).resolves.toEqual([
+    expect.objectContaining({ slug: "supabase", brand: "Supabase" }),
+  ]);
+});
+
+it("reports unavailable design catalog when the response is not json", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn().mockResolvedValue({
+      ok: true,
+      headers: new Headers({ "content-type": "text/html" }),
+      json: async () => {
+        throw new SyntaxError("Unexpected token '<'");
+      },
+    }),
+  );
+
+  await expect(getDesignCatalog()).rejects.toThrow("designs_unavailable");
 });

@@ -1,3 +1,9 @@
+.extract-section {
+  display: grid;
+  gap: 20px;
+  padding-bottom: clamp(56px, 8vw, 112px);
+}
+
 .hero-section {
   display: grid;
   grid-template-columns: minmax(0, 1.25fr) minmax(340px, 0.75fr);
