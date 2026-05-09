@@ -1,6 +1,11 @@
 import { type FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createExtraction, getOrderStatus, type ExtractResponse } from "../api";
+import { DesignCatalog } from "../components/design-catalog";
+import { PinnedProcess } from "../components/pinned-process";
+import { SiteFooter } from "../components/site-footer";
+import { SiteHeader } from "../components/site-header";
+import { TokenBento } from "../components/TokenBento";
 
 type PaymentResponse = Extract<ExtractResponse, { requiresPayment: true }>;
 
@@ -53,13 +58,17 @@ export function Home() {
   }, [navigate, payment]);
 
   return (
-    <main className="app-shell">
-      <section className="workspace">
+    <main className="site-shell">
+      <SiteHeader />
+
+      <DesignCatalog />
+
+      <section className="extract-section" id="extract">
+        <div className="hero-copy">
+          <p className="section-kicker">Add another URL</p>
+          <h2>Extract design tokens from a new site</h2>
+        </div>
         <form className="extract-panel" onSubmit={onSubmit}>
-          <div className="panel-heading">
-            <p className="eyebrow">2Design</p>
-            <h1>Extract brand tokens from a website</h1>
-          </div>
           <label>
             Website URL
             <input
@@ -80,28 +89,40 @@ export function Home() {
             />
           </label>
           <button disabled={submitting}>
-            {submitting ? "Submitting" : "Extract"}
+            {submitting ? "Preparing specimen" : "Extract tokens"}
           </button>
           {error ? <p className="error">{error}</p> : null}
         </form>
-        {payment ? (
-          <section className="payment-panel">
-            <img src={payment.qrUrl} alt={`Payment QR for ${payment.orderCode}`} />
-            <dl>
-              <dt>Order</dt>
-              <dd>{payment.orderCode}</dd>
-              <dt>Amount</dt>
-              <dd>{payment.amount.toLocaleString("vi-VN")} VND</dd>
-              <dt>Bank</dt>
-              <dd>{payment.bankInfo.bank}</dd>
-              <dt>Account</dt>
-              <dd>{payment.bankInfo.accountNumber}</dd>
-              <dt>Content</dt>
-              <dd>{payment.bankInfo.content}</dd>
-            </dl>
-          </section>
-        ) : null}
       </section>
+
+      {payment ? (
+        <section className="payment-panel">
+          <div>
+            <p className="section-kicker">Payment receipt</p>
+            <h2>Scan the QR code to start the extraction job.</h2>
+          </div>
+          <img
+            src={payment.qrUrl}
+            alt={`Payment QR for ${payment.orderCode}`}
+          />
+          <dl>
+            <dt>Order</dt>
+            <dd>{payment.orderCode}</dd>
+            <dt>Amount</dt>
+            <dd>{payment.amount.toLocaleString("vi-VN")} VND</dd>
+            <dt>Bank</dt>
+            <dd>{payment.bankInfo.bank}</dd>
+            <dt>Account</dt>
+            <dd>{payment.bankInfo.accountNumber}</dd>
+            <dt>Content</dt>
+            <dd>{payment.bankInfo.content}</dd>
+          </dl>
+        </section>
+      ) : null}
+
+      <TokenBento />
+      <PinnedProcess />
+      <SiteFooter />
     </main>
   );
 }

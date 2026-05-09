@@ -75,6 +75,7 @@
 	},
 	"vars": {
 		"DEV_ORIGIN": "http://localhost:5173",
+		"DEV_ORIGINS": "http://localhost:5173,http://127.0.0.1:5173",
 		"FRONTEND_ORIGIN": "https://2design.pages.dev",
 		"R2_BUCKET_NAME": "2design-outputs",
 		"EXTRACTOR_URL": "https://extractor.dqez.dev",

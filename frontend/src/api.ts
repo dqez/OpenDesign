@@ -36,6 +36,16 @@ export type JobResponse = {
   failureReason?: string;
 };
 
+export type DesignCatalogItem = {
+  slug: string;
+  brand: string;
+  sourceUrl: string;
+  designMdUrl?: string;
+  tokensUrl?: string;
+  brandGuideUrl?: string;
+  updatedAt?: string;
+};
+
 const API_BASE = import.meta.env.VITE_API_BASE ?? "";
 
 export async function createExtraction(input: {
@@ -65,4 +75,19 @@ export async function getOrderStatus(
   const response = await fetch(`${API_BASE}/api/orders/${orderCode}`);
   if (!response.ok) throw new Error(`order_failed:${response.status}`);
   return response.json();
+}
+
+export async function getDesignCatalog(): Promise<DesignCatalogItem[]> {
+  const response = await fetch(`${API_BASE}/api/designs`);
+  if (!response.ok) throw new Error(`designs_failed:${response.status}`);
+  if (!isJsonResponse(response)) throw new Error("designs_unavailable");
+  try {
+    return await response.json();
+  } catch {
+    throw new Error("designs_unavailable");
+  }
+}
+
+function isJsonResponse(response: Response) {
+  return response.headers.get("content-type")?.includes("application/json");
 }
