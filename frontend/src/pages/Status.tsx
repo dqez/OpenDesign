@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getJob, type JobResponse } from "../api";
 
+const steps = ["queued", "processing", "completed"] as const;
+
 export function Status() {
   const { jobId = "" } = useParams();
   const [job, setJob] = useState<JobResponse | null>(null);
@@ -31,24 +33,44 @@ export function Status() {
 
   if (error) {
     return (
-      <main className="app-shell">
-        <p className="error">{error}</p>
+      <main className="site-shell status-shell">
+        <section className="state-panel">
+          <p className="section-kicker">Extraction failed</p>
+          <h1>Connection failed. Try again.</h1>
+          <p className="error">{error}</p>
+          <Link className="status-link" to="/">
+            Back to extraction
+          </Link>
+        </section>
       </main>
     );
   }
-  if (!job) return <main className="app-shell">Loading</main>;
+
+  const status = job?.status ?? "queued";
 
   return (
-    <main className="app-shell">
-      <section className="status-panel">
-        <p className="eyebrow">Job {jobId}</p>
-        <h1>{job.status}</h1>
-        {job.status === "completed" ? (
+    <main className="site-shell status-shell">
+      <section className="state-panel">
+        <p className="section-kicker">Job {jobId}</p>
+        <h1>{job ? `Extraction ${job.status}` : "Preparing specimen tray"}</h1>
+        <p>
+          The crawler is separating the website into reviewable color, type,
+          spacing, and artifact layers.
+        </p>
+        <div className="status-steps" aria-label="Extraction progress">
+          {steps.map((step) => (
+            <span className={status === step ? "active" : ""} key={step}>
+              {step}
+            </span>
+          ))}
+        </div>
+        {!job ? <div className="skeleton-lines" aria-hidden="true" /> : null}
+        {job?.status === "completed" ? (
           <Link className="status-link" to={`/jobs/${jobId}/preview`}>
             Open preview
           </Link>
         ) : null}
-        {job.status === "failed" ? (
+        {job?.status === "failed" ? (
           <p className="error">{job.failureReason}</p>
         ) : null}
       </section>
