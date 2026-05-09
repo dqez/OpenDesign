@@ -77,7 +77,7 @@
 		"DEV_ORIGIN": "http://localhost:5173",
 		"FRONTEND_ORIGIN": "https://2design.pages.dev",
 		"R2_BUCKET_NAME": "2design-outputs",
-		"EXTRACTOR_URL": "https://compact-duty-caution-offerings.trycloudflare.com",
+		"EXTRACTOR_URL": "https://extractor.dqez.dev",
 		"SEPAY_BANK_ACCOUNT": "101877455638",
 		"SEPAY_BANK_NAME": "VIETINBANK",
 		"SEPAY_BANK_ACCOUNT_NAME": "TRAN DINH QUY"

@@ -1,8 +1,11 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
-import { buildOutputKeys, runDembrandt } from "./execute.js";
 import { healthPayload } from "./health.js";
-import { uploadObject } from "./r2.js";
+import {
+  getExtractionJob,
+  serializeExtractionJob,
+  startExtractionJob,
+} from "./jobs.js";
 
 export const app = new Hono();
 
@@ -20,18 +23,22 @@ app.post("/extract", async (c) => {
   }
 
   const { jobId, url } = await c.req.json<{ jobId: string; url: string }>();
-  const result = await runDembrandt(url, jobId);
-  const keys = buildOutputKeys(result.domain, jobId);
+  const job = startExtractionJob(jobId, url);
+  const statusCode = job.status === "processing" ? 202 : 200;
+  return c.json(serializeExtractionJob(job), statusCode);
+});
 
-  await uploadObject(keys.tokens, result.files.tokens, "application/json");
-  await uploadObject(
-    keys.designMd,
-    result.files.designMd,
-    "text/markdown; charset=utf-8",
-  );
-  await uploadObject(keys.brandGuide, result.files.brandGuide, "application/pdf");
+app.get("/extract/jobs/:jobId", (c) => {
+  if (!isAuthorized(c.req.header("authorization"))) {
+    return c.json({ error: "unauthorized" }, 401);
+  }
 
-  return c.json({ ok: true, domain: result.domain, files: keys });
+  const job = getExtractionJob(c.req.param("jobId"));
+  if (!job) {
+    return c.json({ error: "not_found" }, 404);
+  }
+
+  return c.json(serializeExtractionJob(job));
 });
 
 if (process.env.NODE_ENV !== "test") {

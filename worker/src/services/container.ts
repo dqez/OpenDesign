@@ -1,16 +1,32 @@
 import type { Env } from "../types";
 
-export type ContainerResult = {
-  ok: boolean;
-  domain: string;
-  files: {
-    tokens: string;
-    designMd: string;
-    brandGuide: string;
-  };
+export type ContainerFiles = {
+  tokens: string;
+  designMd: string;
+  brandGuide: string;
 };
 
-export async function runContainerExtraction(
+export type ContainerExtractionStatus =
+  | {
+      ok: true;
+      jobId: string;
+      status: "processing";
+    }
+  | {
+      ok: true;
+      jobId: string;
+      status: "completed";
+      domain: string;
+      files: ContainerFiles;
+    }
+  | {
+      ok: false;
+      jobId: string;
+      status: "failed";
+      error: string;
+    };
+
+export async function startContainerExtraction(
   env: Env,
   payload: { jobId: string; url: string },
 ) {
@@ -24,9 +40,26 @@ export async function runContainerExtraction(
   });
   if (!response.ok) {
     const errorBody = await response.text();
-    throw new Error(`extractor_failed:${response.status}:${errorBody}`);
+    throw new Error(`extractor_start_failed:${response.status}:${errorBody}`);
   }
-  return response.json<ContainerResult>();
+  return response.json<ContainerExtractionStatus>();
+}
+
+export async function getContainerExtractionStatus(env: Env, jobId: string) {
+  const response = await fetch(
+    joinUrl(env.EXTRACTOR_URL, `/extract/jobs/${encodeURIComponent(jobId)}`),
+    {
+      method: "GET",
+      headers: {
+        authorization: `Bearer ${env.EXTRACTOR_API_KEY}`,
+      },
+    },
+  );
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw new Error(`extractor_poll_failed:${response.status}:${errorBody}`);
+  }
+  return response.json<ContainerExtractionStatus>();
 }
 
 function joinUrl(baseUrl: string, path: string) {

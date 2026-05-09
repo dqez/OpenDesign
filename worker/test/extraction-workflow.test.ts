@@ -3,7 +3,8 @@ import type { WorkflowStep } from "cloudflare:workers";
 import type { Env, ExtractionPayload } from "../src/types";
 
 const mocks = vi.hoisted(() => ({
-  runContainerExtraction: vi.fn(),
+  getContainerExtractionStatus: vi.fn(),
+  startContainerExtraction: vi.fn(),
   createSignedFileUrls: vi.fn(),
   updateJobStatus: vi.fn(),
   recordEmailLog: vi.fn(),
@@ -12,7 +13,8 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock("../src/services/container", () => ({
-  runContainerExtraction: mocks.runContainerExtraction,
+  getContainerExtractionStatus: mocks.getContainerExtractionStatus,
+  startContainerExtraction: mocks.startContainerExtraction,
 }));
 
 vi.mock("../src/services/r2", () => ({
@@ -49,6 +51,7 @@ function stepMock() {
         return callback?.();
       },
     ),
+    sleep: vi.fn(async () => undefined),
   } as unknown as WorkflowStep;
 }
 
@@ -60,8 +63,15 @@ const payload: ExtractionPayload = {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mocks.runContainerExtraction.mockResolvedValue({
+  mocks.startContainerExtraction.mockResolvedValue({
     ok: true,
+    jobId: "job_123",
+    status: "processing",
+  });
+  mocks.getContainerExtractionStatus.mockResolvedValue({
+    ok: true,
+    jobId: "job_123",
+    status: "completed",
     domain: "neon.com",
     files: {
       tokens: "neon.com/job_123/tokens.json",
@@ -81,18 +91,14 @@ beforeEach(() => {
   mocks.recordEmailLog.mockResolvedValue({ success: true });
 });
 
-it("marks jobs completed after container extraction", async () => {
-  const db = {
-    prepare: vi.fn(() => ({
-      bind: vi.fn(() => ({
-        first: vi.fn().mockResolvedValue(null),
-      })),
-    })),
-  };
+it("marks jobs completed after polling container extraction", async () => {
+  const db = dbMock();
+  const step = stepMock();
+
   await runExtractionWorkflow(
     { DB: db, RESEND_API_KEY: "resend-secret" } as unknown as Env,
     payload,
-    stepMock(),
+    step,
   );
 
   expect(mocks.updateJobStatus).toHaveBeenCalledWith(
@@ -100,10 +106,15 @@ it("marks jobs completed after container extraction", async () => {
     "job_123",
     "processing",
   );
-  expect(mocks.runContainerExtraction).toHaveBeenCalledWith(
+  expect(mocks.startContainerExtraction).toHaveBeenCalledWith(
     { DB: db, RESEND_API_KEY: "resend-secret" },
     { jobId: "job_123", url: "https://neon.com/" },
   );
+  expect(mocks.getContainerExtractionStatus).toHaveBeenCalledWith(
+    { DB: db, RESEND_API_KEY: "resend-secret" },
+    "job_123",
+  );
+  expect(stepSleepMock(step)).not.toHaveBeenCalled();
   expect(mocks.updateJobStatus).toHaveBeenCalledWith(
     db,
     "job_123",
@@ -132,8 +143,46 @@ it("marks jobs completed after container extraction", async () => {
   );
 });
 
-it("marks jobs failed when extraction throws", async () => {
-  mocks.runContainerExtraction.mockRejectedValue(new Error("container boom"));
+it("sleeps and polls again while extraction is still processing", async () => {
+  mocks.getContainerExtractionStatus
+    .mockResolvedValueOnce({
+      ok: true,
+      jobId: "job_123",
+      status: "processing",
+    })
+    .mockResolvedValueOnce({
+      ok: true,
+      jobId: "job_123",
+      status: "completed",
+      domain: "neon.com",
+      files: {
+        tokens: "neon.com/job_123/tokens.json",
+        designMd: "neon.com/job_123/DESIGN.md",
+        brandGuide: "neon.com/job_123/brand-guide.pdf",
+      },
+    });
+  const step = stepMock();
+
+  await runExtractionWorkflow(
+    { DB: dbMock(), RESEND_API_KEY: "resend-secret" } as unknown as Env,
+    payload,
+    step,
+  );
+
+  expect(mocks.getContainerExtractionStatus).toHaveBeenCalledTimes(2);
+  expect(stepSleepMock(step)).toHaveBeenCalledWith(
+    "wait-for-extraction-1",
+    "15 seconds",
+  );
+});
+
+it("marks jobs failed when extraction status is failed", async () => {
+  mocks.getContainerExtractionStatus.mockResolvedValue({
+    ok: false,
+    jobId: "job_123",
+    status: "failed",
+    error: "container boom",
+  });
 
   await expect(
     runExtractionWorkflow({ DB: {} } as Env, payload, stepMock()),
@@ -143,6 +192,20 @@ it("marks jobs failed when extraction throws", async () => {
     {},
     "job_123",
     "failed",
-    { failureReason: "container boom" },
+    { failureReason: "extractor_failed:container boom" },
   );
 });
+
+function dbMock() {
+  return {
+    prepare: vi.fn(() => ({
+      bind: vi.fn(() => ({
+        first: vi.fn().mockResolvedValue(null),
+      })),
+    })),
+  };
+}
+
+function stepSleepMock(step: WorkflowStep) {
+  return (step as never as { sleep: ReturnType<typeof vi.fn> }).sleep;
+}
