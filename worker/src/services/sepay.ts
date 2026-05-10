@@ -73,8 +73,11 @@ export function isAllowedSePayIp(ip: string) {
 }
 
 function normalizeOrderCode(value: string | null | undefined) {
-  const match = value?.match(/2D-[A-Z0-9]{6}/i);
-  return match ? match[0].toUpperCase() : null;
+  const match = value?.match(/2D-?[A-Z0-9]{6}/i);
+  if (!match) return null;
+
+  const compactOrderCode = match[0].replace("-", "").toUpperCase();
+  return `${compactOrderCode.slice(0, 2)}-${compactOrderCode.slice(2)}`;
 }
 
 function constantTimeEqual(a: string, b: string) {

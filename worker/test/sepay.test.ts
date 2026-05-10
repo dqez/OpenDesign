@@ -40,6 +40,15 @@ it("extracts order code from transformed bank memo content", () => {
   ).toBe("2D-A1B2C3");
 });
 
+it("extracts order code from bank memo content without dash", () => {
+  expect(
+    extractOrderCodeFromWebhook({
+      code: null,
+      content: "BankAPINotify chuyen tien 2DCWQQGM thanh toan",
+    }),
+  ).toBe("2D-CWQQGM");
+});
+
 it("rejects invalid order-code-like content", () => {
   expect(
     extractOrderCodeFromWebhook({

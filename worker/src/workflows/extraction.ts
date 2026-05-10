@@ -14,8 +14,8 @@ import { sendCompletionEmail } from "../services/email";
 import { createSignedFileUrls } from "../services/r2";
 import type { Env, ExtractionPayload } from "../types";
 
-const EXTRACTION_POLL_LIMIT = 80;
-const EXTRACTION_POLL_INTERVAL = "15 seconds";
+const EXTRACTION_POLL_LIMIT = 40;
+const EXTRACTION_POLL_INTERVAL = "60 seconds";
 
 export async function runExtractionWorkflow(
   env: Env,
