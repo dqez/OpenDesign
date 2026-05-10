@@ -3,7 +3,7 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { expect, it } from "vitest";
 import { Preview } from "./Preview";
 
-it("renders a designed empty preview state before files are available", () => {
+it("renders a designed loading state before preview files resolve", () => {
   const html = renderToString(
     <MemoryRouter initialEntries={["/jobs/job_123/preview"]}>
       <Routes>
@@ -13,5 +13,5 @@ it("renders a designed empty preview state before files are available", () => {
   );
 
   expect(html).toContain("Artifact preview");
-  expect(html).toContain("No files available yet");
+  expect(html).toContain("Loading fullscreen preview");
 });

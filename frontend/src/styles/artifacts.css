@@ -69,6 +69,73 @@
   gap: 8px;
 }
 
+.extract-progress-toast {
+  position: fixed;
+  right: clamp(14px, 3vw, 28px);
+  bottom: clamp(14px, 3vw, 28px);
+  z-index: 20;
+  display: grid;
+  width: min(320px, calc(100vw - 24px));
+  gap: 10px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+  box-shadow: 0 24px 70px rgba(23, 31, 19, 0.18);
+  padding: 12px;
+  backdrop-filter: blur(18px);
+}
+
+.toast-header,
+.toast-job,
+.toast-actions {
+  display: grid;
+  gap: 8px;
+}
+
+.toast-job-list {
+  display: grid;
+  gap: 10px;
+}
+
+.toast-job {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2);
+  padding: 12px;
+}
+
+.toast-job strong {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.toast-job p {
+  margin: 4px 0 0;
+  color: var(--color-ink-soft);
+  font-size: 0.9rem;
+}
+
+.toast-actions {
+  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+}
+
+.toast-actions a,
+.toast-actions button {
+  min-height: 38px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 0.86rem;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  padding: 9px 10px;
+}
+
 .download-list a {
   min-height: 44px;
   text-decoration: none;
@@ -124,6 +191,63 @@
   }
 }
 
+.status-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.status-email-note {
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-accent-soft);
+  color: var(--color-ink-soft);
+  padding: 14px;
+}
+
+.status-email-note strong {
+  color: var(--color-ink);
+}
+
+.job-preview-shell {
+  display: grid;
+  gap: 18px;
+  min-height: 100dvh;
+  background: var(--color-surface-2);
+  padding: clamp(14px, 2.4vw, 28px);
+}
+
+.job-preview-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--color-surface) 90%, transparent);
+  box-shadow: var(--shadow-soft);
+  padding: 14px;
+  backdrop-filter: blur(18px);
+}
+
+.job-preview-toolbar h1 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.job-preview-shell > .design-preview {
+  min-height: calc(100dvh - 132px);
+  border-radius: var(--radius-lg);
+}
+
+.job-preview-shell .raw-design-panel {
+  background: var(--color-surface);
+}
+
 @media (max-width: 860px) {
   .site-shell {
     padding: 14px;
@@ -133,7 +257,8 @@
   .process-section,
   .payment-panel,
   .site-footer,
-  .preview-toolbar {
+  .preview-toolbar,
+  .job-preview-toolbar {
     grid-template-columns: 1fr;
     flex-direction: column;
     align-items: stretch;

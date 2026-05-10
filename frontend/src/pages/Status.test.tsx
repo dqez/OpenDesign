@@ -14,4 +14,5 @@ it("renders a designed loading state before job data arrives", () => {
 
   expect(html).toContain("Preparing specimen tray");
   expect(html).toContain("job_123");
+  expect(html).toContain("Back home");
 });

@@ -105,10 +105,17 @@
   gap: 8px;
 }
 
-.design-tabs button {
-  border-color: transparent;
+.design-tabs a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
   background: var(--detail-panel-2);
   color: var(--detail-ink-soft);
+  padding: 0 18px;
+  text-decoration: none;
 }
 
 .design-tabs .active {

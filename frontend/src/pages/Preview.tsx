@@ -1,66 +1,49 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { getJob, type JobResponse } from "../api";
-
-type TokenValue = {
-  value?: unknown;
-  type?: string;
-  $value?: unknown;
-  $type?: string;
-};
-export interface TokenTree {
-  [key: string]: TokenValue | TokenTree;
-}
-
-type FlatToken = { name: string; value: unknown; type?: string };
-
-export function flattenTokens(
-  tree: TokenTree | unknown,
-  prefix = "",
-): FlatToken[] {
-  if (!isRecord(tree)) return [];
-
-  return Object.entries(tree).flatMap(([key, raw]) => {
-    const name = prefix ? `${prefix}.${key}` : key;
-    if (!isRecord(raw)) return [];
-
-    const token = raw as TokenValue;
-    if ("value" in token || "$value" in token) {
-      return [{ name, value: token.value ?? token.$value, type: token.type ?? token.$type }];
-    }
-    return flattenTokens(raw as TokenTree, name);
-  });
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function isColor(value: unknown) {
-  return typeof value === "string" && /^#([0-9a-f]{3,8})$/i.test(value);
-}
+import { DesignPreview } from "../components/design-preview";
+import { RawDesignMdPanel } from "../components/raw-design-md-panel";
+import { getClientJob, updateClientJobFromResponse } from "../client-jobs";
+import { fetchJsonArtifact, fetchTextArtifact } from "../design-artifacts";
+import {
+  createDesignPreviewModel,
+  type DesignPreviewModel,
+} from "../design-token-parser";
 
 export function Preview() {
   const { jobId = "" } = useParams();
   const [job, setJob] = useState<JobResponse | null>(null);
-  const [tokens, setTokens] = useState<FlatToken[]>([]);
+  const [model, setModel] = useState<DesignPreviewModel | null>(null);
+  const [markdown, setMarkdown] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let active = true;
+
     async function load() {
       try {
         const next = await getJob(jobId);
+        const [tokens, designMd] = await Promise.all([
+          fetchJsonArtifact(next.files?.tokens?.url),
+          fetchTextArtifact(next.files?.designMd?.url),
+        ]);
+        if (!active) return;
+
         setJob(next);
-        if (next.files?.tokens?.url) {
-          const response = await fetch(next.files.tokens.url);
-          const tokenJson = (await response.json()) as TokenTree;
-          setTokens(flattenTokens(tokenJson));
-        }
+        setMarkdown(designMd);
+        setModel(tokens ? createDesignPreviewModel(tokens) : null);
+        updateClientJobFromResponse(next);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Preview failed");
+        if (active) {
+          setError(err instanceof Error ? err.message : "Preview failed");
+        }
       }
     }
+
     void load();
+    return () => {
+      active = false;
+    };
   }, [jobId]);
 
   if (error) {
@@ -70,97 +53,62 @@ export function Preview() {
           <p className="section-kicker">Artifact preview</p>
           <h1>Preview failed.</h1>
           <p className="error">{error}</p>
+          <Link className="status-link" to="/">
+            Back home
+          </Link>
         </section>
       </main>
     );
   }
 
-  if (!job?.files) {
+  if (!job) {
     return (
       <main className="site-shell preview-layout">
         <section className="state-panel">
           <p className="section-kicker">Artifact preview</p>
-          <h1>No files available yet</h1>
-          <p>The extraction job has not published tokens or guide files.</p>
+          <h1>Loading fullscreen preview</h1>
+          <p>The extraction job is publishing its design artifacts.</p>
           <div className="skeleton-lines" aria-hidden="true" />
         </section>
       </main>
     );
   }
 
-  const colors = tokens.filter((token) => isColor(token.value));
-  const typography = tokens.filter(
-    (token) =>
-      token.name.toLowerCase().includes("font") || token.type === "typography",
-  );
-  const spacing = tokens.filter(
-    (token) =>
-      token.name.toLowerCase().includes("spacing") ||
-      token.name.toLowerCase().includes("space"),
-  );
-  const effects = tokens.filter(
-    (token) =>
-      token.name.toLowerCase().includes("shadow") ||
-      token.name.toLowerCase().includes("radius"),
-  );
+  const clientJob = getClientJob(jobId);
+  const brand = clientJob?.url ? hostname(clientJob.url) : `Job ${jobId}`;
+  const sourceUrl = clientJob?.url ?? `/jobs/${jobId}`;
 
   return (
-    <main className="site-shell preview-layout">
-      <section className="preview-toolbar">
+    <main className="job-preview-shell">
+      <section className="job-preview-toolbar">
         <div>
-          <p className="section-kicker">Artifact preview</p>
-          <h1>Extracted design memory</h1>
+          <p className="section-kicker">Fullscreen preview</p>
+          <h1>{brand}</h1>
         </div>
-        <nav className="download-list" aria-label="Download artifacts">
-          {job.files.tokens?.url ? <a href={job.files.tokens.url}>tokens.json</a> : null}
-          {job.files.designMd?.url ? <a href={job.files.designMd.url}>DESIGN.md</a> : null}
-          {job.files.brandGuide?.url ? (
+        <nav className="download-list" aria-label="Preview actions">
+          <Link to="/">Back home</Link>
+          <Link to={`/jobs/${jobId}`}>Job status</Link>
+          {job.files?.tokens?.url ? <a href={job.files.tokens.url}>tokens.json</a> : null}
+          {job.files?.designMd?.url ? <a href={job.files.designMd.url}>DESIGN.md</a> : null}
+          {job.files?.brandGuide?.url ? (
             <a href={job.files.brandGuide.url}>brand-guide.pdf</a>
           ) : null}
         </nav>
       </section>
 
-      <section className="token-section">
-        <h2>Color specimens</h2>
-        <div className="color-grid">
-          {colors.map((token) => (
-            <article className="color-token" key={token.name}>
-              <span className="swatch" style={{ background: String(token.value) }} />
-              <strong>{token.name}</strong>
-              <code>{String(token.value)}</code>
-            </article>
-          ))}
-          {colors.length === 0 ? <p>No color tokens detected.</p> : null}
-        </div>
-      </section>
+      <DesignPreview brand={brand} sourceUrl={sourceUrl} model={model} mode="light" />
 
-      <TokenList title="Type specimens" tokens={typography} />
-      <TokenList title="Spacing, radius, shadows" tokens={[...spacing, ...effects]} />
-
-      {job.files.brandGuide?.url ? (
-        <iframe
-          className="brand-guide"
-          title="Brand guide"
-          src={job.files.brandGuide.url}
-        />
+      {job.files?.designMd?.url ? (
+        <RawDesignMdPanel markdown={markdown} downloadUrl={job.files.designMd.url} />
       ) : null}
     </main>
   );
 }
 
-function TokenList({ title, tokens }: { title: string; tokens: FlatToken[] }) {
-  return (
-    <section className="token-section">
-      <h2>{title}</h2>
-      <div className="token-list">
-        {tokens.map((token) => (
-          <article key={token.name}>
-            <strong>{token.name}</strong>
-            <code>{JSON.stringify(token.value)}</code>
-          </article>
-        ))}
-        {tokens.length === 0 ? <p>No matching tokens detected.</p> : null}
-      </div>
-    </section>
-  );
+function hostname(url: string) {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return url;
+  }
 }

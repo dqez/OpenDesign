@@ -2,10 +2,12 @@ import { type FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createExtraction, getOrderStatus, type ExtractResponse } from "../api";
 import { DesignCatalog } from "../components/design-catalog";
+import { ExtractProgressToast } from "../components/extract-progress-toast";
 import { PinnedProcess } from "../components/pinned-process";
 import { SiteFooter } from "../components/site-footer";
 import { SiteHeader } from "../components/site-header";
 import { TokenBento } from "../components/TokenBento";
+import { upsertClientJob } from "../client-jobs";
 
 type PaymentResponse = Extract<ExtractResponse, { requiresPayment: true }>;
 
@@ -14,6 +16,10 @@ export function Home() {
   const [url, setUrl] = useState("");
   const [email, setEmail] = useState("");
   const [payment, setPayment] = useState<PaymentResponse | null>(null);
+  const [paymentJobInput, setPaymentJobInput] = useState<{
+    url: string;
+    email: string;
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -22,10 +28,22 @@ export function Home() {
     setSubmitting(true);
     setError(null);
     try {
-      const response = await createExtraction({ url, email });
+      const submittedUrl = url.trim();
+      const submittedEmail = email.trim();
+      const response = await createExtraction({
+        url: submittedUrl,
+        email: submittedEmail,
+      });
       if ("requiresPayment" in response) {
+        setPaymentJobInput({ url: submittedUrl, email: submittedEmail });
         setPayment(response);
       } else {
+        upsertClientJob({
+          jobId: response.jobId,
+          url: submittedUrl,
+          email: submittedEmail,
+          status: response.status,
+        });
         navigate(`/jobs/${response.jobId}`);
       }
     } catch (err) {
@@ -43,6 +61,14 @@ export function Home() {
         const status = await getOrderStatus(payment.orderCode);
         if (status.jobId) {
           window.clearInterval(timer);
+          if (paymentJobInput) {
+            upsertClientJob({
+              jobId: status.jobId,
+              url: paymentJobInput.url,
+              email: paymentJobInput.email,
+              status: "queued",
+            });
+          }
           navigate(`/jobs/${status.jobId}`);
         }
         if (status.status === "expired" || status.status === "cancelled") {
@@ -55,7 +81,7 @@ export function Home() {
     }, 5000);
 
     return () => window.clearInterval(timer);
-  }, [navigate, payment]);
+  }, [navigate, payment, paymentJobInput]);
 
   return (
     <main className="site-shell">
@@ -123,6 +149,7 @@ export function Home() {
       <TokenBento />
       <PinnedProcess />
       <SiteFooter />
+      <ExtractProgressToast />
     </main>
   );
 }

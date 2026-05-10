@@ -31,10 +31,19 @@ type DetailState =
 
 export function DesignMdPage() {
   const { brand = "" } = useParams();
-  const [tab, setTab] = useState<ActiveTab>("preview");
+  const [tab, setTab] = useState<ActiveTab>(() => tabFromHash());
   const [detailTheme, setDetailTheme] = useState<DetailTheme>("light");
   const [state, setState] = useState<DetailState>({ status: "loading" });
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    function syncTabFromHash() {
+      setTab(tabFromHash());
+    }
+
+    window.addEventListener("hashchange", syncTabFromHash);
+    return () => window.removeEventListener("hashchange", syncTabFromHash);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -148,20 +157,22 @@ export function DesignMdPage() {
             </Link>
 
             <nav className="design-tabs" aria-label="Design detail views">
-              <button
+              <a
                 className={tab === "preview" ? "active" : ""}
-                type="button"
+                href="#preview"
+                aria-current={tab === "preview" ? "page" : undefined}
                 onClick={() => setTab("preview")}
               >
                 Preview
-              </button>
-              <button
+              </a>
+              <a
                 className={tab === "design-md" ? "active" : ""}
-                type="button"
+                href="#design-md"
+                aria-current={tab === "design-md" ? "page" : undefined}
                 onClick={() => setTab("design-md")}
               >
                 DESIGN.md
-              </button>
+              </a>
             </nav>
 
             <div className="design-detail-actions">
@@ -223,6 +234,11 @@ export function DesignMdPage() {
       <SiteFooter />
     </main>
   );
+}
+
+function tabFromHash(): ActiveTab {
+  if (typeof window === "undefined") return "preview";
+  return window.location.hash === "#design-md" ? "design-md" : "preview";
 }
 
 function DetailStatePanel({
