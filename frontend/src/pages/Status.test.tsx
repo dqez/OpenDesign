@@ -15,4 +15,7 @@ it("renders a designed loading state before job data arrives", () => {
   expect(html).toContain("Preparing specimen tray");
   expect(html).toContain("job_123");
   expect(html).toContain("Back home");
+  expect(html).toContain("Queued");
+  expect(html).toContain("Waiting for a crawler slot");
+  expect(html).not.toContain("status-steps");
 });

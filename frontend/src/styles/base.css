@@ -41,7 +41,7 @@ body {
     linear-gradient(180deg, #f9faf7 0%, var(--color-canvas) 52%, #eef2eb 100%);
 }
 
-body::after {
+/* body::after {
   position: fixed;
   inset: 0;
   pointer-events: none;
@@ -49,7 +49,7 @@ body::after {
   opacity: 0.035;
   background-image: linear-gradient(rgba(23, 24, 21, 0.75) 1px, transparent 1px);
   background-size: 100% 5px;
-}
+} */
 
 button,
 input {
