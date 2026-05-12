@@ -13,7 +13,7 @@ it("builds stable R2 keys for a job", () => {
 });
 
 describe("findDembrandtOutputFiles", () => {
-  const workdir = join(tmpdir(), `2design-output-test-${process.pid}`);
+  const workdir = join(tmpdir(), `opendesign-output-test-${process.pid}`);
 
   afterEach(async () => {
     await rm(workdir, { recursive: true, force: true });

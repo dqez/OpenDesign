@@ -2,7 +2,7 @@
 
 ## Project
 
-2Design is a Cloudflare-native service for extracting design tokens and brand guide assets from a submitted website URL.
+OpenDesign is a Cloudflare-native service for extracting design tokens and brand guide assets from a submitted website URL.
 
 The backend wraps the `dembrandt` CLI so users can submit a URL and email from the frontend, receive a queued extraction job, and download generated artifacts without installing local tooling.
 
@@ -23,7 +23,7 @@ Primary success targets from the PRD:
 
 Read these before implementation:
 
-- `2design-backend-prd-vi.md`: product and technical requirements.
+- `opendesign-backend-prd-vi.md`: product and technical requirements.
 - `docs/planB/README.md`: implementation strategy and mandatory fixes.
 - `docs/planB/phase*.md`: task-level execution plans.
 
@@ -32,7 +32,7 @@ Conflict order:
 1. Current user instruction.
 2. `docs/planB/README.md` mandatory patch summary and execution rules.
 3. Phase plan for the active task.
-4. `2design-backend-prd-vi.md`.
+4. `opendesign-backend-prd-vi.md`.
 5. Existing code patterns.
 
 ## Architecture
@@ -159,7 +159,7 @@ Worker:
 cd worker
 npm test
 npm run typecheck
-npx wrangler d1 migrations apply 2design-prod --local
+npx wrangler d1 migrations apply opendesign-prod --local
 ```
 
 Container:

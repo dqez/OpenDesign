@@ -1,4 +1,4 @@
-# 2Design Frontend Redesign Codex
+# OpenDesign Frontend Redesign Codex
 
 Research date: 2026-05-09
 Scope: `.worktrees/planb-backend/frontend`

@@ -28,7 +28,7 @@
 
 ```json
 {
-  "name": "2design-worker",
+  "name": "opendesign-worker",
   "private": true,
   "type": "module",
   "scripts": {
@@ -133,7 +133,7 @@ import { Hono } from "hono";
 import type { Env } from "../types";
 
 export const healthRoute = new Hono<{ Bindings: Env }>().get("/health", (c) => {
-  return c.json({ ok: true, service: "2design-api" });
+  return c.json({ ok: true, service: "opendesign-api" });
 });
 ```
 
@@ -198,7 +198,7 @@ it("returns health status", async () => {
   expect(response.status).toBe(200);
   await expect(response.json()).resolves.toMatchObject({
     ok: true,
-    service: "2design-api",
+    service: "opendesign-api",
   });
 });
 ```
@@ -240,7 +240,7 @@ git commit -m "chore: scaffold worker package"
 
 ```json
 {
-  "name": "2design-container",
+  "name": "opendesign-container",
   "private": true,
   "type": "module",
   "scripts": {
@@ -249,7 +249,7 @@ git commit -m "chore: scaffold worker package"
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "build": "tsc",
-    "build:image": "docker build -t 2design-dembrandt ."
+    "build:image": "docker build -t opendesign-dembrandt ."
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.0.0",
@@ -287,7 +287,7 @@ git commit -m "chore: scaffold worker package"
 
 ```ts
 export function healthPayload() {
-  return { ok: true, service: "2design-dembrandt-container" };
+  return { ok: true, service: "opendesign-dembrandt-container" };
 }
 ```
 
@@ -364,7 +364,7 @@ git commit -m "chore: scaffold extraction container"
 
 ```json
 {
-  "name": "2design-frontend",
+  "name": "opendesign-frontend",
   "private": true,
   "type": "module",
   "scripts": {
@@ -426,7 +426,7 @@ export default defineConfig({
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>2Design</title>
+    <title>OpenDesign</title>
   </head>
   <body>
     <div id="root"></div>
@@ -454,7 +454,7 @@ createRoot(document.getElementById("root")!).render(
 
 ```tsx
 export function App() {
-  return <main className="app-shell">2Design</main>;
+  return <main className="app-shell">OpenDesign</main>;
 }
 ```
 

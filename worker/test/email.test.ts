@@ -26,7 +26,7 @@ it("sends completion email with expiring download links", async () => {
   expect(send).toHaveBeenCalledWith(
     expect.objectContaining({
       to: "user@example.com",
-      subject: "Your 2Design extraction is ready",
+      subject: "Your OpenDesign extraction is ready",
       html: expect.stringContaining("https://signed/tokens"),
     }),
   );

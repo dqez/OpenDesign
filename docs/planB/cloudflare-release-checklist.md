@@ -2,10 +2,10 @@
 
 ## Resources
 
-- [ ] D1 database: `2design-prod`
+- [ ] D1 database: `opendesign-prod`
 - [ ] D1 preview database configured in `worker/wrangler.jsonc`
 - [ ] KV namespace bound as `KV`
-- [ ] R2 bucket: `2design-outputs`
+- [ ] R2 bucket: `opendesign-outputs`
 - [ ] Queue: `extraction-queue`
 - [ ] Workflow binding: `EXTRACTION_WORKFLOW`
 - [ ] Durable Object binding: `DEMBRANDT_CONTAINER` class `DembrandtContainer`
@@ -25,7 +25,7 @@
 
 ```bash
 cd worker
-npx wrangler d1 migrations apply 2design-prod --remote
+npx wrangler d1 migrations apply opendesign-prod --remote
 npx wrangler deploy
 
 cd frontend

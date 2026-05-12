@@ -40,7 +40,7 @@ export function SiteFooter() {
       <div className="footer-directory">
         <div className="footer-brand-block">
           <a className="footer-logo" href="/">
-            2Design
+            OpenDesign
           </a>
           <p>
             Token extraction for teams that need practical design context in
@@ -56,7 +56,7 @@ export function SiteFooter() {
       </div>
 
       <div className="footer-bottom">
-        <span>(c) 2026 2Design</span>
+        <span>(c) 2026 OpenDesign</span>
         <span>URL in. Tokens out. Review before handoff.</span>
       </div>
     </footer>

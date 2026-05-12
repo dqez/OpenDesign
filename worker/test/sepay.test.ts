@@ -13,25 +13,43 @@ it("builds QR URL with amount and order code", () => {
     bankName: "Vietcombank",
     accountNumber: "0123456789",
     amount: 25000,
-    orderCode: "2D-A1B2C3",
+    orderCode: "OD-A1B2C3",
   });
   expect(url).toContain("amount=25000");
-  expect(url).toContain("des=2D-A1B2C3");
+  expect(url).toContain("des=OD-A1B2C3");
 });
 
 it("extracts order code from webhook code field first", () => {
   expect(
-    extractOrderCodeFromWebhook({ code: "2D-A1B2C3", content: "ignored" }),
-  ).toBe("2D-A1B2C3");
+    extractOrderCodeFromWebhook({ code: "OD-A1B2C3", content: "ignored" }),
+  ).toBe("OD-A1B2C3");
 });
 
 it("normalizes order codes from lowercase webhook code", () => {
   expect(
-    extractOrderCodeFromWebhook({ code: "2d-a1b2c3", content: "ignored" }),
-  ).toBe("2D-A1B2C3");
+    extractOrderCodeFromWebhook({ code: "od-a1b2c3", content: "ignored" }),
+  ).toBe("OD-A1B2C3");
 });
 
 it("extracts order code from transformed bank memo content", () => {
+  expect(
+    extractOrderCodeFromWebhook({
+      code: null,
+      content: "BankAPINotify chuyen tien od-a1b2c3 thanh toan",
+    }),
+  ).toBe("OD-A1B2C3");
+});
+
+it("extracts order code from bank memo content without dash", () => {
+  expect(
+    extractOrderCodeFromWebhook({
+      code: null,
+      content: "BankAPINotify chuyen tien ODCWQQGM thanh toan",
+    }),
+  ).toBe("OD-CWQQGM");
+});
+
+it("keeps legacy 2D order codes readable for pending payments", () => {
   expect(
     extractOrderCodeFromWebhook({
       code: null,
@@ -40,20 +58,11 @@ it("extracts order code from transformed bank memo content", () => {
   ).toBe("2D-A1B2C3");
 });
 
-it("extracts order code from bank memo content without dash", () => {
-  expect(
-    extractOrderCodeFromWebhook({
-      code: null,
-      content: "BankAPINotify chuyen tien 2DCWQQGM thanh toan",
-    }),
-  ).toBe("2D-CWQQGM");
-});
-
 it("rejects invalid order-code-like content", () => {
   expect(
     extractOrderCodeFromWebhook({
       code: null,
-      content: "payment 2D-ABC",
+      content: "payment OD-ABC",
     }),
   ).toBeNull();
 });

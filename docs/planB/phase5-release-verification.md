@@ -25,7 +25,7 @@ Push-Location worker
 npm run types
 npm test
 npm run typecheck
-npx wrangler d1 migrations apply 2design-prod --local
+npx wrangler d1 migrations apply opendesign-prod --local
 Pop-Location
 
 Push-Location container
@@ -133,10 +133,10 @@ git commit -m "test: add local worker smoke test"
 
 ## Resources
 
-- [ ] D1 database: `2design-prod`
+- [ ] D1 database: `opendesign-prod`
 - [ ] D1 preview database configured in `worker/wrangler.jsonc`
 - [ ] KV namespace bound as `KV`
-- [ ] R2 bucket: `2design-outputs`
+- [ ] R2 bucket: `opendesign-outputs`
 - [ ] Queue: `extraction-queue`
 - [ ] Workflow binding: `EXTRACTION_WORKFLOW`
 - [ ] Durable Object binding: `DEMBRANDT_CONTAINER` class `DembrandtContainer`
@@ -156,7 +156,7 @@ git commit -m "test: add local worker smoke test"
 
 ```bash
 cd worker
-npx wrangler d1 migrations apply 2design-prod --remote
+npx wrangler d1 migrations apply opendesign-prod --remote
 npx wrangler deploy
 
 cd frontend
@@ -227,7 +227,7 @@ git commit -m "docs: map Plan B tasks to PRD coverage"
 
 ### SePay Hardening Verification
 
-- [ ] Lowercase webhook content such as `2d-a1b2c3` matches order `2D-A1B2C3`.
+- [ ] Lowercase webhook content such as `od-a1b2c3` matches order `OD-A1B2C3`.
 - [ ] Overpayment marks the order paid and creates exactly one job.
 - [ ] Underpayment does not create a job.
 - [ ] Duplicate processed webhook returns `200` and creates no second job.

@@ -73,7 +73,7 @@ export function isAllowedSePayIp(ip: string) {
 }
 
 function normalizeOrderCode(value: string | null | undefined) {
-  const match = value?.match(/2D-?[A-Z0-9]{6}/i);
+  const match = value?.match(/(?:OD|2D)-?[A-Z0-9]{6}/i);
   if (!match) return null;
 
   const compactOrderCode = match[0].replace("-", "").toUpperCase();

@@ -46,7 +46,7 @@ export async function findDembrandtOutputFiles(workdir: string, domain: string) 
 
 export async function runDembrandt(url: string, jobId: string) {
   const domain = new URL(url).hostname.replace(/^www\./, "");
-  const workdir = join(tmpdir(), `2design-${jobId}`);
+  const workdir = join(tmpdir(), `opendesign-${jobId}`);
   await mkdir(workdir, { recursive: true });
 
   try {

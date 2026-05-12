@@ -19,10 +19,10 @@ Ghi lại Account ID từ whoami. Lát nữa dùng cho secret CF_ACCOUNT_ID.
 
 Chạy trong worker:
 
-npx wrangler d1 create 2design-prod
-npx wrangler d1 create 2design-preview
-npx wrangler kv namespace create 2design-kv
-npx wrangler r2 bucket create 2design-outputs
+npx wrangler d1 create opendesign-prod
+npx wrangler d1 create opendesign-preview
+npx wrangler kv namespace create opendesign-kv
+npx wrangler r2 bucket create opendesign-outputs
 npx wrangler queues create extraction-queue
 
 Sau mỗi lệnh, Cloudflare sẽ in ra ID/config. Cần copy:
@@ -47,7 +47,7 @@ Thay các placeholder:
 "d1_databases": [
 {
 "binding": "DB",
-"database_name": "2design-prod",
+"database_name": "opendesign-prod",
 "database_id": "<D1_PROD_DATABASE_ID>",
 "preview_database_id": "<D1_PREVIEW_DATABASE_ID>",
 "migrations_dir": "migrations",
@@ -63,7 +63,7 @@ Thay các placeholder:
 
 Nếu chưa có custom domain Pages, giữ tạm:
 
-"FRONTEND_ORIGIN": "https://2design.pages.dev"
+"FRONTEND_ORIGIN": "https://opendesign.pages.dev"
 
 Nếu Pages project tên khác, lát nữa quay lại sửa đúng origin.
 
@@ -73,7 +73,7 @@ Vào Cloudflare Dashboard:
 
 R2 → Manage R2 API Tokens → Create API token
 
-Chọn bucket 2design-outputs, quyền tối thiểu nên có Object Read. Nếu muốn đơn giản giai đoạn staging, dùng Read/Write cho
+Chọn bucket opendesign-outputs, quyền tối thiểu nên có Object Read. Nếu muốn đơn giản giai đoạn staging, dùng Read/Write cho
 bucket này.
 
 Ghi lại:
@@ -114,11 +114,11 @@ Nếu wrangler types làm thay đổi worker-configuration.d.ts, đó là bình 
 
 7. Apply D1 migration lên remote
 
-npx wrangler d1 migrations apply 2design-prod --remote
+npx wrangler d1 migrations apply opendesign-prod --remote
 
 Kiểm tra bảng đã có:
 
-npx wrangler d1 execute 2design-prod --remote --command "SELECT name FROM sqlite_master WHERE type='table';"
+npx wrangler d1 execute opendesign-prod --remote --command "SELECT name FROM sqlite_master WHERE type='table';"
 
 Phải thấy các bảng kiểu jobs, orders, payments, webhook_events, email_logs, audit_events.
 
@@ -130,27 +130,27 @@ npx wrangler deploy
 
 Sau deploy, ghi lại Worker URL, thường dạng:
 
-https://2design-api.<subdomain>.workers.dev
+https://opendesign-api.<subdomain>.workers.dev
 
 Test health:
 
-Invoke-RestMethod "https://2design-api.<subdomain>.workers.dev/api/health"
+Invoke-RestMethod "https://opendesign-api.<subdomain>.workers.dev/api/health"
 
 9. Deploy frontend lên Cloudflare Pages
 
 Sang frontend:
 
 cd ..\frontend
-$env:VITE_API_BASE="https://2design-api.<subdomain>.workers.dev"
+$env:VITE_API_BASE="https://opendesign-api.<subdomain>.workers.dev"
 npm run build
-npx wrangler pages project create 2design
-npx wrangler pages deploy dist --project-name 2design --branch production
+npx wrangler pages project create opendesign
+npx wrangler pages deploy dist --project-name opendesign --branch production
 
-Nếu project 2design đã tồn tại, lệnh pages project create có thể báo đã có; bỏ qua và chạy deploy.
+Nếu project opendesign đã tồn tại, lệnh pages project create có thể báo đã có; bỏ qua và chạy deploy.
 
 Sau deploy, bạn sẽ có URL Pages, ví dụ:
 
-https://2design.pages.dev
+https://opendesign.pages.dev
 
 Nếu URL thực tế khác, quay lại worker/wrangler.jsonc, sửa FRONTEND_ORIGIN, rồi deploy Worker lại:
 
@@ -164,19 +164,19 @@ Trong SePay Dashboard:
 - Event: Có tiền vào
 - URL:
 
-  https://2design-api.<subdomain>.workers.dev/api/sepay/webhook
+  https://opendesign-api.<subdomain>.workers.dev/api/sepay/webhook
 
 - Auth: API Key
 - API key: đúng giá trị bạn đã set vào SEPAY_API_KEY
 - Bỏ qua nếu không có code: Có
 
-Nội dung chuyển khoản phải chứa order code dạng 2D-XXXXXX.
+Nội dung chuyển khoản phải chứa order code dạng OD-XXXXXX.
 
 11. Smoke test production thật
 
 Test health:
 
-$api="https://2design-api.<subdomain>.workers.dev"
+$api="https://opendesign-api.<subdomain>.workers.dev"
   Invoke-RestMethod "$api/api/health"
 
 Test lượt miễn phí đầu tiên:
@@ -197,14 +197,14 @@ $jobId="job_xxx"
 Theo dõi logs:
 
 cd E:\opendesign-codex\.worktrees\planb-backend\worker
-npx wrangler tail 2design-api
+npx wrangler tail opendesign-api
 
 Kiểm tra D1 remote:
 
-npx wrangler d1 execute 2design-prod --remote --command "SELECT job_id, url, email, status, paid, order_code, r2_keys,
+npx wrangler d1 execute opendesign-prod --remote --command "SELECT job_id, url, email, status, paid, order_code, r2_keys,
 failure_reason FROM jobs ORDER BY created_at DESC LIMIT 5;"
 
-npx wrangler d1 execute 2design-prod --remote --command "SELECT job_id, event_type, metadata, created_at FROM audit_events
+npx wrangler d1 execute opendesign-prod --remote --command "SELECT job_id, event_type, metadata, created_at FROM audit_events
 ORDER BY created_at DESC LIMIT 20;"
 
 Test lượt thứ hai cùng IP:
@@ -215,7 +215,7 @@ Invoke-WebRequest `    -Method Post`
 
 Kỳ vọng: HTTP 402, có orderCode, amount = 25000, qrUrl.
 
-npx wrangler d1 execute 2design-prod --remote --command "SELECT order_code, status, paid_at FROM orders ORDER BY created_at
+npx wrangler d1 execute opendesign-prod --remote --command "SELECT order_code, status, paid_at FROM orders ORDER BY created_at
 DESC LIMIT 5;"
 
 webhook_events ORDER BY received_at DESC LIMIT 5;"

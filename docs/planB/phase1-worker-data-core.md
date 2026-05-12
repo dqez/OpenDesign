@@ -110,7 +110,7 @@ CREATE INDEX IF NOT EXISTS idx_audit_events_job_created ON audit_events(job_id, 
 
 ```jsonc
 {
-  "name": "2design-api",
+  "name": "opendesign-api",
   "main": "src/index.ts",
   "compatibility_date": "2026-05-06",
   "compatibility_flags": ["nodejs_compat"],
@@ -122,14 +122,14 @@ CREATE INDEX IF NOT EXISTS idx_audit_events_job_created ON audit_events(job_id, 
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "2design-prod",
+      "database_name": "opendesign-prod",
       "database_id": "<d1-database-uuid>",
       "preview_database_id": "<d1-preview-database-uuid>",
       "migrations_dir": "migrations",
       "migrations_table": "d1_migrations",
     },
   ],
-  "r2_buckets": [{ "binding": "R2", "bucket_name": "2design-outputs" }],
+  "r2_buckets": [{ "binding": "R2", "bucket_name": "opendesign-outputs" }],
   "queues": {
     "producers": [{ "queue": "extraction-queue", "binding": "EXTRACT_QUEUE" }],
     "consumers": [
@@ -142,8 +142,8 @@ CREATE INDEX IF NOT EXISTS idx_audit_events_job_created ON audit_events(job_id, 
   },
   "vars": {
     "DEV_ORIGIN": "http://localhost:5173",
-    "FRONTEND_ORIGIN": "https://2design.pages.dev",
-    "R2_BUCKET_NAME": "2design-outputs",
+    "FRONTEND_ORIGIN": "https://opendesign.pages.dev",
+    "R2_BUCKET_NAME": "opendesign-outputs",
     "SEPAY_BANK_ACCOUNT": "",
     "SEPAY_BANK_NAME": "",
     "SEPAY_BANK_ACCOUNT_NAME": "",
@@ -157,8 +157,8 @@ Run:
 
 ```bash
 cd worker
-npx wrangler d1 migrations apply 2design-prod --local
-npx wrangler d1 execute 2design-prod --local --command "SELECT name FROM sqlite_schema WHERE type='table' ORDER BY name"
+npx wrangler d1 migrations apply opendesign-prod --local
+npx wrangler d1 execute opendesign-prod --local --command "SELECT name FROM sqlite_schema WHERE type='table' ORDER BY name"
 ```
 
 Expected: output includes `audit_events`, `email_logs`, `jobs`, `orders`, `payments`, and `webhook_events`.
@@ -254,7 +254,7 @@ import { nanoid } from "nanoid";
 
 export const createJobId = () => `job_${nanoid(12)}`;
 export const createEventId = () => `evt_${nanoid(12)}`;
-export const createOrderCode = () => `2D-${nanoid(6).toUpperCase()}`;
+export const createOrderCode = () => `OD-${nanoid(6).toUpperCase()}`;
 ```
 
 - [ ] **Step 3: Verify**

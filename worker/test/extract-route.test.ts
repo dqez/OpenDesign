@@ -51,10 +51,10 @@ it("returns payment instructions for returning IP", async () => {
   await expect(response.json()).resolves.toMatchObject({
     requiresPayment: true,
     amount: 25000,
-    orderStatusUrl: expect.stringMatching(/^\/api\/orders\/2D-/),
+    orderStatusUrl: expect.stringMatching(/^\/api\/orders\/OD-/),
     bankInfo: {
       bank: "Vietcombank",
-      content: expect.stringMatching(/^2D-/),
+      content: expect.stringMatching(/^OD-/),
     },
   });
 });
@@ -62,7 +62,7 @@ it("returns payment instructions for returning IP", async () => {
 it("reuses an active pending order for returning IP", async () => {
   const env = mockEnvWithIpCount(1, {
     pendingOrder: {
-      order_code: "2D-A1B2C3",
+      order_code: "OD-A1B2C3",
       job_id: null,
       url: "https://neon.com/",
       email: "user@example.com",
@@ -95,7 +95,7 @@ it("reuses an active pending order for returning IP", async () => {
   expect(response.status).toBe(402);
   await expect(response.json()).resolves.toMatchObject({
     requiresPayment: true,
-    orderCode: "2D-A1B2C3",
-    orderStatusUrl: "/api/orders/2D-A1B2C3",
+    orderCode: "OD-A1B2C3",
+    orderStatusUrl: "/api/orders/OD-A1B2C3",
   });
 });

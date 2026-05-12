@@ -1,8 +1,8 @@
-# 2Design Backend Plan B Implementation Plan
+# OpenDesign Backend Plan B Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build the Cloudflare-native 2Design backend from `2design-backend-prd-vi.md` v2.2, including extraction jobs, D1 long-term records, R2 output storage, SePay payments, Resend email, and a Vite frontend.
+**Goal:** Build the Cloudflare-native OpenDesign backend from `opendesign-backend-prd-vi.md` v2.2, including extraction jobs, D1 long-term records, R2 output storage, SePay payments, Resend email, and a Vite frontend.
 
 **Architecture:** Plan B uses vertical slices. Each phase produces a runnable, testable system state before the next phase adds another integration. D1 is the source of truth for jobs, orders, payments, webhooks, email logs, and audit events; KV is only used for short-lived IP usage and rate-limit counters; R2 stores generated files. Cloudflare Containers are invoked through the `@cloudflare/containers` Container class and Durable Object binding, not through an ad-hoc public HTTP endpoint.
 
@@ -43,7 +43,7 @@ These fixes are part of Plan B, not optional errata:
 ## Planned File Structure
 
 ```text
-2design/
+opendesign/
 |-- worker/
 |   |-- src/
 |   |   |-- app.ts
@@ -129,7 +129,7 @@ These fixes are part of Plan B, not optional errata:
 
 ## Cross-Phase Done Criteria
 
-- `worker`: `npm test`, `npm run typecheck`, and `npx wrangler d1 migrations apply 2design-prod --local` pass.
+- `worker`: `npm test`, `npm run typecheck`, and `npx wrangler d1 migrations apply opendesign-prod --local` pass.
 - `container`: `npm test`, `npm run typecheck`, and Docker build pass.
 - `frontend`: `npm test`, `npm run build`, and manual submit/status/preview smoke tests pass.
 - End-to-end smoke: free first extraction returns `202`, 6th request/minute returns `429`, returning extraction returns `402`, duplicate webhook returns `200` without creating a second job, completed job exposes 24h signed URLs, and email logs are written to D1.

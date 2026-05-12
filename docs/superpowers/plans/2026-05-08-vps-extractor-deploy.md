@@ -34,7 +34,7 @@ Important local note: `worker/.dev.vars` is untracked and likely contains secret
 - Modify `worker/src/services/container.ts`: keep the public function name but call the external extractor service via `fetch`.
 - Modify `worker/src/types.ts`: remove the Cloudflare Container Durable Object binding from `Env`; add `EXTRACTOR_URL` and `EXTRACTOR_API_KEY`.
 - Modify `worker/src/index.ts`: remove `@cloudflare/containers` and `DembrandtContainer` imports/exports.
-- Modify `worker/wrangler.jsonc`: remove `containers`, `durable_objects`, and container class `migrations`; add `EXTRACTOR_URL` to `vars`; remove duplicate `_2design_*` bindings if Wrangler auto-added them.
+- Modify `worker/wrangler.jsonc`: remove `containers`, `durable_objects`, and container class `migrations`; add `EXTRACTOR_URL` to `vars`; remove duplicate `_opendesign_*` bindings if Wrangler auto-added them.
 - Modify `worker/package.json`: remove `@cloudflare/containers`.
 - Modify `container/src/r2.ts`: upload directly to R2 using the S3-compatible API.
 - Modify `container/src/server.ts`: require `Authorization: Bearer ${EXTRACTOR_API_KEY}` on `POST /extract`.
@@ -255,14 +255,14 @@ export type AppEnv = { Bindings: Env };
 
 - [ ] **Step 3: Clean `worker/wrangler.jsonc`**
 
-Keep exactly one binding for each Cloudflare resource. Remove duplicate auto-created `_2design_*` bindings. Remove `containers`, `durable_objects`, and `migrations`.
+Keep exactly one binding for each Cloudflare resource. Remove duplicate auto-created `_opendesign_*` bindings. Remove `containers`, `durable_objects`, and `migrations`.
 
 Resulting shape:
 
 ```jsonc
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "2design-api",
+  "name": "opendesign-api",
   "main": "src/index.ts",
   "compatibility_date": "2026-05-06",
   "compatibility_flags": ["nodejs_compat"],
@@ -279,7 +279,7 @@ Resulting shape:
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "2design-prod",
+      "database_name": "opendesign-prod",
       "database_id": "3004f0ce-74c0-467a-a55e-0b833dd4c4ed",
       "preview_database_id": "084e9bfc-83d8-479e-bd1e-2df25430fa2c",
       "migrations_dir": "migrations",
@@ -289,7 +289,7 @@ Resulting shape:
   "r2_buckets": [
     {
       "binding": "R2",
-      "bucket_name": "2design-outputs"
+      "bucket_name": "opendesign-outputs"
     }
   ],
   "queues": {
@@ -319,8 +319,8 @@ Resulting shape:
   },
   "vars": {
     "DEV_ORIGIN": "http://localhost:5173",
-    "FRONTEND_ORIGIN": "https://2design.pages.dev",
-    "R2_BUCKET_NAME": "2design-outputs",
+    "FRONTEND_ORIGIN": "https://opendesign.pages.dev",
+    "R2_BUCKET_NAME": "opendesign-outputs",
     "EXTRACTOR_URL": "https://extractor.your-domain.com",
     "SEPAY_BANK_ACCOUNT": "101877455638",
     "SEPAY_BANK_NAME": "VIETINBANK",
@@ -403,7 +403,7 @@ describe("uploadObject", () => {
     process.env.CF_ACCOUNT_ID = "account123";
     process.env.R2_ACCESS_KEY_ID = "access123";
     process.env.R2_SECRET_ACCESS_KEY = "secret123";
-    process.env.R2_BUCKET_NAME = "2design-outputs";
+    process.env.R2_BUCKET_NAME = "opendesign-outputs";
   });
 
   it("uploads an object through the R2 S3 API", async () => {
@@ -426,7 +426,7 @@ describe("uploadObject", () => {
     expect(sendMock).toHaveBeenCalledOnce();
     const command = sendMock.mock.calls[0][0] as PutObjectCommand;
     expect(command.input).toMatchObject({
-      Bucket: "2design-outputs",
+      Bucket: "opendesign-outputs",
       Key: "neon.com/job_123/tokens.json",
       Body: new Uint8Array([123, 125]),
       ContentType: "application/json",
@@ -637,7 +637,7 @@ serve({ fetch: app.fetch, port: Number(process.env.PORT ?? 8080) });
 npm test
 npm run typecheck
 npm run build
-docker build -t 2design-dembrandt:vps .
+docker build -t opendesign-dembrandt:vps .
 ```
 
 Expected: tests pass, TypeScript exits 0, Docker image builds.
@@ -661,7 +661,7 @@ git commit -m "feat: secure external extractor endpoint"
 
 ```powershell
 cd E:\opendesign-codex\.worktrees\planb-backend\container
-docker build -t 2design-dembrandt:vps .
+docker build -t opendesign-dembrandt:vps .
 ```
 
 - [ ] **Step 2: Run image locally**
@@ -678,15 +678,15 @@ $R2SecretAccessKey = "your-r2-secret-access-key"
 Run:
 
 ```powershell
-docker rm -f 2design-extractor
-docker run -d --name 2design-extractor `
+docker rm -f opendesign-extractor
+docker run -d --name opendesign-extractor `
   -p 8080:8080 `
   -e EXTRACTOR_API_KEY="$ExtractorApiKey" `
   -e CF_ACCOUNT_ID="$CloudflareAccountId" `
   -e R2_ACCESS_KEY_ID="$R2AccessKeyId" `
   -e R2_SECRET_ACCESS_KEY="$R2SecretAccessKey" `
-  -e R2_BUCKET_NAME="2design-outputs" `
-  2design-dembrandt:vps
+  -e R2_BUCKET_NAME="opendesign-outputs" `
+  opendesign-dembrandt:vps
 ```
 
 - [ ] **Step 3: Check local health**
@@ -700,7 +700,7 @@ Expected:
 ```json
 {
   "ok": true,
-  "service": "2design-dembrandt-container"
+  "service": "opendesign-dembrandt-container"
 }
 ```
 
@@ -751,38 +751,38 @@ Cloudflare quick tunnels are temporary. If using a temporary `trycloudflare.com`
 Simple path: copy repo to VPS and build there:
 
 ```bash
-cd /opt/2design/container
-docker build -t 2design-dembrandt:vps .
+cd /opt/opendesign/container
+docker build -t opendesign-dembrandt:vps .
 ```
 
 - [ ] **Step 2: Create VPS env file**
 
-Create `/opt/2design/extractor.env` on VPS:
+Create `/opt/opendesign/extractor.env` on VPS:
 
 ```env
 EXTRACTOR_API_KEY=same-secret-used-in-wrangler-secret
 CF_ACCOUNT_ID=your-cloudflare-account-id
 R2_ACCESS_KEY_ID=your-r2-access-key-id
 R2_SECRET_ACCESS_KEY=your-r2-secret-access-key
-R2_BUCKET_NAME=2design-outputs
+R2_BUCKET_NAME=opendesign-outputs
 PORT=8080
 ```
 
 Lock down permissions:
 
 ```bash
-chmod 600 /opt/2design/extractor.env
+chmod 600 /opt/opendesign/extractor.env
 ```
 
 - [ ] **Step 3: Run extractor**
 
 ```bash
-docker rm -f 2design-extractor || true
-docker run -d --name 2design-extractor \
+docker rm -f opendesign-extractor || true
+docker run -d --name opendesign-extractor \
   --restart unless-stopped \
-  --env-file /opt/2design/extractor.env \
+  --env-file /opt/opendesign/extractor.env \
   -p 127.0.0.1:8080:8080 \
-  2design-dembrandt:vps
+  opendesign-dembrandt:vps
 ```
 
 - [ ] **Step 4: Put HTTPS in front of extractor**
@@ -791,14 +791,14 @@ Recommended: use a Cloudflare Tunnel on the VPS so the service is HTTPS and not 
 
 ```bash
 cloudflared tunnel login
-cloudflared tunnel create 2design-extractor
-cloudflared tunnel route dns 2design-extractor extractor.your-domain.com
+cloudflared tunnel create opendesign-extractor
+cloudflared tunnel route dns opendesign-extractor extractor.your-domain.com
 ```
 
 Create `/etc/cloudflared/config.yml`:
 
 ```yaml
-tunnel: 2design-extractor
+tunnel: opendesign-extractor
 credentials-file: /root/.cloudflared/<tunnel-id>.json
 
 ingress:
@@ -825,7 +825,7 @@ Expected:
 ```json
 {
   "ok": true,
-  "service": "2design-dembrandt-container"
+  "service": "opendesign-dembrandt-container"
 }
 ```
 
@@ -865,7 +865,7 @@ git commit -m "chore: point worker to vps extractor"
 - [ ] **Step 1: Check Worker health**
 
 ```powershell
-$api = "https://2design-api.<your-workers-subdomain>.workers.dev"
+$api = "https://opendesign-api.<your-workers-subdomain>.workers.dev"
 Invoke-RestMethod "$api/api/health"
 ```
 
@@ -892,7 +892,7 @@ Response includes `jobId`.
 
 ```powershell
 cd E:\opendesign-codex\.worktrees\planb-backend\worker
-npx wrangler tail 2design-api
+npx wrangler tail opendesign-api
 ```
 
 Expected: no runtime errors from Queue, Workflow, or extractor call.
@@ -900,7 +900,7 @@ Expected: no runtime errors from Queue, Workflow, or extractor call.
 - [ ] **Step 4: Watch VPS logs**
 
 ```bash
-docker logs -f 2design-extractor
+docker logs -f opendesign-extractor
 ```
 
 Expected: dembrandt starts, completes, and uploads three files.
@@ -929,9 +929,9 @@ Expected final success response:
 - [ ] **Step 6: Verify D1 remote**
 
 ```powershell
-npx wrangler d1 execute 2design-prod --remote --command "SELECT job_id, status, paid, order_code, r2_keys, failure_reason FROM jobs ORDER BY created_at DESC LIMIT 5;"
-npx wrangler d1 execute 2design-prod --remote --command "SELECT job_id, event_type, metadata, created_at FROM audit_events ORDER BY created_at DESC LIMIT 20;"
-npx wrangler d1 execute 2design-prod --remote --command "SELECT job_id, email, status, provider_message_id, sent_at FROM email_logs ORDER BY sent_at DESC LIMIT 5;"
+npx wrangler d1 execute opendesign-prod --remote --command "SELECT job_id, status, paid, order_code, r2_keys, failure_reason FROM jobs ORDER BY created_at DESC LIMIT 5;"
+npx wrangler d1 execute opendesign-prod --remote --command "SELECT job_id, event_type, metadata, created_at FROM audit_events ORDER BY created_at DESC LIMIT 20;"
+npx wrangler d1 execute opendesign-prod --remote --command "SELECT job_id, email, status, provider_message_id, sent_at FROM email_logs ORDER BY sent_at DESC LIMIT 5;"
 ```
 
 Expected:
@@ -968,9 +968,9 @@ Expected: HTTP `402`, with `orderCode`, `amount: 25000`, and `qrUrl`.
 After a real SePay transfer, verify:
 
 ```powershell
-npx wrangler d1 execute 2design-prod --remote --command "SELECT order_code, status, paid_at FROM orders ORDER BY created_at DESC LIMIT 5;"
-npx wrangler d1 execute 2design-prod --remote --command "SELECT payment_id, order_code, provider_transaction_id, amount FROM payments ORDER BY received_at DESC LIMIT 5;"
-npx wrangler d1 execute 2design-prod --remote --command "SELECT provider_event_id, order_code, status, processed_at FROM webhook_events ORDER BY received_at DESC LIMIT 5;"
+npx wrangler d1 execute opendesign-prod --remote --command "SELECT order_code, status, paid_at FROM orders ORDER BY created_at DESC LIMIT 5;"
+npx wrangler d1 execute opendesign-prod --remote --command "SELECT payment_id, order_code, provider_transaction_id, amount FROM payments ORDER BY received_at DESC LIMIT 5;"
+npx wrangler d1 execute opendesign-prod --remote --command "SELECT provider_event_id, order_code, status, processed_at FROM webhook_events ORDER BY received_at DESC LIMIT 5;"
 ```
 
 Expected:
@@ -1005,7 +1005,7 @@ npx wrangler deploy
 
 ## Final Verification Checklist
 
-- [ ] `container`: `npm test`, `npm run typecheck`, `npm run build`, `docker build -t 2design-dembrandt:vps .`
+- [ ] `container`: `npm test`, `npm run typecheck`, `npm run build`, `docker build -t opendesign-dembrandt:vps .`
 - [ ] `worker`: `npx wrangler types`, `npm test`, `npm run typecheck`
 - [ ] Worker deploy succeeds without Cloudflare Container entitlement.
 - [ ] Extractor `/health` returns 200 over HTTPS.

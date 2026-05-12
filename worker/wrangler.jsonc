@@ -1,6 +1,6 @@
 {
 	"$schema": "./node_modules/wrangler/config-schema.json",
-	"name": "2design-api",
+	"name": "opendesign-api",
 	"main": "src/index.ts",
 	"compatibility_date": "2026-05-06",
 	"compatibility_flags": [
@@ -19,7 +19,7 @@
 	"d1_databases": [
 		{
 			"binding": "DB",
-			"database_name": "2design-prod",
+			"database_name": "opendesign-prod",
 			"database_id": "3004f0ce-74c0-467a-a55e-0b833dd4c4ed",
 			"preview_database_id": "084e9bfc-83d8-479e-bd1e-2df25430fa2c",
 			"migrations_dir": "migrations",
@@ -29,7 +29,7 @@
 	"r2_buckets": [
 		{
 			"binding": "R2",
-			"bucket_name": "2design-outputs"
+			"bucket_name": "opendesign-outputs"
 		}
 	],
 	"queues": {
@@ -76,8 +76,8 @@
 	"vars": {
 		"DEV_ORIGIN": "http://localhost:5173",
 		"DEV_ORIGINS": "http://localhost:5173,http://127.0.0.1:5173",
-		"FRONTEND_ORIGIN": "https://2design.pages.dev",
-		"R2_BUCKET_NAME": "2design-outputs",
+		"FRONTEND_ORIGIN": "https://opendesign.pages.dev",
+		"R2_BUCKET_NAME": "opendesign-outputs",
 		"EXTRACTOR_URL": "https://extractor.dqez.dev",
 		"SEPAY_BANK_ACCOUNT": "101877455638",
 		"SEPAY_BANK_NAME": "VIETINBANK",

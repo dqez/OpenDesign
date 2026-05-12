@@ -40,11 +40,11 @@ export function mockEnvWithIpCount(
     },
     EXTRACT_QUEUE: { send: queueSend },
     IP_HASH_SALT: "salt",
-    FRONTEND_ORIGIN: "https://2design.pages.dev",
+    FRONTEND_ORIGIN: "https://opendesign.pages.dev",
     DEV_ORIGIN: "http://localhost:5173",
     SEPAY_BANK_ACCOUNT: "0123456789",
     SEPAY_BANK_NAME: "Vietcombank",
-    SEPAY_BANK_ACCOUNT_NAME: "2Design",
+    SEPAY_BANK_ACCOUNT_NAME: "OpenDesign",
     __mocks: { queueSend, prepare, bind, run },
   };
 }
@@ -55,7 +55,7 @@ export function mockEnvWithNoJob() {
   const prepare = vi.fn(() => ({ bind }));
   return {
     DB: { prepare },
-    FRONTEND_ORIGIN: "https://2design.pages.dev",
+    FRONTEND_ORIGIN: "https://opendesign.pages.dev",
     DEV_ORIGIN: "http://localhost:5173",
     __mocks: { prepare, bind, first },
   };

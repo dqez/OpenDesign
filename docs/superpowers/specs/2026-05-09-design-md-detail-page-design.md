@@ -122,7 +122,7 @@ Frontend tests should cover:
 
 Manual verification:
 
-- Run frontend with `VITE_API_BASE=https://2design-api.quysprolegend.workers.dev`.
+- Run frontend with `VITE_API_BASE=https://opendesign-api.quysprolegend.workers.dev`.
 - Open `/senlyzer/design-md`.
 - Confirm preview tab loads without console crashes.
 - Confirm raw tab, copy, and download actions work.

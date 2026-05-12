@@ -13,7 +13,7 @@ Implementation worktree: `E:\opendesign-codex\.worktrees\planb-backend`
 Current SePay code has the right skeleton, but production behavior is incomplete:
 
 - Duplicate webhook detection returns too early and can lose a paid job after partial processing.
-- Order matching only accepts exact uppercase `2D-XXXXXX`.
+- Order matching only accepts exact uppercase `OD-XXXXXX`.
 - Overpayment is incorrectly ignored.
 - Webhook payload does not verify receiving account.
 - Repeated `/api/extract` calls create multiple pending orders.
@@ -111,7 +111,7 @@ Steps:
 - SePay webhook handler never loses a paid order because of a partially processed duplicate event.
 - Duplicate processed webhooks are harmless and return `200`.
 - Existing received webhooks can resume processing.
-- `2D-XXXXXX` order codes are matched case-insensitively from `code` or `content`.
+- `OD-XXXXXX` order codes are matched case-insensitively from `code` or `content`.
 - Underpayment is ignored; exact payment and overpayment are accepted.
 - Receiving account is verified when `accountNumber` exists in the webhook payload.
 - Paid orders store `job_id`.
@@ -123,6 +123,6 @@ Steps:
 
 - The actual implementation branch/worktree is `E:\opendesign-codex\.worktrees\planb-backend`.
 - SePay webhook authentication remains `Authorization: Apikey {SEPAY_API_KEY}` because this matches the PRD and current SePay dashboard auth mode.
-- The short order code format `2D-XXXXXX` remains unchanged.
+- The short order code format `OD-XXXXXX` remains unchanged.
 - Overpayment is accepted; underpayment is ignored and does not create a job.
 - No schema migration file beyond `0001_init_core_tables.sql` is required unless production D1 has already applied `0001`.

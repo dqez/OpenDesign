@@ -34,16 +34,16 @@ it("builds QR URL with amount and order code", () => {
     bankName: "Vietcombank",
     accountNumber: "0123456789",
     amount: 25000,
-    orderCode: "2D-A1B2C3",
+    orderCode: "OD-A1B2C3",
   });
   expect(url).toContain("amount=25000");
-  expect(url).toContain("des=2D-A1B2C3");
+  expect(url).toContain("des=OD-A1B2C3");
 });
 
 it("extracts order code from webhook code field first", () => {
   expect(
-    extractOrderCodeFromWebhook({ code: "2D-A1B2C3", content: "ignored" }),
-  ).toBe("2D-A1B2C3");
+    extractOrderCodeFromWebhook({ code: "OD-A1B2C3", content: "ignored" }),
+  ).toBe("OD-A1B2C3");
 });
 
 it("allows only PRD SePay webhook IPs", () => {
@@ -132,8 +132,8 @@ export function buildSePayQrUrl(input: {
 export function extractOrderCodeFromWebhook(
   payload: Pick<SePayWebhookPayload, "code" | "content">,
 ) {
-  if (payload.code?.startsWith("2D-")) return payload.code;
-  return payload.content?.match(/2D-[A-Z0-9]{6}/)?.[0] ?? null;
+  if (payload.code?.startsWith("OD-")) return payload.code;
+  return payload.content?.match(/OD-[A-Z0-9]{6}/)?.[0] ?? null;
 }
 
 export function verifySePayAuthorization(
@@ -552,9 +552,9 @@ export async function sendCompletionEmail(input: {
 }) {
   const resend = new Resend(input.apiKey);
   return resend.emails.send({
-    from: "2Design <no-reply@2design.app>",
+    from: "OpenDesign <no-reply@opendesign.app>",
     to: input.to,
-    subject: "Your 2Design extraction is ready",
+    subject: "Your OpenDesign extraction is ready",
     html: [
       "<p>Your extraction is ready. These links expire in 24 hours.</p>",
       "<ul>",
