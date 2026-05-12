@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { getLegacyOrderCodePrefixes, getOrderCodePrefix } from "../config";
 import { sepayAuthMiddleware } from "../middleware/sepay-auth";
 import {
   createJob,
@@ -43,7 +44,10 @@ export const webhookRoute = new Hono<{ Bindings: Env }>().post(
       return c.json({ success: true, duplicate: true });
     }
 
-    const orderCode = extractOrderCodeFromWebhook(payload);
+    const orderCode = extractOrderCodeFromWebhook(payload, [
+      getOrderCodePrefix(c.env),
+      ...getLegacyOrderCodePrefixes(c.env),
+    ]);
     if (!existing) {
       try {
         await recordWebhookEvent(c.env.DB, {

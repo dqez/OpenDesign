@@ -31,6 +31,13 @@ it("returns 202 and enqueues first free job", async () => {
 });
 
 it("returns payment instructions for returning IP", async () => {
+  const env = {
+    ...mockEnvWithIpCount(1),
+    ORDER_CODE_PREFIX: "PX",
+    PAID_EXTRACTION_AMOUNT: "99000",
+    PAYMENT_CURRENCY: "USD",
+    PAYMENT_REQUIRED_MESSAGE: "Pay 99k to continue.",
+  };
   const response = await app.request(
     "/api/extract",
     {
@@ -44,17 +51,19 @@ it("returns payment instructions for returning IP", async () => {
         email: "user@example.com",
       }),
     },
-    mockEnvWithIpCount(1),
+    env,
   );
 
   expect(response.status).toBe(402);
   await expect(response.json()).resolves.toMatchObject({
     requiresPayment: true,
-    amount: 25000,
-    orderStatusUrl: expect.stringMatching(/^\/api\/orders\/OD-/),
+    message: "Pay 99k to continue.",
+    amount: 99000,
+    currency: "USD",
+    orderStatusUrl: expect.stringMatching(/^\/api\/orders\/PX-/),
     bankInfo: {
       bank: "Vietcombank",
-      content: expect.stringMatching(/^OD-/),
+      content: expect.stringMatching(/^PX-/),
     },
   });
 });

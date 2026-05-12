@@ -5,10 +5,11 @@ it("returns health status", async () => {
   const response = await app.request("/api/health", {}, {
     FRONTEND_ORIGIN: "https://opendesign.pages.dev",
     DEV_ORIGIN: "http://localhost:5173",
+    SERVICE_NAME: "custom-api",
   });
   expect(response.status).toBe(200);
   await expect(response.json()).resolves.toMatchObject({
     ok: true,
-    service: "opendesign-api",
+    service: "custom-api",
   });
 });

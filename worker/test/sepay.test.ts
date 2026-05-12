@@ -19,6 +19,19 @@ it("builds QR URL with amount and order code", () => {
   expect(url).toContain("des=OD-A1B2C3");
 });
 
+it("builds QR URL from a configured base URL", () => {
+  const url = buildSePayQrUrl({
+    bankName: "Vietcombank",
+    accountNumber: "0123456789",
+    amount: 25000,
+    orderCode: "OD-A1B2C3",
+    qrBaseUrl: "https://qr.example.test/custom",
+  });
+
+  expect(url).toContain("https://qr.example.test/custom?");
+  expect(url).toContain("des=OD-A1B2C3");
+});
+
 it("extracts order code from webhook code field first", () => {
   expect(
     extractOrderCodeFromWebhook({ code: "OD-A1B2C3", content: "ignored" }),
@@ -82,6 +95,13 @@ it("verifies recipient account when SePay sends accountNumber", () => {
 it("allows only PRD SePay webhook IPs", () => {
   expect(isAllowedSePayIp("172.236.138.20")).toBe(true);
   expect(isAllowedSePayIp("203.0.113.10")).toBe(false);
+});
+
+it("allows configured SePay webhook IPs", () => {
+  expect(isAllowedSePayIp("203.0.113.10", "203.0.113.10,198.51.100.4")).toBe(
+    true,
+  );
+  expect(isAllowedSePayIp("172.236.138.20", "203.0.113.10")).toBe(false);
 });
 
 it("accepts Authorization Apikey header", () => {

@@ -1,11 +1,13 @@
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { getR2Endpoint } from "../config";
 import type { Env } from "../types";
 
 export type R2ObjectUrlInput = {
   accountId: string;
   bucketName: string;
   key: string;
+  endpoint?: string;
 };
 
 export type R2Files = {
@@ -15,13 +17,15 @@ export type R2Files = {
 };
 
 export function buildR2ObjectUrl(input: R2ObjectUrlInput) {
-  return `https://${input.accountId}.r2.cloudflarestorage.com/${input.bucketName}/${input.key}`;
+  const endpoint =
+    input.endpoint ?? `https://${input.accountId}.r2.cloudflarestorage.com`;
+  return `${endpoint}/${input.bucketName}/${input.key}`;
 }
 
 export function createR2S3Client(env: Env) {
   return new S3Client({
     region: "auto",
-    endpoint: `https://${env.CF_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+    endpoint: getR2Endpoint(env),
     credentials: {
       accessKeyId: env.R2_ACCESS_KEY_ID,
       secretAccessKey: env.R2_SECRET_ACCESS_KEY,

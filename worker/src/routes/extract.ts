@@ -1,4 +1,12 @@
 import { Hono } from "hono";
+import {
+  getOrderCodePrefix,
+  getOrderTtlHours,
+  getPaidExtractionAmount,
+  getPaymentCurrency,
+  getPaymentRequiredMessage,
+  getSePayQrBaseUrl,
+} from "../config";
 import { rateLimitMiddleware } from "../middleware/rate-limit";
 import { writeAuditEvent } from "../services/audit";
 import { createJob, createOrder, getActivePendingOrder } from "../services/db";
@@ -18,14 +26,16 @@ export const extractRoute = new Hono<{ Bindings: Env }>().post(
     const usage = await getIpUsage(c.env.KV, ipHash);
 
     if ((usage?.count ?? 0) >= 1) {
-      const amount = 25000;
+      const amount = getPaidExtractionAmount(c.env);
+      const currency = getPaymentCurrency(c.env);
       const pendingOrder = await getActivePendingOrder(c.env.DB, {
         ipHash,
         url: body.url,
         email: body.email,
         amount,
       });
-      const orderCode = pendingOrder?.order_code ?? createOrderCode();
+      const orderCode =
+        pendingOrder?.order_code ?? createOrderCode(getOrderCodePrefix(c.env));
 
       if (!pendingOrder) {
         await createOrder(c.env.DB, {
@@ -34,16 +44,18 @@ export const extractRoute = new Hono<{ Bindings: Env }>().post(
           email: body.email,
           ipHash,
           amount,
+          currency,
+          ttlHours: getOrderTtlHours(c.env),
         });
       }
 
       return c.json(
         {
           requiresPayment: true,
-          message:
-            "Ban da su dung luot mien phi. Chuyen khoan 25.000d de tiep tuc.",
+          message: getPaymentRequiredMessage(c.env),
           orderCode,
           amount,
+          currency,
           bankInfo: {
             bank: c.env.SEPAY_BANK_NAME,
             accountNumber: c.env.SEPAY_BANK_ACCOUNT,
@@ -55,6 +67,7 @@ export const extractRoute = new Hono<{ Bindings: Env }>().post(
             accountNumber: c.env.SEPAY_BANK_ACCOUNT,
             amount,
             orderCode,
+            qrBaseUrl: getSePayQrBaseUrl(c.env),
           }),
           orderStatusUrl: `/api/orders/${orderCode}`,
         },
