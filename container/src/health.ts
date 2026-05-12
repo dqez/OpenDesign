@@ -1,3 +1,7 @@
 export function healthPayload() {
-  return { ok: true, service: "2design-dembrandt-container" };
+  return {
+    ok: true,
+    service:
+      process.env.CONTAINER_SERVICE_NAME ?? "opendesign-dembrandt-container",
+  };
 }

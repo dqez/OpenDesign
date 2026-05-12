@@ -33,22 +33,27 @@ it("returns payment-required extraction responses", async () => {
         Promise.resolve({
           requiresPayment: true,
           amount: 25000,
-          orderCode: "2D-A1B2C3",
+          currency: "USD",
+          orderCode: "OD-A1B2C3",
           bankInfo: {
             bank: "Vietcombank",
             accountNumber: "0123456789",
-            accountName: "2Design",
-            content: "2D-A1B2C3",
+            accountName: "OpenDesign",
+            content: "OD-A1B2C3",
           },
           qrUrl: "https://qr.sepay.vn/img",
-          orderStatusUrl: "/api/orders/2D-A1B2C3",
+          orderStatusUrl: "/api/orders/OD-A1B2C3",
         }),
     }),
   );
 
   await expect(
     createExtraction({ url: "https://neon.com", email: "user@example.com" }),
-  ).resolves.toMatchObject({ requiresPayment: true, amount: 25000 });
+  ).resolves.toMatchObject({
+    requiresPayment: true,
+    amount: 25000,
+    currency: "USD",
+  });
 });
 
 it("reads job status", async () => {
@@ -72,7 +77,7 @@ it("fetches order status", async () => {
     vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
-        orderCode: "2D-A1B2C3",
+        orderCode: "OD-A1B2C3",
         status: "paid",
         amount: 25000,
         currency: "VND",
@@ -84,7 +89,7 @@ it("fetches order status", async () => {
     }),
   );
 
-  await expect(getOrderStatus("2D-A1B2C3")).resolves.toMatchObject({
+  await expect(getOrderStatus("OD-A1B2C3")).resolves.toMatchObject({
     status: "paid",
     jobId: "job_paid",
   });

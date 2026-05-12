@@ -2,7 +2,11 @@ import { mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { afterEach, describe, expect, it } from "vitest";
-import { buildOutputKeys, findDembrandtOutputFiles } from "../src/execute.js";
+import {
+  buildOutputKeys,
+  buildWorkdir,
+  findDembrandtOutputFiles,
+} from "../src/execute.js";
 
 it("builds stable R2 keys for a job", () => {
   expect(buildOutputKeys("neon.com", "job_abc")).toEqual({
@@ -13,7 +17,7 @@ it("builds stable R2 keys for a job", () => {
 });
 
 describe("findDembrandtOutputFiles", () => {
-  const workdir = join(tmpdir(), `2design-output-test-${process.pid}`);
+  const workdir = join(tmpdir(), `opendesign-output-test-${process.pid}`);
 
   afterEach(async () => {
     await rm(workdir, { recursive: true, force: true });
@@ -49,5 +53,17 @@ describe("findDembrandtOutputFiles", () => {
     await expect(findDembrandtOutputFiles(workdir, "neon.com")).rejects.toThrow(
       "unexpected.txt",
     );
+  });
+});
+
+describe("buildWorkdir", () => {
+  afterEach(() => {
+    delete process.env.WORKDIR_PREFIX;
+  });
+
+  it("uses configured workdir prefix", () => {
+    process.env.WORKDIR_PREFIX = "custom-prefix";
+
+    expect(buildWorkdir("job_abc")).toBe(join(tmpdir(), "custom-prefix-job_abc"));
   });
 });

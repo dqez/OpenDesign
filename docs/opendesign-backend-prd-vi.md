@@ -1,4 +1,4 @@
-# PRD — 2Design Backend
+# PRD — OpenDesign Backend
 
 # Dịch vụ trích xuất Design Token từ website
 
@@ -253,15 +253,15 @@ graph TB
 {
   "requiresPayment": true,
   "message": "Bạn đã sử dụng lượt miễn phí. Chuyển khoản 25.000đ để tiếp tục.",
-  "orderCode": "2D-A1B2C3",
+  "orderCode": "OD-A1B2C3",
   "amount": 25000,
   "bankInfo": {
     "bank": "Vietcombank",
     "accountNumber": "0123456789",
     "accountName": "NGUYEN VAN A",
-    "content": "2D-A1B2C3"
+    "content": "OD-A1B2C3"
   },
-  "qrUrl": "https://qr.sepay.vn/img?acc=0123456789&bank=Vietcombank&amount=25000&des=2D-A1B2C3"
+  "qrUrl": "https://qr.sepay.vn/img?acc=0123456789&bank=Vietcombank&amount=25000&des=OD-A1B2C3"
 }
 ```
 
@@ -292,8 +292,8 @@ graph TB
   "gateway": "Vietcombank",
   "transactionDate": "2026-05-05 14:02:37",
   "accountNumber": "0123456789",
-  "code": "2D-A1B2C3",
-  "content": "2D-A1B2C3 chuyen khoan",
+  "code": "OD-A1B2C3",
+  "content": "OD-A1B2C3 chuyen khoan",
   "transferType": "in",
   "transferAmount": 25000,
   "accumulated": 500000,
@@ -314,13 +314,13 @@ graph TB
 **Cấu hình SePay Dashboard:**
 
 - Sự kiện: **Có tiền vào**
-- URL: `https://api.2design.app/api/sepay/webhook`
+- URL: `https://api.opendesign.app/api/sepay/webhook`
 - Chứng thực: **API Key**
 - Bỏ qua nếu không có code: **Có**
 
 ### 3.4 Data Models
 
-#### Cloudflare D1 — Database `2design-prod`
+#### Cloudflare D1 — Database `opendesign-prod`
 
 D1 là nguồn dữ liệu chuẩn cho dữ liệu quan hệ và log cần giữ dài hạn. Theo docs D1 mới nhất qua Context7: Worker truy cập D1 qua binding `env.DB`, dùng prepared statements (`prepare().bind().run()`), quản lý schema bằng `wrangler d1 migrations`, và có Time Travel để khôi phục theo phút trong 30 ngày gần nhất.
 
@@ -352,7 +352,7 @@ D1 là nguồn dữ liệu chuẩn cho dữ liệu quan hệ và log cần giữ
 
 ```json
 {
-  "orderCode": "2D-A1B2C3",
+  "orderCode": "OD-A1B2C3",
   "jobId": "job_a1b2c3d4",
   "url": "https://neon.com",
   "email": "user@example.com",
@@ -371,7 +371,7 @@ D1 là nguồn dữ liệu chuẩn cho dữ liệu quan hệ và log cần giữ
 ```json
 {
   "paymentId": "pay_92704",
-  "orderCode": "2D-A1B2C3",
+  "orderCode": "OD-A1B2C3",
   "provider": "sepay",
   "providerTransactionId": "92704",
   "referenceCode": "MBVCB.3278907687",
@@ -389,7 +389,7 @@ D1 là nguồn dữ liệu chuẩn cho dữ liệu quan hệ và log cần giữ
   "webhookEventId": "wh_92704",
   "provider": "sepay",
   "providerEventId": "92704",
-  "orderCode": "2D-A1B2C3",
+  "orderCode": "OD-A1B2C3",
   "status": "processed",
   "rawPayload": "{...}",
   "receivedAt": "...",
@@ -448,9 +448,9 @@ KV không dùng cho dữ liệu cần đối soát dài hạn vì eventual consi
 #### R2: Cấu trúc file
 
 ```
-2design-outputs/{domain}/{jobId}/tokens.json
-2design-outputs/{domain}/{jobId}/DESIGN.md
-2design-outputs/{domain}/{jobId}/brand-guide.pdf
+opendesign-outputs/{domain}/{jobId}/tokens.json
+opendesign-outputs/{domain}/{jobId}/DESIGN.md
+opendesign-outputs/{domain}/{jobId}/brand-guide.pdf
 ```
 
 ### 3.5 Execution Pipeline
@@ -549,7 +549,7 @@ export class ExtractionWorkflow extends WorkflowEntrypoint {
 
 ```jsonc
 {
-  "name": "2design-api",
+  "name": "opendesign-api",
   "main": "src/index.ts",
   "compatibility_date": "2026-04-25",
 
@@ -560,7 +560,7 @@ export class ExtractionWorkflow extends WorkflowEntrypoint {
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "2design-prod",
+      "database_name": "opendesign-prod",
       "database_id": "<d1-database-uuid>",
       "preview_database_id": "<d1-preview-database-uuid>",
       "migrations_dir": "migrations",
@@ -569,7 +569,7 @@ export class ExtractionWorkflow extends WorkflowEntrypoint {
   ],
 
   // R2 Bucket
-  "r2_buckets": [{ "binding": "R2", "bucket_name": "2design-outputs" }],
+  "r2_buckets": [{ "binding": "R2", "bucket_name": "opendesign-outputs" }],
 
   // Queue — producer & consumer
   "queues": {
@@ -621,10 +621,10 @@ export class ExtractionWorkflow extends WorkflowEntrypoint {
 **D1 migrations:**
 
 ```bash
-npx wrangler d1 migrations create 2design-prod init_core_tables
-npx wrangler d1 migrations apply 2design-prod --local
-npx wrangler d1 migrations apply 2design-prod --remote
-npx wrangler d1 time-travel info 2design-prod
+npx wrangler d1 migrations create opendesign-prod init_core_tables
+npx wrangler d1 migrations apply opendesign-prod --local
+npx wrangler d1 migrations apply opendesign-prod --remote
+npx wrangler d1 time-travel info opendesign-prod
 ```
 
 ---
@@ -661,7 +661,7 @@ npx wrangler d1 time-travel info 2design-prod
 ## 6. Cấu trúc dự án
 
 ```
-2design/
+opendesign/
 ├── worker/                          # Cloudflare Worker (API + Queue + Workflow)
 │   ├── src/
 │   │   ├── index.ts                 # Hono app + queue handler

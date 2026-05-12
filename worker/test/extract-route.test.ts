@@ -31,6 +31,13 @@ it("returns 202 and enqueues first free job", async () => {
 });
 
 it("returns payment instructions for returning IP", async () => {
+  const env = {
+    ...mockEnvWithIpCount(1),
+    ORDER_CODE_PREFIX: "PX",
+    PAID_EXTRACTION_AMOUNT: "99000",
+    PAYMENT_CURRENCY: "USD",
+    PAYMENT_REQUIRED_MESSAGE: "Pay 99k to continue.",
+  };
   const response = await app.request(
     "/api/extract",
     {
@@ -44,17 +51,19 @@ it("returns payment instructions for returning IP", async () => {
         email: "user@example.com",
       }),
     },
-    mockEnvWithIpCount(1),
+    env,
   );
 
   expect(response.status).toBe(402);
   await expect(response.json()).resolves.toMatchObject({
     requiresPayment: true,
-    amount: 25000,
-    orderStatusUrl: expect.stringMatching(/^\/api\/orders\/2D-/),
+    message: "Pay 99k to continue.",
+    amount: 99000,
+    currency: "USD",
+    orderStatusUrl: expect.stringMatching(/^\/api\/orders\/PX-/),
     bankInfo: {
       bank: "Vietcombank",
-      content: expect.stringMatching(/^2D-/),
+      content: expect.stringMatching(/^PX-/),
     },
   });
 });
@@ -62,7 +71,7 @@ it("returns payment instructions for returning IP", async () => {
 it("reuses an active pending order for returning IP", async () => {
   const env = mockEnvWithIpCount(1, {
     pendingOrder: {
-      order_code: "2D-A1B2C3",
+      order_code: "OD-A1B2C3",
       job_id: null,
       url: "https://neon.com/",
       email: "user@example.com",
@@ -95,7 +104,7 @@ it("reuses an active pending order for returning IP", async () => {
   expect(response.status).toBe(402);
   await expect(response.json()).resolves.toMatchObject({
     requiresPayment: true,
-    orderCode: "2D-A1B2C3",
-    orderStatusUrl: "/api/orders/2D-A1B2C3",
+    orderCode: "OD-A1B2C3",
+    orderStatusUrl: "/api/orders/OD-A1B2C3",
   });
 });

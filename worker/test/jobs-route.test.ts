@@ -33,8 +33,8 @@ it("returns signed file URLs for completed jobs", async () => {
       CF_ACCOUNT_ID: "abc123",
       R2_ACCESS_KEY_ID: "key",
       R2_SECRET_ACCESS_KEY: "secret",
-      R2_BUCKET_NAME: "2design-outputs",
-      FRONTEND_ORIGIN: "https://2design.pages.dev",
+      R2_BUCKET_NAME: "opendesign-outputs",
+      FRONTEND_ORIGIN: "https://opendesign.pages.dev",
       DEV_ORIGIN: "http://localhost:5173",
     },
   );

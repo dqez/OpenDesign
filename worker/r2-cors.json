@@ -3,7 +3,7 @@
     {
       "allowed": {
         "origins": [
-          "https://2design.pages.dev",
+          "https://opendesign.pages.dev",
           "http://localhost:5173"
         ],
         "methods": [

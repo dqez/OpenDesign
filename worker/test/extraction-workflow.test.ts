@@ -172,7 +172,7 @@ it("sleeps and polls again while extraction is still processing", async () => {
   expect(mocks.getContainerExtractionStatus).toHaveBeenCalledTimes(2);
   expect(stepSleepMock(step)).toHaveBeenCalledWith(
     "wait-for-extraction-1",
-    "15 seconds",
+    "60 seconds",
   );
 });
 

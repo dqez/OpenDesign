@@ -13,6 +13,8 @@ vi.mock("resend", () => ({
 const { sendCompletionEmail } = await import("../src/services/email");
 
 it("sends completion email with expiring download links", async () => {
+  send.mockClear();
+
   await sendCompletionEmail({
     apiKey: "resend-secret",
     to: "user@example.com",
@@ -26,8 +28,31 @@ it("sends completion email with expiring download links", async () => {
   expect(send).toHaveBeenCalledWith(
     expect.objectContaining({
       to: "user@example.com",
-      subject: "Your 2Design extraction is ready",
+      subject: "Your OpenDesign extraction is ready",
       html: expect.stringContaining("https://signed/tokens"),
+    }),
+  );
+});
+
+it("uses configured brand email identity", async () => {
+  send.mockClear();
+
+  await sendCompletionEmail({
+    apiKey: "resend-secret",
+    to: "user@example.com",
+    downloadUrls: {
+      tokens: "https://signed/tokens",
+      designMd: "https://signed/design",
+      brandGuide: "https://signed/pdf",
+    },
+    appName: "InjectedDesign",
+    emailFrom: "InjectedDesign <no-reply@example.test>",
+  });
+
+  expect(send).toHaveBeenCalledWith(
+    expect.objectContaining({
+      from: "InjectedDesign <no-reply@example.test>",
+      subject: "Your InjectedDesign extraction is ready",
     }),
   );
 });
