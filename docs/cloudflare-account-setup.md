@@ -95,16 +95,16 @@ Do not commit API tokens.
 
 Recommended production names:
 
-| Resource | Name |
-| --- | --- |
-| Worker | `opendesign-api` |
-| Pages project | `opendesign` |
-| D1 production database | `opendesign-prod` |
-| D1 preview database | `opendesign-preview` |
-| KV binding | `KV` |
-| R2 bucket | `opendesign-outputs` |
-| Queue | `extraction-queue` |
-| Workflow | `extraction-workflow` |
+| Resource               | Name                  |
+| ---------------------- | --------------------- |
+| Worker                 | `opendesign-api`      |
+| Pages project          | `opendesign`          |
+| D1 production database | `opendesign-prod`     |
+| D1 preview database    | `opendesign-preview`  |
+| KV binding             | `KV`                  |
+| R2 bucket              | `opendesign-outputs`  |
+| Queue                  | `extraction-queue`    |
+| Workflow               | `extraction-workflow` |
 
 The queue and workflow names above match the current `worker/wrangler.jsonc`.
 If you need multiple OpenDesign environments in the same account, rename them to environment-specific names such as `opendesign-prod-extraction-queue` and `opendesign-prod-extraction-workflow`, then update `worker/wrangler.jsonc`.
@@ -301,15 +301,15 @@ npx wrangler secret put R2_SECRET_ACCESS_KEY
 
 Recommended values:
 
-| Secret | Required value |
-| --- | --- |
-| `IP_HASH_SALT` | Random long string for hashing client IPs |
-| `SEPAY_API_KEY` | Shared API key expected in SePay webhook `Authorization: Apikey ...` |
-| `RESEND_API_KEY` | Resend API key |
-| `EXTRACTOR_API_KEY` | Shared bearer token between Worker and extractor |
-| `CF_ACCOUNT_ID` | Cloudflare account ID for R2 S3 endpoint |
-| `R2_ACCESS_KEY_ID` | R2 S3 Access Key ID |
-| `R2_SECRET_ACCESS_KEY` | R2 S3 Secret Access Key |
+| Secret                 | Required value                                                       |
+| ---------------------- | -------------------------------------------------------------------- |
+| `IP_HASH_SALT`         | Random long string for hashing client IPs                            |
+| `SEPAY_API_KEY`        | Shared API key expected in SePay webhook `Authorization: Apikey ...` |
+| `RESEND_API_KEY`       | Resend API key                                                       |
+| `EXTRACTOR_API_KEY`    | Shared bearer token between Worker and extractor                     |
+| `CF_ACCOUNT_ID`        | Cloudflare account ID for R2 S3 endpoint                             |
+| `R2_ACCESS_KEY_ID`     | R2 S3 Access Key ID                                                  |
+| `R2_SECRET_ACCESS_KEY` | R2 S3 Secret Access Key                                              |
 
 ## 12. Local Development Secrets
 
