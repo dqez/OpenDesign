@@ -33,6 +33,7 @@ it("returns payment-required extraction responses", async () => {
         Promise.resolve({
           requiresPayment: true,
           amount: 25000,
+          currency: "USD",
           orderCode: "OD-A1B2C3",
           bankInfo: {
             bank: "Vietcombank",
@@ -48,7 +49,11 @@ it("returns payment-required extraction responses", async () => {
 
   await expect(
     createExtraction({ url: "https://neon.com", email: "user@example.com" }),
-  ).resolves.toMatchObject({ requiresPayment: true, amount: 25000 });
+  ).resolves.toMatchObject({
+    requiresPayment: true,
+    amount: 25000,
+    currency: "USD",
+  });
 });
 
 it("reads job status", async () => {

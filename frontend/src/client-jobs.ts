@@ -1,4 +1,5 @@
 import type { JobResponse } from "./api";
+import { getClientJobsStorageKey } from "./app-config";
 
 export type ClientJobStatus = JobResponse["status"];
 
@@ -15,7 +16,7 @@ export type ClientJobRecord = {
 
 export const CLIENT_JOBS_CHANGED_EVENT = "client-jobs:changed";
 
-const CLIENT_JOBS_STORAGE_KEY = "opendesign.extract.jobs.v1";
+const CLIENT_JOBS_STORAGE_KEY = getClientJobsStorageKey();
 const MAX_CLIENT_JOBS = 8;
 
 type ClientJobInput = Omit<ClientJobRecord, "createdAt" | "updatedAt"> & {

@@ -4,6 +4,7 @@ export type ExtractResponse =
       requiresPayment: true;
       orderCode: string;
       amount: number;
+      currency: string;
       bankInfo: {
         bank: string;
         accountNumber: string;

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { getJob } from "../api";
+import { getToastCollapsedStorageKey } from "../app-config";
 import {
   CLIENT_JOBS_CHANGED_EVENT,
   getClientJobs,
@@ -14,7 +15,7 @@ const ACTIVE_STATUSES = new Set<ClientJobRecord["status"]>([
   "processing",
 ]);
 const POLL_INTERVAL_MS = 5000;
-const TOAST_COLLAPSED_STORAGE_KEY = "opendesign.extract.toast-collapsed.v1";
+const TOAST_COLLAPSED_STORAGE_KEY = getToastCollapsedStorageKey();
 
 function getInitialCollapsedState(): boolean {
   if (typeof window === "undefined" || !("sessionStorage" in window)) {

@@ -1,3 +1,5 @@
+import { appConfig } from "../app-config";
+
 type FooterLink = readonly [label: string, href: string];
 
 const productLinks: FooterLink[] = [
@@ -40,7 +42,7 @@ export function SiteFooter() {
       <div className="footer-directory">
         <div className="footer-brand-block">
           <a className="footer-logo" href="/">
-            OpenDesign
+            {appConfig.appName}
           </a>
           <p>
             Token extraction for teams that need practical design context in
@@ -56,7 +58,7 @@ export function SiteFooter() {
       </div>
 
       <div className="footer-bottom">
-        <span>(c) 2026 OpenDesign</span>
+        <span>(c) 2026 {appConfig.appName}</span>
         <span>URL in. Tokens out. Review before handoff.</span>
       </div>
     </footer>

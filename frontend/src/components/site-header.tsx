@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { appConfig } from "../app-config";
 
 export function SiteHeader() {
   return (
@@ -6,9 +7,9 @@ export function SiteHeader() {
       <nav className="site-nav" aria-label="Main navigation">
         <Link className="brand-mark" to="/">
           <span className="brand-glyph" aria-hidden="true">
-            OD
+            {appConfig.appGlyph}
           </span>
-          <span>OpenDesign</span>
+          <span>{appConfig.appName}</span>
         </Link>
 
         <div className="nav-links">

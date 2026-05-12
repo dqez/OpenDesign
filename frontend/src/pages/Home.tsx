@@ -135,7 +135,9 @@ export function Home() {
             <dt>Order</dt>
             <dd>{payment.orderCode}</dd>
             <dt>Amount</dt>
-            <dd>{payment.amount.toLocaleString("vi-VN")} VND</dd>
+            <dd>
+              {payment.amount.toLocaleString("vi-VN")} {payment.currency}
+            </dd>
             <dt>Bank</dt>
             <dd>{payment.bankInfo.bank}</dd>
             <dt>Account</dt>
