@@ -125,8 +125,6 @@ export function DesignMdPage() {
   return (
     <main className="site-shell">
       <SiteHeader />
-      <br />
-      <br />
       <section className={`design-detail design-detail--${detailTheme}`}>
         <header className="design-detail-header">
           <div className="design-detail-title">

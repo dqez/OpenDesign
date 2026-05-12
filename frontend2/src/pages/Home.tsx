@@ -103,6 +103,9 @@ export function Home() {
               placeholder="https://neon.com"
               required
             />
+            <span className="field-helper">
+              Use a public marketing, product, or docs page.
+            </span>
           </label>
           <label>
             Email
@@ -113,6 +116,9 @@ export function Home() {
               type="email"
               required
             />
+            <span className="field-helper">
+              Extraction results and receipts are sent here.
+            </span>
           </label>
           <button disabled={submitting}>
             {submitting ? "Preparing specimen" : "Extract tokens"}

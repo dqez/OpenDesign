@@ -34,17 +34,13 @@ export function DesignPreview({ brand, sourceUrl, model, mode = "dark" }: Props)
 
   const colors = model.colors.slice(0, 12);
   const theme = buildTheme(model, mode);
-  const display = model.typography[0];
-  const bodyFont = model.fonts[1]?.value ?? model.fonts[0]?.value;
 
   return (
     <article className="design-preview" style={theme}>
       <section className="dp-hero">
         <p className="dp-kicker">Design System Inspiration of {brand}</p>
-        <h2 style={sampleTypeStyle(display, 56)}>
-          {brand} interface language
-        </h2>
-        <p style={{ fontFamily: bodyFont }}>
+        <h2>{brand} interface language</h2>
+        <p>
           A token-driven specimen generated from {sourceUrl}. It translates the
           extracted palette, type, radius, spacing, and component clues into a
           usable interface preview.
@@ -73,7 +69,7 @@ export function DesignPreview({ brand, sourceUrl, model, mode = "dark" }: Props)
             {model.typography.slice(0, 6).map((type) => (
               <div key={type.name}>
                 <span>{label(type.name)}</span>
-                <strong style={sampleTypeStyle(type, 34)}>{type.name}</strong>
+                <strong style={sampleTypeStyle(type, 34)}>Aa {brand}</strong>
                 <code>{[type.fontSize, type.fontWeight, type.lineHeight].filter(Boolean).join(" / ")}</code>
               </div>
             ))}
