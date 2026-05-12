@@ -51,8 +51,8 @@ export function PinnedProcess() {
         <p className="section-kicker">From URL to DESIGN.md</p>
         <h2>One compact pass from website surface to usable design memory.</h2>
         <p>
-          Four visible steps, no decorative scroll hijacking, and a
-          reduced-motion fallback.
+          The workflow keeps extraction, artifact writing, and review in one
+          calm sequence.
         </p>
       </div>
       <div className="process-stack">

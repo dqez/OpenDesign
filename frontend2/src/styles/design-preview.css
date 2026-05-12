@@ -1,10 +1,11 @@
 .design-preview {
   display: grid;
   gap: 18px;
-  border-radius: 18px;
+  border-radius: var(--radius-xl);
   background: var(--dp-bg);
   color: var(--dp-ink);
   padding: clamp(16px, 3vw, 28px);
+  box-shadow: var(--glass-shadow-tight);
 }
 
 .design-preview p,
@@ -49,8 +50,7 @@
   font-family: var(--font-mono);
   font-size: 0.78rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0;
 }
 
 .dp-actions,
@@ -67,14 +67,13 @@
   align-items: center;
   justify-content: center;
   min-height: 46px;
-  border-radius: var(--dp-radius);
+  border-radius: max(var(--dp-radius), 18px);
   border: 1px solid var(--dp-ink);
   background: var(--dp-ink);
   color: var(--dp-bg);
   line-height: 1;
   padding: 0 16px;
   text-decoration: none;
-  text-transform: uppercase;
 }
 
 .dp-actions .dp-outline,
@@ -114,18 +113,24 @@
 .dp-spec-grid,
 .dp-form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
   gap: 10px;
+}
+
+.dp-form-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
 }
 
 .dp-swatch,
 .dp-card-grid article,
 .dp-spec-grid div,
 .dp-form-grid > * {
+  min-width: 0;
   border: 1px solid color-mix(in srgb, var(--dp-ink), transparent 84%);
   border-radius: var(--dp-radius);
   background: var(--dp-card);
   padding: 12px;
+  overflow-wrap: anywhere;
 }
 
 .dp-swatch {
@@ -145,7 +150,7 @@
 
 .dp-type-list div {
   display: grid;
-  grid-template-columns: 128px minmax(0, 1fr) minmax(120px, auto);
+  grid-template-columns: minmax(96px, 0.62fr) minmax(0, 1.2fr) minmax(100px, auto);
   gap: 14px;
   align-items: center;
   border-bottom: 1px solid color-mix(in srgb, var(--dp-ink), transparent 88%);
@@ -154,6 +159,7 @@
 
 .dp-type-list strong {
   color: var(--dp-ink);
+  min-width: 0;
   overflow-wrap: anywhere;
 }
 
@@ -164,7 +170,7 @@
 
 .dp-card-grid article {
   min-height: 112px;
-  align-content: end;
+  align-content: start;
 }
 
 .dp-card-grid h3,
@@ -193,7 +199,18 @@
   resize: none;
 }
 
-@media (max-width: 760px) {
+.dp-form-note {
+  display: grid;
+  grid-column: 1 / -1;
+  align-content: start;
+  gap: 8px;
+}
+
+.dp-form-note p {
+  max-width: 52ch;
+}
+
+@media (max-width: 900px) {
   .dp-section-grid {
     grid-template-columns: 1fr;
   }
@@ -205,9 +222,36 @@
   .dp-type-list div {
     grid-template-columns: 1fr;
     align-items: start;
+    gap: 8px;
   }
 
   .dp-type-list code {
     justify-self: start;
+    white-space: normal;
+  }
+}
+
+@media (max-width: 520px) {
+  .design-preview {
+    padding: 14px;
+  }
+
+  .dp-actions,
+  .dp-button-row {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .dp-actions button,
+  .dp-button-row button,
+  .dp-button-row a,
+  .dp-button-row .dp-icon {
+    width: 100%;
+  }
+
+  .dp-card-grid,
+  .dp-spec-grid,
+  .dp-form-grid {
+    grid-template-columns: 1fr;
   }
 }

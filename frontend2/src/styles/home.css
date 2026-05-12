@@ -1,20 +1,17 @@
 .extract-section {
   display: grid;
-  gap: 20px;
-  padding-bottom: clamp(56px, 8vw, 112px);
+  gap: clamp(22px, 4vw, 42px);
+  padding: clamp(48px, 9vw, 118px) 0 clamp(56px, 8vw, 108px);
 }
 
-.hero-section {
-  display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(340px, 0.75fr);
-  gap: clamp(28px, 5vw, 88px);
+.extract-hero {
+  grid-template-columns: minmax(0, 0.95fr) minmax(360px, 1.05fr);
   align-items: center;
-  padding: clamp(64px, 9vw, 132px) 0 clamp(80px, 12vw, 168px);
 }
 
 .hero-copy {
   display: grid;
-  gap: 28px;
+  gap: 22px;
 }
 
 .hero-copy > p:not(.section-kicker) {
@@ -24,22 +21,20 @@
 
 .extract-panel {
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr auto;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr) auto;
   gap: 12px;
   align-items: end;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.78);
-  padding: 12px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72), var(--shadow-soft);
+  border-radius: var(--radius-xl);
+  padding: 14px;
 }
 
-label {
-  display: grid;
-  gap: 7px;
-  color: var(--color-ink-soft);
-  font-size: 0.92rem;
-  font-weight: 600;
+.extract-panel label {
+  min-width: 0;
+}
+
+.extract-panel .url-input {
+  font-family: var(--font-mono);
+  font-size: 0.94rem;
 }
 
 .field-helper {
@@ -49,108 +44,44 @@ label {
   line-height: 1.35;
 }
 
-input {
+.extract-panel button {
   min-height: 52px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  color: var(--color-ink);
-  padding: 0 14px;
-  font-size: 1rem;
-  outline: none;
-}
-
-input:focus,
-a:focus-visible,
-button:focus-visible {
-  outline: 3px solid rgba(47, 111, 89, 0.24);
-  outline-offset: 2px;
-}
-
-button,
-.footer-primary,
-.status-link {
-  border: 1px solid var(--color-rail);
-  background: var(--color-rail);
-  color: var(--color-rail-text);
-  padding: 0 18px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-button:active,
-.footer-primary:active,
-.status-link:active {
-  transform: translateY(1px) scale(0.99);
-}
-
-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.62;
+  padding-inline: 22px;
+  white-space: nowrap;
 }
 
 .extract-panel .error {
   grid-column: 1 / -1;
 }
 
-.specimen-panel,
-.state-panel,
 .payment-panel {
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface);
-  box-shadow: var(--shadow-soft);
-}
-
-.specimen-panel {
   display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(150px, 220px) minmax(0, 1fr);
   gap: 24px;
-  padding: clamp(22px, 3vw, 36px);
-  transform: rotate(1deg);
+  align-items: start;
+  border-radius: var(--radius-xl);
+  padding: clamp(20px, 3vw, 30px);
+  margin-bottom: clamp(52px, 8vw, 96px);
 }
 
-.specimen-header {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  color: var(--color-ink-soft);
-  font-weight: 700;
-}
-
-.specimen-swatches {
+.payment-panel > div:first-child {
   display: grid;
-  grid-template-columns: 1.3fr 0.85fr 1fr;
-  gap: 10px;
-  min-height: 180px;
+  gap: 12px;
 }
 
-.specimen-swatches span {
+.payment-panel img {
+  width: 100%;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
+  background: var(--color-surface);
+  padding: 8px;
 }
 
-.specimen-swatches span:nth-child(1) {
-  background: #171815;
-}
-
-.specimen-swatches span:nth-child(2) {
-  background: #2f6f59;
-}
-
-.specimen-swatches span:nth-child(3) {
-  background: #eff2ed;
-}
-
-.specimen-list,
 .payment-panel dl {
   display: grid;
-  grid-template-columns: 110px 1fr;
+  grid-template-columns: 100px minmax(0, 1fr);
   gap: 10px 14px;
   margin: 0;
-}
-
-.specimen-list div {
-  display: contents;
 }
 
 dt {
@@ -160,21 +91,28 @@ dt {
 dd {
   margin: 0;
   font-family: var(--font-mono);
-  font-weight: 600;
+  font-weight: 650;
   overflow-wrap: anywhere;
 }
 
-.payment-panel {
-  display: grid;
-  grid-template-columns: 1fr minmax(160px, 240px) 1fr;
-  gap: 24px;
-  align-items: start;
-  padding: 24px;
-  margin-bottom: 80px;
+@media (max-width: 980px) {
+  .extract-hero,
+  .payment-panel {
+    grid-template-columns: 1fr;
+  }
 }
 
-.payment-panel img {
-  width: 100%;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+@media (max-width: 760px) {
+  .extract-section {
+    padding-top: 42px;
+  }
+
+  .extract-panel {
+    grid-template-columns: 1fr;
+    border-radius: var(--radius-lg);
+  }
+
+  .payment-panel dl {
+    grid-template-columns: 1fr;
+  }
 }

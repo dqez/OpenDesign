@@ -113,7 +113,7 @@ export function DesignPreview({ brand, sourceUrl, model, mode = "dark" }: Props)
             <input value="you@example.com" readOnly aria-label="Email example" />
             <input value="Focused input" readOnly aria-label="Focused example" />
             <textarea value="Tell us about your design system..." readOnly aria-label="Inquiry example" />
-            <div>
+            <div className="dp-form-note">
               <strong>Cookies on {brand}.</strong>
               <p>We use cookies to improve the browsing experience.</p>
             </div>

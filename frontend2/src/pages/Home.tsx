@@ -87,17 +87,20 @@ export function Home() {
     <main className="site-shell">
       <SiteHeader />
 
-      <DesignCatalog />
-
-      <section className="extract-section" id="extract">
+      <section className="extract-section extract-hero" id="extract">
         <div className="hero-copy">
-          <p className="section-kicker">Add another URL</p>
-          <h2>Extract design tokens from a new site</h2>
+          <p className="section-kicker">Extract-first workspace</p>
+          <h1>Turn a live website into design memory.</h1>
+          <p>
+            Paste a public URL and OpenDesign prepares tokens, DESIGN.md, and a
+            reviewable specimen page for the next frontend pass.
+          </p>
         </div>
         <form className="extract-panel" onSubmit={onSubmit}>
           <label>
             Website URL
             <input
+              className="url-input"
               value={url}
               onChange={(event) => setUrl(event.target.value)}
               placeholder="https://neon.com"
@@ -154,6 +157,7 @@ export function Home() {
         </section>
       ) : null}
 
+      <DesignCatalog />
       <TokenBento />
       <PinnedProcess />
       <SiteFooter />

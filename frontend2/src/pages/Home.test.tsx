@@ -12,11 +12,11 @@ it("renders the extracted brand catalog shell", () => {
 
   expect(html).toContain("Browse extracted brand design files");
   expect(html).toContain("Search brands");
-  expect(html).toContain("Reading R2 catalog");
-  expect(html).toContain("Add another URL");
-  expect(html).toContain("Extract design tokens from a new site");
+  expect(html).toContain("Reading saved design files");
+  expect(html).toContain("Extract-first workspace");
+  expect(html).toContain("Turn a live website into design memory.");
   expect(html).toContain("From URL to DESIGN.md");
-  expect(html).toContain("What you get");
+  expect(html).toContain("Output proof");
   expect(html).toContain("Brand guide");
   expect(html).toContain("Design memory starts here");
   expect(html).toContain("Company");

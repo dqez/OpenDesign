@@ -38,11 +38,11 @@ export function DesignCatalog() {
     <>
       <section className="catalog-hero" id="catalog">
         <div className="hero-copy">
-          <p className="section-kicker">R2 Design Catalog</p>
-          <h1>Browse extracted brand design files</h1>
+          <p className="section-kicker">Catalog</p>
+          <h2>Browse extracted brand design files</h2>
           <p>
-            Search the brands already processed into DESIGN.md artifacts, then
-            open a clean URL like /supabase/design-md for the selected brand.
+            Search processed DESIGN.md artifacts, then open a polished show
+            page for the selected brand.
           </p>
         </div>
         <label className="catalog-search">
@@ -59,7 +59,7 @@ export function DesignCatalog() {
         {loadingDesigns ? (
           <div className="catalog-state">
             <p className="section-kicker">Loading</p>
-            <h2>Reading R2 catalog</h2>
+            <h2>Reading saved design files</h2>
             <div className="skeleton-lines" aria-hidden="true" />
           </div>
         ) : null}

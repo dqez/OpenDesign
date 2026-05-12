@@ -9,7 +9,7 @@ export function SiteHeader() {
           <span className="brand-glyph" aria-hidden="true">
             {appConfig.appGlyph}
           </span>
-          <span>{appConfig.appName}</span>
+          <span className="brand-wordmark">{renderWordmark(appConfig.appName)}</span>
         </Link>
 
         <div className="nav-links">
@@ -21,5 +21,21 @@ export function SiteHeader() {
         </div>
       </nav>
     </header>
+  );
+}
+
+function renderWordmark(appName: string) {
+  const designIndex = appName.toLowerCase().indexOf("design");
+  if (designIndex <= 0) return appName;
+
+  return (
+    <>
+      <span className="brand-name-primary">
+        {appName.slice(0, designIndex)}
+      </span>
+      <span className="brand-name-secondary">
+        {appName.slice(designIndex)}
+      </span>
+    </>
   );
 }

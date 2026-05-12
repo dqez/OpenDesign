@@ -3,36 +3,35 @@
   grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
   gap: clamp(24px, 5vw, 80px);
   align-items: end;
-  padding: clamp(58px, 8vw, 112px) 0 clamp(28px, 5vw, 64px);
+  padding: 0 0 clamp(28px, 5vw, 64px);
 }
 
 .catalog-search {
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.76);
-  padding: 14px;
-  box-shadow: var(--shadow-soft);
+  border-radius: var(--radius-xl);
+  padding: 16px;
+}
+
+.catalog-search input {
+  font-family: var(--font-mono);
+  font-size: 0.92rem;
 }
 
 .brand-catalog {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 12px;
-  padding-bottom: clamp(56px, 8vw, 108px);
+  padding-bottom: clamp(64px, 9vw, 124px);
 }
 
 .brand-card,
 .catalog-state {
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  box-shadow: 0 14px 34px rgba(40, 48, 38, 0.06);
+  border-radius: var(--radius-lg);
 }
 
 .brand-card {
   display: grid;
   gap: 12px;
-  min-height: 156px;
+  min-height: 160px;
   padding: 18px;
   text-decoration: none;
   transition:
@@ -41,22 +40,25 @@
     box-shadow 220ms var(--ease-out);
 }
 
-.brand-card:hover {
+.brand-card:hover,
+.brand-card:focus-visible {
   border-color: var(--color-border-strong);
   transform: translateY(-2px);
-  box-shadow: 0 22px 48px rgba(40, 48, 38, 0.1);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 26px 54px rgba(41, 55, 77, 0.14);
 }
 
 .brand-card span {
   color: var(--color-ink);
-  font-size: 1.35rem;
-  font-weight: 700;
+  font-size: 1.28rem;
+  font-weight: 740;
   text-transform: capitalize;
 }
 
 .brand-card code {
   color: var(--color-ink-soft);
-  font-size: 0.86rem;
+  font-size: 0.84rem;
 }
 
 .brand-card time {
@@ -75,7 +77,7 @@
 
 .catalog-state-soft {
   border-style: dashed;
-  background: rgba(255, 255, 255, 0.54);
+  background: rgba(255, 255, 255, 0.56);
   box-shadow: none;
 }
 
@@ -83,9 +85,5 @@
   .catalog-hero,
   .brand-catalog {
     grid-template-columns: 1fr;
-  }
-
-  .catalog-hero {
-    padding-top: 44px;
   }
 }

@@ -1,8 +1,6 @@
 .site-footer {
-  width: min(100%, 1400px);
   display: grid;
   gap: 18px;
-  margin-inline: auto;
   padding: clamp(16px, 3vw, 32px) 0 28px;
 }
 
@@ -11,13 +9,8 @@
   grid-template-columns: minmax(0, 1fr) auto;
   gap: clamp(20px, 4vw, 56px);
   align-items: center;
-  border: 1px solid rgba(217, 222, 214, 0.92);
-  border-radius: calc(var(--radius-lg) + 10px);
-  background:
-    radial-gradient(circle at 85% 0%, rgba(220, 233, 226, 0.95), transparent 26rem),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(239, 242, 237, 0.76));
+  border-radius: var(--radius-xl);
   padding: clamp(24px, 4vw, 52px);
-  box-shadow: var(--shadow-soft);
 }
 
 .footer-cta-panel h2 {
@@ -41,7 +34,7 @@
   display: grid;
   grid-template-columns: minmax(220px, 0.9fr) minmax(0, 1.1fr);
   gap: clamp(24px, 5vw, 80px);
-  border-top: 1px solid var(--color-border-strong);
+  border-top: 1px solid var(--color-border);
   padding-top: clamp(28px, 5vw, 56px);
 }
 
@@ -55,7 +48,7 @@
   width: fit-content;
   color: var(--color-ink);
   font-size: 1.05rem;
-  font-weight: 700;
+  font-weight: 740;
   text-decoration: none;
   transition:
     color 180ms var(--ease-out),
@@ -78,7 +71,7 @@
   color: var(--color-ink);
   font-family: var(--font-mono);
   font-size: 0.78rem;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .footer-link-group a {
