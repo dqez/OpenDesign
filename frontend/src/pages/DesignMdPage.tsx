@@ -5,6 +5,7 @@ import { DesignPreview } from "../components/design-preview";
 import { RawDesignMdPanel } from "../components/raw-design-md-panel";
 import { SiteFooter } from "../components/site-footer";
 import { SiteHeader } from "../components/site-header";
+import { WebsitePreviewImageSlot } from "../components/website-preview-image-slot";
 import {
   fetchJsonArtifact,
   fetchTextArtifact,
@@ -125,8 +126,6 @@ export function DesignMdPage() {
   return (
     <main className="site-shell">
       <SiteHeader />
-      <br />
-      <br />
       <section className={`design-detail design-detail--${detailTheme}`}>
         <header className="design-detail-header">
           <div className="design-detail-title">
@@ -135,7 +134,6 @@ export function DesignMdPage() {
             <a className="design-source" href={item.sourceUrl}>
               {item.sourceUrl}
             </a>
-            {item.updatedAt ? <time>{formatDate(item.updatedAt)}</time> : null}
           </div>
           <div className="design-detail-summary">
             <span>Token preview</span>
@@ -148,51 +146,41 @@ export function DesignMdPage() {
         </header>
 
         <div className="design-detail-workspace">
-          <aside
-            className="design-detail-rail"
-            aria-label="Design detail controls"
-          >
-            <Link className="status-link" to="/">
-              Back to catalog
-            </Link>
+          <aside className="design-detail-showcase">
+            <WebsitePreviewImageSlot />
 
-            <nav className="design-tabs" aria-label="Design detail views">
-              <a
-                className={tab === "preview" ? "active" : ""}
-                href="#preview"
-                aria-current={tab === "preview" ? "page" : undefined}
-                onClick={() => setTab("preview")}
-              >
-                Preview
-              </a>
-              <a
-                className={tab === "design-md" ? "active" : ""}
-                href="#design-md"
-                aria-current={tab === "design-md" ? "page" : undefined}
-                onClick={() => setTab("design-md")}
-              >
-                DESIGN.md
-              </a>
-            </nav>
+            <section className="design-detail-panel">
+              <p className="section-kicker">Summary</p>
+              <h2>{item.brand} design artifact</h2>
+              <p>
+                A compact workspace for inspecting the generated preview,
+                source URL, raw markdown, and handoff artifacts.
+              </p>
+              <dl className="design-meta-list">
+                <div>
+                  <dt>Source</dt>
+                  <dd>
+                    <a href={item.sourceUrl}>{item.sourceUrl}</a>
+                  </dd>
+                </div>
+                <div>
+                  <dt>Updated</dt>
+                  <dd>{item.updatedAt ? formatDate(item.updatedAt) : "Not dated"}</dd>
+                </div>
+                <div>
+                  <dt>Preview</dt>
+                  <dd>{model ? "Token model ready" : "Raw DESIGN.md only"}</dd>
+                </div>
+              </dl>
+            </section>
 
-            <div className="design-detail-actions">
-              <div className="design-theme-toggle" aria-label="Design detail theme">
-                <button
-                  className={detailTheme === "light" ? "active" : ""}
-                  type="button"
-                  aria-pressed={detailTheme === "light"}
-                  onClick={() => setDetailTheme("light")}
-                >
-                  Light
-                </button>
-                <button
-                  className={detailTheme === "dark" ? "active" : ""}
-                  type="button"
-                  aria-pressed={detailTheme === "dark"}
-                  onClick={() => setDetailTheme("dark")}
-                >
-                  Dark
-                </button>
+            <section
+              className="design-detail-panel design-detail-actions"
+              aria-label="Artifact actions"
+            >
+              <div>
+                <p className="section-kicker">Actions</p>
+                <h2>Artifacts</h2>
               </div>
               <button
                 type="button"
@@ -211,10 +199,56 @@ export function DesignMdPage() {
                   Brand guide
                 </a>
               ) : null}
-            </div>
+              <a className="design-secondary-link" href={item.sourceUrl}>
+                Source URL
+              </a>
+              <Link className="design-secondary-link" to="/">
+                Back to catalog
+              </Link>
+            </section>
           </aside>
 
-          <div className="design-detail-main">
+          <div className="design-detail-content">
+            <div className="design-detail-toolbar">
+              <nav className="design-tabs" aria-label="Design detail views">
+                <a
+                  className={tab === "preview" ? "active" : ""}
+                  href="#preview"
+                  aria-current={tab === "preview" ? "page" : undefined}
+                  onClick={() => setTab("preview")}
+                >
+                  Preview
+                </a>
+                <a
+                  className={tab === "design-md" ? "active" : ""}
+                  href="#design-md"
+                  aria-current={tab === "design-md" ? "page" : undefined}
+                  onClick={() => setTab("design-md")}
+                >
+                  DESIGN.md
+                </a>
+              </nav>
+
+              <div className="design-theme-toggle" aria-label="Design detail theme">
+                <button
+                  className={detailTheme === "light" ? "active" : ""}
+                  type="button"
+                  aria-pressed={detailTheme === "light"}
+                  onClick={() => setDetailTheme("light")}
+                >
+                  Light
+                </button>
+                <button
+                  className={detailTheme === "dark" ? "active" : ""}
+                  type="button"
+                  aria-pressed={detailTheme === "dark"}
+                  onClick={() => setDetailTheme("dark")}
+                >
+                  Dark
+                </button>
+              </div>
+            </div>
+
             {tab === "preview" ? (
               <DesignPreview
                 brand={item.brand}

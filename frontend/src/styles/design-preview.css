@@ -1,10 +1,11 @@
 .design-preview {
   display: grid;
   gap: 18px;
-  border-radius: 18px;
+  border-radius: var(--radius-xl);
   background: var(--dp-bg);
   color: var(--dp-ink);
   padding: clamp(16px, 3vw, 28px);
+  box-shadow: var(--glass-shadow-tight);
 }
 
 .design-preview p,
@@ -33,8 +34,15 @@
 .dp-hero h2 {
   max-width: 900px;
   color: var(--dp-ink);
+  font-family: var(--font-display);
   font-size: clamp(2rem, 4.2vw, 3.4rem);
-  text-transform: uppercase;
+  line-height: 0.95;
+  text-transform: none;
+}
+
+.dp-hero > p:not(.dp-kicker) {
+  max-width: 74ch;
+  font-family: var(--font-body);
 }
 
 .dp-kicker {
@@ -42,8 +50,7 @@
   font-family: var(--font-mono);
   font-size: 0.78rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0;
 }
 
 .dp-actions,
@@ -56,14 +63,17 @@
 .dp-actions button,
 .dp-button-row button,
 .dp-button-row a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 46px;
-  border-radius: var(--dp-radius);
+  border-radius: max(var(--dp-radius), 18px);
   border: 1px solid var(--dp-ink);
   background: var(--dp-ink);
   color: var(--dp-bg);
+  line-height: 1;
   padding: 0 16px;
   text-decoration: none;
-  text-transform: uppercase;
 }
 
 .dp-actions .dp-outline,
@@ -79,13 +89,9 @@
 
 .dp-section-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+  grid-template-columns: 1fr;
   gap: 18px;
   align-items: start;
-}
-
-.dp-section-grid .dp-section:first-child {
-  grid-column: 1 / -1;
 }
 
 .dp-section {
@@ -103,18 +109,24 @@
 .dp-spec-grid,
 .dp-form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
   gap: 10px;
+}
+
+.dp-form-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
 }
 
 .dp-swatch,
 .dp-card-grid article,
 .dp-spec-grid div,
 .dp-form-grid > * {
+  min-width: 0;
   border: 1px solid color-mix(in srgb, var(--dp-ink), transparent 84%);
   border-radius: var(--dp-radius);
   background: var(--dp-card);
   padding: 12px;
+  overflow-wrap: anywhere;
 }
 
 .dp-swatch {
@@ -134,16 +146,27 @@
 
 .dp-type-list div {
   display: grid;
-  grid-template-columns: 128px minmax(0, 1fr) minmax(98px, auto);
-  gap: 10px;
-  align-items: baseline;
+  grid-template-columns: minmax(96px, 0.62fr) minmax(0, 1.2fr) minmax(100px, auto);
+  gap: 14px;
+  align-items: center;
   border-bottom: 1px solid color-mix(in srgb, var(--dp-ink), transparent 88%);
-  padding: 9px 0;
+  padding: 14px 0;
+}
+
+.dp-type-list strong {
+  color: var(--dp-ink);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.dp-type-list code {
+  justify-self: end;
+  white-space: nowrap;
 }
 
 .dp-card-grid article {
   min-height: 112px;
-  align-content: end;
+  align-content: start;
 }
 
 .dp-card-grid h3,
@@ -152,10 +175,18 @@
   color: var(--dp-ink);
 }
 
+.dp-card-grid h3 {
+  font-size: clamp(1.05rem, 1.6vw, 1.45rem);
+}
+
 .dp-spec-grid strong {
   display: block;
   font-size: clamp(1.55rem, 3vw, 2.4rem);
   line-height: 1;
+}
+
+.dp-form-grid > * {
+  min-height: 68px;
 }
 
 .dp-form-grid input,
@@ -164,24 +195,60 @@
   border-color: color-mix(in srgb, var(--dp-ink), transparent 72%);
   background: var(--dp-surface);
   color: var(--dp-ink);
+  line-height: 1.35;
+  padding: 12px;
 }
 
 .dp-form-grid textarea {
-  min-height: 88px;
-  padding: 12px;
+  min-height: 68px;
   resize: none;
 }
 
-@media (max-width: 760px) {
-  .dp-section-grid {
+.dp-form-note {
+  display: grid;
+  grid-column: 1 / -1;
+  align-content: start;
+  gap: 8px;
+}
+
+.dp-form-note p {
+  max-width: 52ch;
+}
+
+@media (max-width: 900px) {
+  .dp-type-list div {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: 8px;
+  }
+
+  .dp-type-list code {
+    justify-self: start;
+    white-space: normal;
+  }
+}
+
+@media (max-width: 520px) {
+  .design-preview {
+    padding: 14px;
+  }
+
+  .dp-actions,
+  .dp-button-row {
+    display: grid;
     grid-template-columns: 1fr;
   }
 
-  .dp-section-grid .dp-section:first-child {
-    grid-column: auto;
+  .dp-actions button,
+  .dp-button-row button,
+  .dp-button-row a,
+  .dp-button-row .dp-icon {
+    width: 100%;
   }
 
-  .dp-type-list div {
+  .dp-card-grid,
+  .dp-spec-grid,
+  .dp-form-grid {
     grid-template-columns: 1fr;
   }
 }

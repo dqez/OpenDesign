@@ -14,7 +14,6 @@ const steps = [
 
 export function PinnedProcess() {
   const sectionRef = useRef<HTMLElement>(null);
-  const copyRef = useRef<HTMLDivElement>(null);
 
   useGSAP(
     () => {
@@ -42,25 +41,18 @@ export function PinnedProcess() {
         },
       );
 
-      ScrollTrigger.create({
-        trigger: section,
-        start: "top top",
-        end: "bottom bottom",
-        pin: copyRef.current,
-        pinSpacing: false,
-      });
     },
     { scope: sectionRef },
   );
 
   return (
     <section className="process-section" id="process" ref={sectionRef}>
-      <div className="process-copy" ref={copyRef}>
+      <div className="process-copy">
         <p className="section-kicker">From URL to DESIGN.md</p>
-        <h2>One pinned pass from website surface to usable design memory.</h2>
+        <h2>One compact pass from website surface to usable design memory.</h2>
         <p>
-          The scroll story stays intentionally narrow: four visible steps, no
-          decorative scroll hijacking, and a reduced-motion fallback.
+          The workflow keeps extraction, artifact writing, and review in one
+          calm sequence.
         </p>
       </div>
       <div className="process-stack">
