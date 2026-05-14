@@ -9,7 +9,9 @@ function requiredEnv(name: string) {
 function createR2Client() {
   return new S3Client({
     region: "auto",
-    endpoint: `https://${requiredEnv("CF_ACCOUNT_ID")}.r2.cloudflarestorage.com`,
+    endpoint:
+      process.env.R2_ENDPOINT ??
+      `https://${requiredEnv("CF_ACCOUNT_ID")}.r2.cloudflarestorage.com`,
     credentials: {
       accessKeyId: requiredEnv("R2_ACCESS_KEY_ID"),
       secretAccessKey: requiredEnv("R2_SECRET_ACCESS_KEY"),

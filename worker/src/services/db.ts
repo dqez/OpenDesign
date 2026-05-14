@@ -1,3 +1,5 @@
+import { DEFAULT_ORDER_TTL_HOURS, DEFAULT_PAYMENT_CURRENCY } from "../config";
+
 export type JobStatus = "queued" | "processing" | "completed" | "failed";
 
 export type CreateJobInput = {
@@ -106,10 +108,15 @@ export async function createOrder(
     email: string;
     ipHash: string;
     amount: number;
+    currency?: string;
+    ttlHours?: number;
   },
 ) {
   const now = new Date();
-  const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
+  const ttlHours = input.ttlHours ?? DEFAULT_ORDER_TTL_HOURS;
+  const expiresAt = new Date(
+    now.getTime() + ttlHours * 60 * 60 * 1000,
+  ).toISOString();
   return db
     .prepare(
       "INSERT INTO orders (order_code, url, email, ip_hash, amount, currency, status, created_at, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -120,7 +127,7 @@ export async function createOrder(
       input.email,
       input.ipHash,
       input.amount,
-      "VND",
+      input.currency ?? DEFAULT_PAYMENT_CURRENCY,
       "pending",
       now.toISOString(),
       expiresAt,

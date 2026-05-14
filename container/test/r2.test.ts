@@ -19,7 +19,7 @@ describe("uploadObject", () => {
     process.env.CF_ACCOUNT_ID = "account123";
     process.env.R2_ACCESS_KEY_ID = "access123";
     process.env.R2_SECRET_ACCESS_KEY = "secret123";
-    process.env.R2_BUCKET_NAME = "2design-outputs";
+    process.env.R2_BUCKET_NAME = "opendesign-outputs";
   });
 
   it("uploads an object through the R2 S3 API", async () => {
@@ -42,7 +42,7 @@ describe("uploadObject", () => {
     expect(sendMock).toHaveBeenCalledOnce();
     const command = sendMock.mock.calls[0][0] as PutObjectCommand;
     expect(command.input).toMatchObject({
-      Bucket: "2design-outputs",
+      Bucket: "opendesign-outputs",
       Key: "neon.com/job_123/tokens.json",
       Body: new Uint8Array([123, 125]),
       ContentType: "application/json",

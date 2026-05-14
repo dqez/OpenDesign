@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import app from "../src/app";
 
 const env = {
-  FRONTEND_ORIGIN: "https://2design.pages.dev",
+  FRONTEND_ORIGIN: "https://opendesign.pages.dev",
   DEV_ORIGIN: "http://localhost:5173",
   DEV_ORIGINS: "http://localhost:5173,http://127.0.0.1:5173",
 };
@@ -11,12 +11,12 @@ describe("apiCors", () => {
   it("echoes the production frontend origin", async () => {
     const response = await app.request(
       "/api/health",
-      { headers: { origin: "https://2design.pages.dev" } },
+      { headers: { origin: "https://opendesign.pages.dev" } },
       env,
     );
 
     expect(response.headers.get("access-control-allow-origin")).toBe(
-      "https://2design.pages.dev",
+      "https://opendesign.pages.dev",
     );
   });
 

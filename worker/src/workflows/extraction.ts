@@ -3,6 +3,7 @@ import {
   type WorkflowEvent,
   type WorkflowStep,
 } from "cloudflare:workers";
+import { getAppName, getEmailFrom } from "../config";
 import { writeAuditEvent } from "../services/audit";
 import {
   getContainerExtractionStatus,
@@ -61,6 +62,8 @@ export async function runExtractionWorkflow(
         apiKey: env.RESEND_API_KEY,
         to: payload.email,
         downloadUrls: signedUrls,
+        appName: getAppName(env),
+        emailFrom: getEmailFrom(env),
       });
       await recordEmailLog(env.DB, {
         emailLogId: crypto.randomUUID(),

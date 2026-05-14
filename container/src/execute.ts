@@ -44,9 +44,14 @@ export async function findDembrandtOutputFiles(workdir: string, domain: string) 
   };
 }
 
+export function buildWorkdir(jobId: string) {
+  const prefix = process.env.WORKDIR_PREFIX ?? "opendesign";
+  return join(tmpdir(), `${prefix}-${jobId}`);
+}
+
 export async function runDembrandt(url: string, jobId: string) {
   const domain = new URL(url).hostname.replace(/^www\./, "");
-  const workdir = join(tmpdir(), `2design-${jobId}`);
+  const workdir = buildWorkdir(jobId);
   await mkdir(workdir, { recursive: true });
 
   try {

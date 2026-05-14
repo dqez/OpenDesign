@@ -1,4 +1,5 @@
 import { createMiddleware } from "hono/factory";
+import { getSePayAllowedIps } from "../config";
 import { isAllowedSePayIp, verifySePayAuthorization } from "../services/sepay";
 import type { AppEnv } from "../types";
 
@@ -8,7 +9,7 @@ export const sepayAuthMiddleware = createMiddleware<AppEnv>(async (c, next) => {
     c.req.header("X-Forwarded-For")?.split(",")[0]?.trim() ??
     "";
 
-  if (!isAllowedSePayIp(clientIp)) {
+  if (!isAllowedSePayIp(clientIp, getSePayAllowedIps(c.env))) {
     return c.json({ success: false, error: "forbidden_ip" }, 403);
   }
 

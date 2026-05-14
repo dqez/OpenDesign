@@ -2,218 +2,169 @@
 
 ## Project
 
-2Design is a Cloudflare-native service for extracting design tokens and brand guide assets from a submitted website URL.
-
-The backend wraps the `dembrandt` CLI so users can submit a URL and email from the frontend, receive a queued extraction job, and download generated artifacts without installing local tooling.
-
-Core outputs:
+OpenDesign turns a submitted website URL into reusable design artifacts:
 
 - `tokens.json`
 - `DESIGN.md`
 - `brand-guide.pdf`
 
-Primary success targets from the PRD:
+The app is split into three independently runnable packages:
 
-- Job completion rate at least 90%.
-- P95 processing time no more than 5 minutes.
-- R2 upload success at least 99%.
-- Completion email success at least 95%.
+- `worker/`: Cloudflare Worker API built with Hono. It owns request validation, CORS, rate limiting, D1/KV/R2 services, Queue consumption, Workflow orchestration, SePay webhook handling, and Resend completion email.
+- `container/`: Node + Hono HTTP extractor service. It runs `dembrandt` with Playwright, uploads artifacts to R2 through the S3-compatible API, and exposes authenticated extraction status endpoints.
+- `frontend/`: Vite + React SPA deployed to Cloudflare Pages. It submits URL/email extraction requests, handles payment-required QR state, polls jobs/orders, shows the design catalog, and previews completed artifacts.
 
 ## Source Of Truth
 
 Read these before implementation:
 
-- `2design-backend-prd-vi.md`: product and technical requirements.
-- `docs/planB/README.md`: implementation strategy and mandatory fixes.
-- `docs/planB/phase*.md`: task-level execution plans.
+- `docs/opendesign-backend-prd-vi.md`: product requirements and target Cloudflare architecture.
+- `docs/cloudflare-account-setup.md` and `docs/cloudflare-account-setup.vi.md`: account/resource setup.
+- `docs/opendesign-deploy-runbook.md` and `docs/opendesign-deploy-runbook.vi.md`: current deployment flow.
+- `frontend/design-codex.md`: frontend redesign research and visual direction.
+- Current code and tests in the package you are changing.
 
 Conflict order:
 
 1. Current user instruction.
-2. `docs/planB/README.md` mandatory patch summary and execution rules.
-3. Phase plan for the active task.
-4. `2design-backend-prd-vi.md`.
-5. Existing code patterns.
+2. This file.
+3. Current code, tests, Wrangler config, and deploy runbook.
+4. PRD/product docs.
+5. General preferences.
 
-## Architecture
+The PRD still references Cloudflare Containers as the target architecture, but the current deploy runbook and code use an external HTTPS extractor service through `EXTRACTOR_URL`. Do not perform an architecture migration unless the user explicitly asks for it.
 
-Use the Plan B vertical-slice architecture:
+## Current Architecture
 
-- `worker/`: Cloudflare Worker API, queue consumer, workflow entrypoints, D1/KV/R2 services, SePay webhook, Resend email.
-- `container/`: Cloudflare Container image that runs `dembrandt`, Playwright, and upload/presign helpers.
-- `frontend/`: Vite React SPA for URL submission, payment QR, status polling, PDF preview, token preview, and downloads.
-- `docs/planB/`: implementation plan and phase checklists.
+Worker API:
 
-Cloudflare services:
+- Entry point: `worker/src/index.ts`.
+- Hono app: `worker/src/app.ts`, mounted at `/api`.
+- Routes live in `worker/src/routes/`.
+- Shared services live in `worker/src/services/`.
+- Middleware lives in `worker/src/middleware/`.
+- Workflow orchestration lives in `worker/src/workflows/extraction.ts`.
+- Queue handling lives in `worker/src/queue.ts`.
+- Bindings and vars are declared in `worker/wrangler.jsonc`; generated types are in `worker/worker-configuration.d.ts`.
 
-- D1 is the long-term source of truth for jobs, orders, payments, webhook events, email logs, and audit events.
-- KV is only for short-lived IP usage, rate-limit counters, and disposable cache with TTL.
-- R2 stores extraction artifacts under `{domain}/{jobId}/...`.
-- Queues decouple API requests from extraction work.
-- Workflows orchestrate status changes, container execution, retries, R2 result handling, and email delivery.
-- Containers run `dembrandt` and Playwright. Do not expose an ad-hoc public container API.
+Extractor service:
 
-## Non-Negotiable Constraints
+- HTTP server: `container/src/server.ts`.
+- Job state: `container/src/jobs.ts`, currently in-memory per process.
+- `dembrandt` execution: `container/src/execute.ts`.
+- R2 upload: `container/src/r2.ts`.
+- Docker image: `container/Dockerfile`.
 
-- Do not store secrets, API keys, bank credentials, or raw private credentials in D1, KV, R2, source files, or committed config.
-- Hash IP addresses with `IP_HASH_SALT` before persistence or KV use.
-- Do not use KV for payment reconciliation, job state, audit history, or other long-term records.
-- Do not add wildcard CORS to SePay webhook routes.
-- Verify SePay webhooks with the PRD IP whitelist and `Authorization: Apikey {KEY}`.
-- Make webhook handling idempotent using provider transaction/event IDs.
-- Validate URLs strictly and never interpolate untrusted input into shell commands.
-- Generate 24-hour signed R2 URLs for job status responses and completion emails.
-- Keep output files available for at least 7 days.
-- Keep pending job pressure bounded; Plan B uses a cap of 100 queued or processing jobs.
-- Rate limit API requests at 5 requests per minute per IP hash.
-- Returning users, identified by IP usage count of at least 1, must receive a `402 Payment Required` payment response before another extraction job is queued.
+Frontend:
 
-## Container Rule
-
-Use Cloudflare Containers through the Durable Object-backed container binding.
-
-Expected direction:
-
-- Use `@cloudflare/containers`.
-- Implement `DembrandtContainer extends Container`.
-- Invoke via the Worker binding, for example with `getContainer(env.DEMBRANDT_CONTAINER, jobId).fetch(...)`.
-
-Do not introduce `CONTAINER_ENDPOINT` or public HTTP calls from the Worker to the extraction container unless the user explicitly changes the architecture.
-
-## Data Model
-
-Core D1 tables:
-
-- `jobs`
-- `orders`
-- `payments`
-- `webhook_events`
-- `email_logs`
-- `audit_events`
-
-Recommended indexes from the PRD:
-
-- `jobs(status, created_at)`
-- `jobs(email)`
-- `jobs(domain)`
-- `orders(order_code)` unique
-- `orders(status, expires_at)`
-- `payments(provider, provider_transaction_id)` unique
-- `webhook_events(provider, provider_event_id)` unique
-- `email_logs(job_id, status)`
-- `audit_events(job_id, created_at)`
-
-Use D1 prepared statements with bound values. Keep timestamps in ISO string form unless the existing schema establishes another convention.
+- Routes: `frontend/src/App.tsx`.
+- API client: `frontend/src/api.ts`.
+- Main pages: `frontend/src/pages/`.
+- Reusable UI: `frontend/src/components/`.
+- Styling: `frontend/src/styles.css` plus files under `frontend/src/styles/`.
+- Public catalog/artifact helpers: `frontend/src/design-artifacts.ts` and `frontend/src/design-token-parser.ts`.
 
 ## API Contract
 
-Base path: `/api`
+Base path: `/api`.
 
-Required endpoints:
+- `GET /api/health`: service health.
+- `GET /api/designs`: R2-backed design catalog with signed artifact URLs.
+- `POST /api/extract`: accepts `{ "url": "https://example.com", "email": "user@example.com" }`.
+  - First free use returns `202` with `{ jobId, status: "queued", pollUrl }`.
+  - Returning IP usage returns `402` with payment details, `orderCode`, `amount`, `currency`, bank info, QR URL, and order status URL.
+- `GET /api/orders/:orderCode`: returns payment order status and `pollUrl` after a job exists.
+- `GET /api/jobs/:jobId`: returns job status; completed jobs include signed URLs for `tokens`, `designMd`, and `brandGuide`.
+- `POST /api/sepay/webhook`: SePay webhook route protected by source IP and `Authorization: Apikey ...`.
 
-- `POST /api/extract`
-  - Request: `{ "url": "https://example.com", "email": "user@example.com" }`
-  - First free use: return `202` with `{ jobId, status: "queued", pollUrl }`.
-  - Returning user: return `402` with payment details, `orderCode`, `amount: 25000`, bank info, and SePay QR URL.
+## Data And Storage Rules
 
-- `GET /api/jobs/:jobId`
-  - Missing job: return `404`.
-  - Queued/processing: return current status.
-  - Completed: include signed URLs for `tokens`, `designMd`, and `brandGuide`.
-  - Failed: include failure reason.
+- D1 is the long-term source of truth for `jobs`, `orders`, `payments`, `webhook_events`, `email_logs`, and `audit_events`.
+- KV is only for TTL data: IP usage and rate-limit counters.
+- R2 stores generated artifacts under `{domain}/{jobId}/...`.
+- Use D1 prepared statements with bound values.
+- Store timestamps as ISO strings unless the existing schema establishes another convention.
+- Keep webhook handling idempotent by provider event/transaction IDs.
+- Keep pending job pressure bounded at the current limit of 100 queued or processing jobs.
+- Keep API rate limiting at 5 requests per minute per IP hash unless the requirement changes.
 
-- `POST /api/sepay/webhook`
-  - No public CORS.
-  - Verify source IP and API key.
-  - Deduplicate provider event/transaction IDs.
-  - Match order code and amount.
-  - Mark order paid, create job, enqueue extraction, and write payment/webhook/audit records.
+## Security And Privacy
+
+- Never commit API keys, R2 credentials, SePay API keys, Resend API keys, `IP_HASH_SALT`, `.dev.vars`, `.env`, or raw private credentials.
+- Hash IP addresses with `IP_HASH_SALT` before persistence or KV use.
+- Do not use KV for payment reconciliation, job state, audit history, or other long-term records.
+- Do not add wildcard CORS. Preserve explicit frontend/dev origins and keep SePay webhook access controlled.
+- Validate URLs strictly and never interpolate untrusted input into shell commands.
+- Treat email addresses, IP hashes, payment metadata, webhook payloads, and extraction outputs as sensitive operational data.
+- Do not log secrets.
 
 ## Implementation Workflow
 
-Follow the Plan B phase files in order unless the user asks for a different task:
-
-1. Phase 0: repo foundation.
-2. Phase 1: Worker data core.
-3. Phase 2: extraction pipeline.
-4. Phase 3: payment and email.
-5. Phase 4: frontend.
-6. Phase 5: release verification.
-
-When executing a phase:
-
-- Work one checklist task at a time.
-- Use TDD for service, route, webhook, and pipeline behavior.
-- Keep each package independently runnable and testable.
-- Prefer existing plan file paths and names over inventing alternatives.
-- Update generated Worker binding types after `wrangler.jsonc` binding changes.
-- Commit only when the task leaves the repo in a verified state, unless the current user/session instruction says not to commit.
+- Make surgical changes. Touch only files that directly support the task.
+- Match existing package style: TypeScript ESM, Hono route modules, service helpers, and Vitest tests.
+- Use TDD for Worker services/routes/middleware/workflows and extractor behavior.
+- Add or update focused tests next to the package behavior being changed.
+- If `worker/wrangler.jsonc` bindings or vars change, run `npm run types` in `worker/` and commit the generated type update when appropriate.
+- Keep each package independently installable, testable, and buildable.
+- If changing English/Vietnamese deployment docs, update both language versions unless the user asks for only one.
+- Do not make remote Cloudflare changes unless credentials/resource IDs are intentionally configured and the user asked for deploy/setup work.
 
 ## Verification
 
-Run the narrowest relevant checks while developing, then the package-level checks before claiming completion.
+Run the narrowest relevant check while developing, then the package-level check before claiming completion.
 
 Worker:
 
-```bash
+```powershell
 cd worker
+npm run types
 npm test
 npm run typecheck
-npx wrangler d1 migrations apply 2design-prod --local
+npx wrangler d1 migrations apply opendesign-prod --local
+cd ..
 ```
 
 Container:
 
-```bash
+```powershell
 cd container
 npm test
 npm run typecheck
 npm run build
-npm run build:image
+cd ..
 ```
 
 Frontend:
 
-```bash
+```powershell
 cd frontend
 npm test
 npm run build
+cd ..
 ```
 
-End-to-end smoke targets:
+Full local verification, including Docker image build:
 
-- First extraction from a new IP returns `202`.
-- Sixth request in one minute returns `429`.
-- Returning extraction request returns `402`.
-- Duplicate SePay webhook returns `200` without creating a second job.
-- Completed job returns 24-hour signed URLs.
-- Completion email attempt writes an `email_logs` row.
+```powershell
+.\scripts\verify-planb.ps1
+```
 
-## Cloudflare Guidance
+Local Worker smoke helper, when `wrangler dev` is already serving on `127.0.0.1:8787`:
 
-Cloudflare APIs, Wrangler config, product limits, and pricing can change. Before implementing or deploying Cloudflare-specific behavior, verify current documentation, local package types, and Wrangler schema instead of relying only on memory or the PRD.
-
-Prefer local verification before remote Cloudflare commands. Use remote deployment commands only when credentials and resource IDs are configured intentionally.
+```powershell
+.\scripts\smoke-worker-local.ps1
+```
 
 ## Frontend Guidance
 
-The first screen should be the usable extraction flow, not a marketing landing page.
+- Preserve the usable extraction flow as the primary screen.
+- Keep route paths stable unless the task explicitly changes navigation.
+- Preserve submission, payment polling, job polling, and artifact download behavior.
+- Avoid adding a separate marketing-only landing page.
+- Current visual direction is documented in `frontend/design-codex.md`: specimen-lab feel, practical artifact preview, no generic AI gradient treatment.
 
-Required user-facing states:
+## Cloudflare Guidance
 
-- URL and email submission.
-- Queued/processing status polling.
-- Payment-required QR state.
-- Completed PDF preview and download actions.
-- Failed job state with a clear reason.
+Cloudflare APIs, Wrangler config, product limits, and pricing can change. Before implementing Cloudflare-specific behavior or deployment steps, verify current official docs, local package types, and the active Wrangler schema instead of relying only on memory or the PRD.
 
-Keep the UI practical and work-focused. Avoid decorative layouts that hide the primary extraction workflow.
-
-## Security And Privacy
-
-- Treat email addresses, IP hashes, payment metadata, and extraction results as sensitive operational data.
-- Store only the metadata needed for support, reconciliation, and audit.
-- Keep raw provider webhook payloads only where required by the PRD and never include secrets.
-- Do not log secrets.
-- Keep audit events append-only where possible.
-
+Prefer local verification before remote commands. Use remote deployment commands only when the target account and credentials are deliberate.

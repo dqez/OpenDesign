@@ -17,7 +17,7 @@ function mockWebhookEnv(options: {
         if (sql.includes("orders WHERE")) {
           return (
             options.order ?? {
-              order_code: "2D-A1B2C3",
+              order_code: "OD-A1B2C3",
               url: "https://neon.com/",
               email: "user@example.com",
               ip_hash: "sha256:abc",
@@ -40,8 +40,8 @@ function mockWebhookEnv(options: {
     SEPAY_API_KEY: "secret",
     SEPAY_BANK_ACCOUNT: "0123456789",
     SEPAY_BANK_NAME: "Vietcombank",
-    SEPAY_BANK_ACCOUNT_NAME: "2Design",
-    FRONTEND_ORIGIN: "https://2design.pages.dev",
+    SEPAY_BANK_ACCOUNT_NAME: "OpenDesign",
+    FRONTEND_ORIGIN: "https://opendesign.pages.dev",
     DEV_ORIGIN: "http://localhost:5173",
     __mocks: { queueSend, run, prepare },
   };
@@ -52,8 +52,8 @@ const validPayload = {
   gateway: "Vietcombank",
   transactionDate: "2026-05-08 14:00:00",
   accountNumber: "0123456789",
-  code: "2D-A1B2C3",
-  content: "2D-A1B2C3",
+  code: "OD-A1B2C3",
+  content: "OD-A1B2C3",
   transferType: "in",
   transferAmount: 25000,
   referenceCode: "REF42",
@@ -121,6 +121,39 @@ it("records valid webhooks and enqueues a paid job", async () => {
   );
 });
 
+it("records legacy 2D webhooks for existing pending orders", async () => {
+  const env = mockWebhookEnv({
+    order: {
+      order_code: "2D-A1B2C3",
+      url: "https://neon.com/",
+      email: "user@example.com",
+      ip_hash: "sha256:abc",
+      amount: 25000,
+      status: "pending",
+    },
+  });
+  const response = await app.request(
+    "/api/sepay/webhook",
+    {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        Authorization: "Apikey secret",
+        "CF-Connecting-IP": "172.236.138.20",
+      },
+      body: JSON.stringify({
+        ...validPayload,
+        code: "2D-A1B2C3",
+        content: "2D-A1B2C3",
+      }),
+    },
+    env,
+  );
+
+  expect(response.status).toBe(200);
+  expect(env.__mocks.queueSend).toHaveBeenCalledOnce();
+});
+
 it("accepts overpayment and enqueues a paid job", async () => {
   const env = mockWebhookEnv();
   const response = await app.request(
@@ -176,7 +209,7 @@ it("resumes existing received webhook events instead of returning duplicate earl
     existingWebhook: {
       webhook_event_id: "wh_42",
       status: "received",
-      order_code: "2D-A1B2C3",
+      order_code: "OD-A1B2C3",
     },
   });
 

@@ -6,11 +6,11 @@ describe("buildR2ObjectUrl", () => {
     expect(
       buildR2ObjectUrl({
         accountId: "abc123",
-        bucketName: "2design-outputs",
+        bucketName: "opendesign-outputs",
         key: "neon.com/job_abc/tokens.json",
       }),
     ).toBe(
-      "https://abc123.r2.cloudflarestorage.com/2design-outputs/neon.com/job_abc/tokens.json",
+      "https://abc123.r2.cloudflarestorage.com/opendesign-outputs/neon.com/job_abc/tokens.json",
     );
   });
 });

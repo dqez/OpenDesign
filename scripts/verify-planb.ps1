@@ -12,7 +12,7 @@ Push-Location worker
 Invoke-Checked "npm run types"
 Invoke-Checked "npm test"
 Invoke-Checked "npm run typecheck"
-Invoke-Checked "npx wrangler d1 migrations apply 2design-prod --local"
+Invoke-Checked "npx wrangler d1 migrations apply opendesign-prod --local"
 Pop-Location
 
 Push-Location container
