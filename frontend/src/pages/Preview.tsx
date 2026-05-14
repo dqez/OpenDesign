@@ -16,6 +16,30 @@ export function Preview() {
   const [model, setModel] = useState<DesignPreviewModel | null>(null);
   const [markdown, setMarkdown] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isHeaderHidden, setIsHeaderHidden] = useState(false);
+
+  useEffect(() => {
+    let lastScrollY = window.scrollY;
+    
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      if (currentScrollY > 60) {
+        if (currentScrollY > lastScrollY) {
+          setIsHeaderHidden(true); // scrolling down
+        } else {
+          setIsHeaderHidden(false); // scrolling up
+        }
+      } else {
+        setIsHeaderHidden(false); // at top
+      }
+      
+      lastScrollY = currentScrollY;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -80,26 +104,38 @@ export function Preview() {
 
   return (
     <main className="job-preview-shell">
-      <section className="job-preview-toolbar">
+      <section className={`job-preview-toolbar ${isHeaderHidden ? "is-hidden" : ""}`}>
         <div>
-          <p className="section-kicker">Fullscreen preview</p>
-          <h1>{brand}</h1>
+          <p className="section-kicker field-label">Fullscreen preview</p>
+          <h2 className="field-title">{brand}</h2>
         </div>
         <nav className="download-list" aria-label="Preview actions">
           <Link to="/">Back home</Link>
           <Link to={`/jobs/${jobId}`}>Job status</Link>
-          {job.files?.tokens?.url ? <a href={job.files.tokens.url}>tokens.json</a> : null}
-          {job.files?.designMd?.url ? <a href={job.files.designMd.url}>DESIGN.md</a> : null}
+          {job.files?.tokens?.url ? (
+            <a href={job.files.tokens.url}>tokens.json</a>
+          ) : null}
+          {job.files?.designMd?.url ? (
+            <a href={job.files.designMd.url}>DESIGN.md</a>
+          ) : null}
           {job.files?.brandGuide?.url ? (
             <a href={job.files.brandGuide.url}>brand-guide.pdf</a>
           ) : null}
         </nav>
       </section>
 
-      <DesignPreview brand={brand} sourceUrl={sourceUrl} model={model} mode="light" />
+      <DesignPreview
+        brand={brand}
+        sourceUrl={sourceUrl}
+        model={model}
+        mode="light"
+      />
 
       {job.files?.designMd?.url ? (
-        <RawDesignMdPanel markdown={markdown} downloadUrl={job.files.designMd.url} />
+        <RawDesignMdPanel
+          markdown={markdown}
+          downloadUrl={job.files.designMd.url}
+        />
       ) : null}
     </main>
   );

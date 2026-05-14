@@ -16,7 +16,7 @@ OpenDesign uses:
 - Cloudflare Workflows: durable extraction polling and email completion flow.
 - External extractor container: Node/Docker service that runs `dembrandt` and uploads to R2.
 
-Important: IDs in `worker/wrangler.jsonc` are account-specific. If you deploy to a new account, create new D1/KV/R2 resources and replace the old IDs before deploy.
+Important: `worker/wrangler.example.jsonc` is the reusable template for a fresh account. Copy it to `worker/wrangler.jsonc` for local setup, then replace the placeholder IDs and account-specific values before running Worker deploy/type generation. Do not use IDs from an existing `worker/wrangler.jsonc` when setting up another account.
 
 ## Prerequisites
 
@@ -25,7 +25,7 @@ Important: IDs in `worker/wrangler.jsonc` are account-specific. If you deploy to
 - Docker installed if you deploy the extractor container yourself.
 - Cloudflare account with Workers, Pages, D1, KV, Queues, Workflows, and R2 enabled.
 - R2 S3 API token with Object Read & Write access to the OpenDesign bucket.
-- Resend API key and verified sender domain for `no-reply@opendesign.dqez.dev` or another approved sender.
+- Resend API key and verified sender domain for `no-reply@example.com` or another approved sender.
 - SePay webhook API key and bank account details.
 - A public HTTPS endpoint for the extractor service, for example `https://extractor.example.com`.
 
@@ -74,7 +74,7 @@ cd opendesign
 
 ## 2. Authenticate Wrangler
 
-Use the target Cloudflare account, not the old `2design` account.
+Use the target Cloudflare account.
 
 ```powershell
 cd worker
@@ -91,6 +91,14 @@ $env:CLOUDFLARE_ACCOUNT_ID = "<cloudflare-account-id>"
 
 Do not commit API tokens.
 
+For a fresh account, keep `worker/wrangler.example.jsonc` as the source template and generate your local config for editing:
+
+```powershell
+Copy-Item .\wrangler.example.jsonc .\wrangler.jsonc
+```
+
+If `worker/wrangler.jsonc` already exists and contains IDs from another account, replace it from the example file before filling in new IDs. Do not run Worker deploy or type generation until all placeholders have been replaced.
+
 ## 3. Choose Resource Names
 
 Recommended production names:
@@ -106,19 +114,22 @@ Recommended production names:
 | Queue                  | `extraction-queue`    |
 | Workflow               | `extraction-workflow` |
 
-The queue and workflow names above match the current `worker/wrangler.jsonc`.
-If you need multiple OpenDesign environments in the same account, rename them to environment-specific names such as `opendesign-prod-extraction-queue` and `opendesign-prod-extraction-workflow`, then update `worker/wrangler.jsonc`.
+The queue and workflow names above match `worker/wrangler.example.jsonc`.
+If you need multiple OpenDesign environments in the same account, rename them to environment-specific names such as `opendesign-prod-extraction-queue` and `opendesign-prod-extraction-workflow`, then update your local `worker/wrangler.jsonc`.
 
 ## 4. Create D1 Databases
 
-From `worker/`:
+Create resources from a directory that does not contain a `wrangler.jsonc`, so Wrangler does not parse a local config that still has placeholders:
 
 ```powershell
+cd ..
+New-Item -ItemType Directory -Force .cloudflare-bootstrap | Out-Null
+cd .cloudflare-bootstrap
 npx wrangler d1 create opendesign-prod
 npx wrangler d1 create opendesign-preview
 ```
 
-Copy the generated database IDs into `worker/wrangler.jsonc`:
+Copy the generated database IDs into your local `worker/wrangler.jsonc` copied from `worker/wrangler.example.jsonc`:
 
 ```jsonc
 "d1_databases": [
@@ -133,9 +144,10 @@ Copy the generated database IDs into `worker/wrangler.jsonc`:
 ]
 ```
 
-Apply migrations locally and remotely:
+After updating your local `worker/wrangler.jsonc`, apply migrations from `worker/`:
 
 ```powershell
+cd ..\worker
 npx wrangler d1 migrations apply opendesign-prod --local
 npx wrangler d1 migrations apply opendesign-prod --remote
 ```
@@ -150,13 +162,14 @@ Expected tables include `jobs`, `orders`, `payments`, `webhook_events`, `email_l
 
 ## 5. Create KV Namespace
 
-From `worker/`:
+Return to the bootstrap directory:
 
 ```powershell
+cd ..\.cloudflare-bootstrap
 npx wrangler kv namespace create KV
 ```
 
-Copy the returned ID into `worker/wrangler.jsonc`:
+Copy the returned ID into your local `worker/wrangler.jsonc`:
 
 ```jsonc
 "kv_namespaces": [
@@ -171,7 +184,7 @@ If you want a separate preview namespace, create it separately and add `preview_
 
 ## 6. Create R2 Bucket
 
-From `worker/`:
+From the same bootstrap directory:
 
 ```powershell
 npx wrangler r2 bucket create opendesign-outputs
@@ -181,6 +194,7 @@ npx wrangler r2 bucket list
 Apply the repository CORS policy:
 
 ```powershell
+cd ..\worker
 npx wrangler r2 bucket cors set opendesign-outputs --file r2-cors.json
 npx wrangler r2 bucket cors list opendesign-outputs
 ```
@@ -211,13 +225,14 @@ Also note your Cloudflare account ID for `CF_ACCOUNT_ID`.
 
 ## 8. Create Queue
 
-From `worker/`:
+From the bootstrap directory:
 
 ```powershell
+cd ..\.cloudflare-bootstrap
 npx wrangler queues create extraction-queue
 ```
 
-The current config binds the same Worker as producer and consumer:
+The example config binds the same Worker as producer and consumer. Keep the uppercase `EXTRACT_QUEUE` binding because the Worker code references `c.env.EXTRACT_QUEUE`:
 
 ```jsonc
 "queues": {
@@ -230,7 +245,7 @@ If you rename the queue, update both producer and consumer entries.
 
 ## 9. Workflows
 
-No separate create command is needed for the current setup. The Workflow binding is declared in `worker/wrangler.jsonc` and deployed with the Worker:
+No separate create command is needed for this setup. The Workflow binding is declared in `worker/wrangler.example.jsonc` and should remain in your local `worker/wrangler.jsonc`:
 
 ```jsonc
 "workflows": [
@@ -270,7 +285,7 @@ The site will be served at `https://opendesign.pages.dev` unless the name is una
 
 ## 11. Worker Vars And Secrets
 
-Plain vars currently live in `worker/wrangler.jsonc`:
+Plain vars are shown in `worker/wrangler.example.jsonc` and should be customized in your local `worker/wrangler.jsonc`:
 
 ```jsonc
 "vars": {
@@ -278,10 +293,11 @@ Plain vars currently live in `worker/wrangler.jsonc`:
   "DEV_ORIGINS": "http://localhost:5173,http://127.0.0.1:5173",
   "FRONTEND_ORIGIN": "https://opendesign.pages.dev",
   "R2_BUCKET_NAME": "opendesign-outputs",
-  "EXTRACTOR_URL": "https://extractor.dqez.dev",
-  "SEPAY_BANK_ACCOUNT": "101877455638",
-  "SEPAY_BANK_NAME": "VIETINBANK",
-  "SEPAY_BANK_ACCOUNT_NAME": "TRAN DINH QUY"
+  "EXTRACTOR_URL": "https://extractor.example.com",
+  "EMAIL_FROM": "OpenDesign <no-reply@example.com>",
+  "SEPAY_BANK_ACCOUNT": "<bank-account-number>",
+  "SEPAY_BANK_NAME": "<bank-code-or-bank-name>",
+  "SEPAY_BANK_ACCOUNT_NAME": "<bank-account-holder>"
 }
 ```
 
@@ -357,6 +373,7 @@ Use the same `EXTRACTOR_API_KEY` in both Worker and container.
 ## Setup Checklist
 
 - [ ] `npx wrangler whoami` shows the target account.
+- [ ] `worker/wrangler.jsonc` was copied from `worker/wrangler.example.jsonc`.
 - [ ] `worker/wrangler.jsonc` has new D1 database IDs.
 - [ ] `worker/wrangler.jsonc` has new KV namespace ID.
 - [ ] R2 bucket `opendesign-outputs` exists.

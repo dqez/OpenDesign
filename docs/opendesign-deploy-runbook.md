@@ -8,7 +8,7 @@ Use it for a fresh production deploy or for repeat deploys after code changes.
 Read first:
 
 - `docs/cloudflare-account-setup.md`
-- `worker/wrangler.jsonc`
+- `worker/wrangler.example.jsonc`
 - `worker/r2-cors.json`
 
 ## Deployment Order
@@ -55,6 +55,16 @@ cd ..
 ```
 
 If this shows the wrong account, stop and run `npx wrangler login` again or set the correct `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID`.
+
+Before deploying to a fresh account, make sure `worker/wrangler.jsonc` exists as a local copy of the example config and has the IDs/values created in the account setup guide:
+
+```powershell
+cd worker
+if (-not (Test-Path .\wrangler.jsonc)) { Copy-Item .\wrangler.example.jsonc .\wrangler.jsonc }
+cd ..
+```
+
+Do not copy IDs from an existing account-specific `worker/wrangler.jsonc`.
 
 ## 2. Local Verification
 
@@ -188,7 +198,7 @@ Expose it through your preferred HTTPS mechanism:
 - Reverse proxy with TLS, for example Caddy or Nginx.
 - A managed container host with HTTPS.
 
-After the public URL is ready, update `worker/wrangler.jsonc`:
+After the public URL is ready, update `EXTRACTOR_URL` in your local `worker/wrangler.jsonc` copied from `worker/wrangler.example.jsonc`:
 
 ```jsonc
 "EXTRACTOR_URL": "https://extractor.example.com"
@@ -286,7 +296,7 @@ https://opendesign.pages.dev
 
 If the final Pages URL differs, update all of these:
 
-- `worker/wrangler.jsonc` -> `vars.FRONTEND_ORIGIN`
+- local `worker/wrangler.jsonc` -> `vars.FRONTEND_ORIGIN`
 - `worker/r2-cors.json`
 - Re-run `npx wrangler r2 bucket cors set opendesign-outputs --file r2-cors.json`
 - Re-run `npm run deploy` in `worker`
@@ -432,7 +442,7 @@ Fix:
 npx wrangler d1 list
 ```
 
-Copy the correct ID into `worker/wrangler.jsonc`, then run:
+Copy the correct ID into the local `worker/wrangler.jsonc` generated from `worker/wrangler.example.jsonc`, then run:
 
 ```powershell
 npm run types

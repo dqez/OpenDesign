@@ -6,13 +6,13 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 const swatches = [
-  "#171815",
-  "#2f6f59",
-  "#dce9e2",
-  "#eff2ed",
-  "#81877e",
+  "#111827",
+  "#2f6f8f",
+  "#e6f3f7",
+  "#f6eee2",
+  "#7a8494",
   "#a94735",
-  "#10130f",
+  "#f8fbff",
   "#ffffff",
 ];
 
@@ -59,7 +59,7 @@ export function TokenBento() {
     <section className="bento-section" id="output" ref={sectionRef}>
       <div className="section-wrap">
         <div className="bento-heading">
-          <p className="section-kicker">What you get</p>
+          <p className="section-kicker">Output proof</p>
           <h2>Reviewable artifacts, not a raw scrape.</h2>
         </div>
         <div className="bento-grid">
@@ -108,12 +108,12 @@ export function TokenBento() {
               <code>{`# Design System
 
 ## Colors
-ink: #171815
-accent: #2f6f59
+ink: #111827
+accent: #2f6f8f
 
 ## Typography
-font-display: Outfit
-font-mono: JetBrains Mono`}</code>
+font-display: system-ui
+font-mono: SFMono-Regular`}</code>
             </pre>
           </article>
 

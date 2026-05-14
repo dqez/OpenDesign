@@ -87,34 +87,49 @@ export function Home() {
     <main className="site-shell">
       <SiteHeader />
 
-      <DesignCatalog />
-
-      <section className="extract-section" id="extract">
+      <section className="extract-section extract-hero" id="extract">
         <div className="hero-copy">
-          <p className="section-kicker">Add another URL</p>
-          <h2>Extract design tokens from a new site</h2>
+          <p className="section-kicker">Extract-first workspace</p>
+          <h1>Turn a live website into design memory.</h1>
+          <p>
+            Paste a public URL and OpenDesign prepares tokens, DESIGN.md, and a
+            reviewable specimen page for the next frontend pass.
+          </p>
         </div>
         <form className="extract-panel" onSubmit={onSubmit}>
           <label>
-            Website URL
+            <span className="field-label">Website URL</span>
             <input
+              className="url-input"
+              id="website-url"
+              name="url"
+              autoComplete="url"
               value={url}
               onChange={(event) => setUrl(event.target.value)}
               placeholder="https://neon.com"
               required
             />
+            <span className="field-helper">
+              Use a public marketing, product, or docs page.
+            </span>
           </label>
           <label>
-            Email
+            <span className="field-label">Email</span>
             <input
+              id="email"
+              name="email"
+              autoComplete="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               placeholder="user@example.com"
               type="email"
               required
             />
+            <span className="field-helper">
+              Extraction results and receipts are sent here.
+            </span>
           </label>
-          <button disabled={submitting}>
+          <button disabled={submitting} type="submit">
             {submitting ? "Preparing specimen" : "Extract tokens"}
           </button>
           {error ? <p className="error">{error}</p> : null}
@@ -148,6 +163,7 @@ export function Home() {
         </section>
       ) : null}
 
+      <DesignCatalog />
       <TokenBento />
       <PinnedProcess />
       <SiteFooter />

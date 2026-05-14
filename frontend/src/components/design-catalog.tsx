@@ -38,16 +38,19 @@ export function DesignCatalog() {
     <>
       <section className="catalog-hero" id="catalog">
         <div className="hero-copy">
-          <p className="section-kicker">R2 Design Catalog</p>
-          <h1>Browse extracted brand design files</h1>
+          <p className="section-kicker">Catalog</p>
+          <h2>Browse extracted brand design files</h2>
           <p>
-            Search the brands already processed into DESIGN.md artifacts, then
-            open a clean URL like /supabase/design-md for the selected brand.
+            Search processed DESIGN.md artifacts, then open a polished show page
+            for the selected brand.
           </p>
         </div>
         <label className="catalog-search">
-          Search brands
+          <span className="field-label">Search brands</span>
           <input
+            id="catalog-search"
+            name="catalog-search"
+            autoComplete="off"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="supabase, neon, gsap..."
@@ -59,7 +62,7 @@ export function DesignCatalog() {
         {loadingDesigns ? (
           <div className="catalog-state">
             <p className="section-kicker">Loading</p>
-            <h2>Reading R2 catalog</h2>
+            <h2>Reading saved design files</h2>
             <div className="skeleton-lines" aria-hidden="true" />
           </div>
         ) : null}
@@ -72,7 +75,9 @@ export function DesignCatalog() {
           </div>
         ) : null}
 
-        {!loadingDesigns && !catalogUnavailable && filteredDesigns.length === 0 ? (
+        {!loadingDesigns &&
+        !catalogUnavailable &&
+        filteredDesigns.length === 0 ? (
           <div className="catalog-state">
             <p className="section-kicker">No match</p>
             <h2>No extracted brand matches this search.</h2>
@@ -87,7 +92,9 @@ export function DesignCatalog() {
           >
             <span>{design.brand}</span>
             <code>{design.sourceUrl}</code>
-            {design.updatedAt ? <time>{formatDate(design.updatedAt)}</time> : null}
+            {design.updatedAt ? (
+              <time>{formatDate(design.updatedAt)}</time>
+            ) : null}
           </Link>
         ))}
       </section>

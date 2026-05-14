@@ -9,9 +9,21 @@ type Props = {
 };
 
 const cards = [
-  ["Magazine", "Design language in motion", "A compact editorial system for product, story, and launch surfaces."],
-  ["Components", "Interface primitives", "Buttons, cards, forms, and rails tuned from the extracted token set."],
-  ["System", "Reusable brand memory", "A practical preview for agent handoff and frontend exploration."],
+  [
+    "Magazine",
+    "Design language in motion",
+    "A compact editorial system for product, story, and launch surfaces.",
+  ],
+  [
+    "Components",
+    "Interface primitives",
+    "Buttons, cards, forms, and rails tuned from the extracted token set.",
+  ],
+  [
+    "System",
+    "Reusable brand memory",
+    "A practical preview for agent handoff and frontend exploration.",
+  ],
 ];
 
 const specs = [
@@ -21,7 +33,12 @@ const specs = [
   ["AA", "Contrast target"],
 ];
 
-export function DesignPreview({ brand, sourceUrl, model, mode = "dark" }: Props) {
+export function DesignPreview({
+  brand,
+  sourceUrl,
+  model,
+  mode = "dark",
+}: Props) {
   if (!model) {
     return (
       <section className="design-preview-empty">
@@ -34,24 +51,22 @@ export function DesignPreview({ brand, sourceUrl, model, mode = "dark" }: Props)
 
   const colors = model.colors.slice(0, 12);
   const theme = buildTheme(model, mode);
-  const display = model.typography[0];
-  const bodyFont = model.fonts[1]?.value ?? model.fonts[0]?.value;
 
   return (
     <article className="design-preview" style={theme}>
       <section className="dp-hero">
         <p className="dp-kicker">Design System Inspiration of {brand}</p>
-        <h2 style={sampleTypeStyle(display, 56)}>
-          {brand} interface language
-        </h2>
-        <p style={{ fontFamily: bodyFont }}>
+        <h2>{brand} interface language</h2>
+        <p>
           A token-driven specimen generated from {sourceUrl}. It translates the
           extracted palette, type, radius, spacing, and component clues into a
           usable interface preview.
         </p>
         <div className="dp-actions">
           <button type="button">Discover system</button>
-          <button type="button" className="dp-outline">Configure</button>
+          <button type="button" className="dp-outline">
+            Configure
+          </button>
         </div>
       </section>
 
@@ -73,8 +88,12 @@ export function DesignPreview({ brand, sourceUrl, model, mode = "dark" }: Props)
             {model.typography.slice(0, 6).map((type) => (
               <div key={type.name}>
                 <span>{label(type.name)}</span>
-                <strong style={sampleTypeStyle(type, 34)}>{type.name}</strong>
-                <code>{[type.fontSize, type.fontWeight, type.lineHeight].filter(Boolean).join(" / ")}</code>
+                <strong style={sampleTypeStyle(type, 34)}>Aa {brand}</strong>
+                <code>
+                  {[type.fontSize, type.fontWeight, type.lineHeight]
+                    .filter(Boolean)
+                    .join(" / ")}
+                </code>
               </div>
             ))}
           </div>
@@ -83,9 +102,13 @@ export function DesignPreview({ brand, sourceUrl, model, mode = "dark" }: Props)
         <PreviewSection index="03" title="Button Variants">
           <div className="dp-button-row">
             <button type="button">Primary action</button>
-            <button type="button" className="dp-outline">Outline action</button>
+            <button type="button" className="dp-outline">
+              Outline action
+            </button>
             <a href={sourceUrl}>Text link</a>
-            <button type="button" className="dp-icon">›</button>
+            <button type="button" className="dp-icon">
+              ›
+            </button>
           </div>
         </PreviewSection>
 
@@ -114,10 +137,22 @@ export function DesignPreview({ brand, sourceUrl, model, mode = "dark" }: Props)
 
         <PreviewSection index="06" title="Form Elements">
           <div className="dp-form-grid">
-            <input value="you@example.com" readOnly aria-label="Email example" />
-            <input value="Focused input" readOnly aria-label="Focused example" />
-            <textarea value="Tell us about your design system..." readOnly aria-label="Inquiry example" />
-            <div>
+            <input
+              value="you@example.com"
+              readOnly
+              aria-label="Email example"
+            />
+            <input
+              value="Focused input"
+              readOnly
+              aria-label="Focused example"
+            />
+            <textarea
+              value="Tell us about your design system..."
+              readOnly
+              aria-label="Inquiry example"
+            />
+            <div className="dp-form-note">
               <strong>Cookies on {brand}.</strong>
               <p>We use cookies to improve the browsing experience.</p>
             </div>
@@ -128,21 +163,34 @@ export function DesignPreview({ brand, sourceUrl, model, mode = "dark" }: Props)
   );
 }
 
-function PreviewSection({ index, title, children }: { index: string; title: string; children: ReactNode }) {
+function PreviewSection({
+  index,
+  title,
+  children,
+}: {
+  index: string;
+  title: string;
+  children: ReactNode;
+}) {
   return (
     <section className="dp-section">
-      <p className="dp-kicker">{index} — {title}</p>
+      <p className="dp-kicker">
+        {index} — {title}
+      </p>
       <h3>{title}</h3>
       {children}
     </section>
   );
 }
 
-function buildTheme(model: DesignPreviewModel, mode: "light" | "dark"): CSSProperties {
+function buildTheme(
+  model: DesignPreviewModel,
+  mode: "light" | "dark",
+): CSSProperties {
   const colors = model.colors.map((color) => color.hex);
   const dark = colors.find((hex) => luminance(hex) < 0.08) ?? "#0f1115";
   const light = colors.find((hex) => luminance(hex) > 0.82) ?? "#ffffff";
-  const accent = colors.find((hex) => luminance(hex) > 0.12 && luminance(hex) < 0.72) ?? "#2f6f59";
+  const accent = findBestAccent(model.colors.map((c) => c.hex));
   const radius = model.radii.find((item) => item.value > 0)?.css ?? "8px";
   const background = mode === "light" ? light : dark;
   const ink = mode === "light" ? dark : light;
@@ -158,8 +206,18 @@ function buildTheme(model: DesignPreviewModel, mode: "light" | "dark"): CSSPrope
   } as CSSProperties;
 }
 
-function sampleTypeStyle(type?: { fontFamily?: string; fontSize?: string; fontWeight?: string | number; lineHeight?: string | number }, max = 56) {
-  const size = type?.fontSize ? clampDimension(type.fontSize, 16, max) : undefined;
+function sampleTypeStyle(
+  type?: {
+    fontFamily?: string;
+    fontSize?: string;
+    fontWeight?: string | number;
+    lineHeight?: string | number;
+  },
+  max = 56,
+) {
+  const size = type?.fontSize
+    ? clampDimension(type.fontSize, 16, max)
+    : undefined;
   return {
     fontFamily: cleanFont(type?.fontFamily),
     fontSize: size,
@@ -184,20 +242,75 @@ function label(value: string) {
 
 function luminance(hex: string) {
   const value = hex.replace("#", "");
-  const full = value.length === 3 ? value.split("").map((c) => c + c).join("") : value;
-  const [r, g, b] = [0, 2, 4].map((start) => parseInt(full.slice(start, start + 2), 16) / 255);
+  const full =
+    value.length === 3
+      ? value
+          .split("")
+          .map((c) => c + c)
+          .join("")
+      : value;
+  const [r, g, b] = [0, 2, 4].map(
+    (start) => parseInt(full.slice(start, start + 2), 16) / 255,
+  );
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 
 function mix(a: string, b: string, amount: number) {
   const ca = channels(a);
   const cb = channels(b);
-  const mixed = ca.map((value, index) => Math.round(value + (cb[index] - value) * amount));
+  const mixed = ca.map((value, index) =>
+    Math.round(value + (cb[index] - value) * amount),
+  );
   return `rgb(${mixed.join(" ")})`;
+}
+
+function getChroma(hex: string) {
+  const [r, g, b] = channels(hex);
+  return Math.max(r, g, b) - Math.min(r, g, b);
+}
+
+function findBestAccent(colors: string[]): string {
+  let bestAccent = "#2f6f59";
+  let maxScore = -1;
+
+  for (const hex of colors) {
+    const lum = luminance(hex);
+    const chroma = getChroma(hex);
+
+    // Penalize colors that are too dark or too light
+    let lumPenalty = 1;
+    if (lum < 0.1 || lum > 0.85) {
+      lumPenalty = 0.1;
+    } else if (lum < 0.2 || lum > 0.7) {
+      lumPenalty = 0.5;
+    }
+
+    const score = chroma * lumPenalty;
+    if (score > maxScore && score > 15) {
+      maxScore = score;
+      bestAccent = hex;
+    }
+  }
+
+  // Fallback to the first mid-tone color if monochrome
+  if (maxScore === -1) {
+    return (
+      colors.find((hex) => luminance(hex) > 0.12 && luminance(hex) < 0.72) ??
+      "#2f6f59"
+    );
+  }
+
+  return bestAccent;
 }
 
 function channels(hex: string) {
   const value = hex.replace("#", "");
-  const full = value.length === 3 ? value.split("").map((c) => c + c).join("") : value;
+  const full =
+    value.length === 3
+      ? value
+          .split("")
+          .map((c) => c + c)
+          .join("")
+      : value;
   return [0, 2, 4].map((start) => parseInt(full.slice(start, start + 2), 16));
 }

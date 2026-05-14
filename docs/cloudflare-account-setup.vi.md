@@ -19,8 +19,9 @@ OpenDesign đang dùng:
 - Cloudflare Workflows: polling trích xuất và email hoàn tất.
 - Extractor container bên ngoài: dịch vụ Node/Docker chạy `dembrandt` và upload kết quả lên R2.
 
-Lưu ý quan trọng: các ID trong `worker/wrangler.jsonc` là riêng cho từng tài khoản Cloudflare.
-Nếu deploy sang tài khoản mới, hãy tạo D1/KV/R2 mới và thay toàn bộ ID cũ trước khi deploy.
+Lưu ý quan trọng: `worker/wrangler.example.jsonc` là template dùng chung cho tài khoản mới.
+Copy file này thành `worker/wrangler.jsonc` để setup local, rồi thay các ID placeholder và giá trị riêng theo tài khoản trước khi chạy deploy hoặc generate type cho Worker.
+Không dùng ID từ một `worker/wrangler.jsonc` cũ khi setup tài khoản khác.
 
 ## Điều Kiện Cần Có
 
@@ -29,7 +30,7 @@ Nếu deploy sang tài khoản mới, hãy tạo D1/KV/R2 mới và thay toàn b
 - Docker nếu bạn tự deploy extractor container.
 - Tài khoản Cloudflare đã bật Workers, Pages, D1, KV, Queues, Workflows và R2.
 - R2 S3 API token có quyền Object Read & Write trên bucket OpenDesign.
-- Resend API key và sender domain đã verify cho `no-reply@opendesign.dqez.dev` hoặc sender khác đã duyệt.
+- Resend API key và sender domain đã verify cho `no-reply@example.com` hoặc sender khác đã duyệt.
 - SePay webhook API key và thông tin tài khoản ngân hàng.
 - Endpoint HTTPS công khai cho extractor, ví dụ `https://extractor.example.com`.
 
@@ -98,6 +99,14 @@ $env:CLOUDFLARE_ACCOUNT_ID = "<cloudflare-account-id>"
 
 Không commit API token hoặc account secret vào git.
 
+Với tài khoản mới, giữ `worker/wrangler.example.jsonc` làm template nguồn và tạo config local để chỉnh:
+
+```powershell
+Copy-Item .\wrangler.example.jsonc .\wrangler.jsonc
+```
+
+Nếu `worker/wrangler.jsonc` đã tồn tại và chứa ID của tài khoản khác, copy lại từ file example trước khi điền ID mới. Không chạy deploy hoặc generate type cho Worker cho tới khi toàn bộ placeholder đã được thay.
+
 ## 3. Chọn Tên Resource
 
 Tên production đang được khuyến nghị:
@@ -113,19 +122,22 @@ Tên production đang được khuyến nghị:
 | Queue | `extraction-queue` |
 | Workflow | `extraction-workflow` |
 
-Queue và workflow ở trên đang khớp với `worker/wrangler.jsonc`.
-Nếu bạn cần nhiều môi trường OpenDesign trong cùng một tài khoản, hãy đổi tên theo môi trường, ví dụ `opendesign-prod-extraction-queue` và `opendesign-prod-extraction-workflow`, sau đó cập nhật `worker/wrangler.jsonc`.
+Queue và workflow ở trên đang khớp với `worker/wrangler.example.jsonc`.
+Nếu bạn cần nhiều môi trường OpenDesign trong cùng một tài khoản, hãy đổi tên theo môi trường, ví dụ `opendesign-prod-extraction-queue` và `opendesign-prod-extraction-workflow`, sau đó cập nhật file local `worker/wrangler.jsonc`.
 
 ## 4. Tạo D1 Database
 
-Chạy từ thư mục `worker/`:
+Tạo resource từ một thư mục không có `wrangler.jsonc`, để Wrangler không parse nhầm config local còn placeholder:
 
 ```powershell
+cd ..
+New-Item -ItemType Directory -Force .cloudflare-bootstrap | Out-Null
+cd .cloudflare-bootstrap
 npx wrangler d1 create opendesign-prod
 npx wrangler d1 create opendesign-preview
 ```
 
-Copy database ID vừa tạo vào `worker/wrangler.jsonc`:
+Copy database ID vừa tạo vào file local `worker/wrangler.jsonc` được copy từ `worker/wrangler.example.jsonc`:
 
 ```jsonc
 "d1_databases": [
@@ -140,9 +152,10 @@ Copy database ID vừa tạo vào `worker/wrangler.jsonc`:
 ]
 ```
 
-Apply migrations local và remote:
+Sau khi cập nhật file local `worker/wrangler.jsonc`, apply migrations từ `worker/`:
 
 ```powershell
+cd ..\worker
 npx wrangler d1 migrations apply opendesign-prod --local
 npx wrangler d1 migrations apply opendesign-prod --remote
 ```
@@ -157,13 +170,14 @@ Kết quả nên có các bảng `jobs`, `orders`, `payments`, `webhook_events`,
 
 ## 5. Tạo KV Namespace
 
-Chạy từ `worker/`:
+Quay lại thư mục bootstrap:
 
 ```powershell
+cd ..\.cloudflare-bootstrap
 npx wrangler kv namespace create KV
 ```
 
-Copy ID trả về vào `worker/wrangler.jsonc`:
+Copy ID trả về vào file local `worker/wrangler.jsonc`:
 
 ```jsonc
 "kv_namespaces": [
@@ -178,7 +192,7 @@ Nếu cần namespace riêng cho preview, tạo thêm namespace riêng và thêm
 
 ## 6. Tạo R2 Bucket
 
-Chạy từ `worker/`:
+Chạy từ cùng thư mục bootstrap:
 
 ```powershell
 npx wrangler r2 bucket create opendesign-outputs
@@ -188,6 +202,7 @@ npx wrangler r2 bucket list
 Apply CORS policy của repo:
 
 ```powershell
+cd ..\worker
 npx wrangler r2 bucket cors set opendesign-outputs --file r2-cors.json
 npx wrangler r2 bucket cors list opendesign-outputs
 ```
@@ -218,13 +233,14 @@ Ghi lại Cloudflare account ID để dùng cho `CF_ACCOUNT_ID`.
 
 ## 8. Tạo Queue
 
-Chạy từ `worker/`:
+Chạy từ thư mục bootstrap:
 
 ```powershell
+cd ..\.cloudflare-bootstrap
 npx wrangler queues create extraction-queue
 ```
 
-Config hiện tại bind cùng một Worker làm producer và consumer:
+Config example bind cùng một Worker làm producer và consumer. Giữ binding in hoa `EXTRACT_QUEUE` vì code Worker đang gọi `c.env.EXTRACT_QUEUE`:
 
 ```jsonc
 "queues": {
@@ -237,8 +253,8 @@ Nếu đổi tên queue, cập nhật cả producer và consumer.
 
 ## 9. Workflows
 
-Với cấu hình hiện tại, không cần lệnh tạo riêng.
-Workflow binding được khai báo trong `worker/wrangler.jsonc` và sẽ được deploy cùng Worker:
+Với cấu hình này, không cần lệnh tạo riêng.
+Workflow binding được khai báo trong `worker/wrangler.example.jsonc` và nên được giữ trong file local `worker/wrangler.jsonc`:
 
 ```jsonc
 "workflows": [
@@ -278,7 +294,7 @@ Site mặc định sẽ có URL `https://opendesign.pages.dev`, trừ khi tên n
 
 ## 11. Worker Vars Và Secrets
 
-Plain vars đang nằm trong `worker/wrangler.jsonc`:
+Plain vars được thể hiện trong `worker/wrangler.example.jsonc` và cần được chỉnh trong file local `worker/wrangler.jsonc`:
 
 ```jsonc
 "vars": {
@@ -286,10 +302,11 @@ Plain vars đang nằm trong `worker/wrangler.jsonc`:
   "DEV_ORIGINS": "http://localhost:5173,http://127.0.0.1:5173",
   "FRONTEND_ORIGIN": "https://opendesign.pages.dev",
   "R2_BUCKET_NAME": "opendesign-outputs",
-  "EXTRACTOR_URL": "https://extractor.dqez.dev",
-  "SEPAY_BANK_ACCOUNT": "101877455638",
-  "SEPAY_BANK_NAME": "VIETINBANK",
-  "SEPAY_BANK_ACCOUNT_NAME": "TRAN DINH QUY"
+  "EXTRACTOR_URL": "https://extractor.example.com",
+  "EMAIL_FROM": "OpenDesign <no-reply@example.com>",
+  "SEPAY_BANK_ACCOUNT": "<bank-account-number>",
+  "SEPAY_BANK_NAME": "<bank-code-or-bank-name>",
+  "SEPAY_BANK_ACCOUNT_NAME": "<bank-account-holder>"
 }
 ```
 
@@ -365,6 +382,7 @@ Dùng cùng một `EXTRACTOR_API_KEY` trong Worker và container.
 ## Checklist Cài Đặt
 
 - [ ] `npx wrangler whoami` hiện đúng tài khoản mục tiêu.
+- [ ] `worker/wrangler.jsonc` đã được copy từ `worker/wrangler.example.jsonc`.
 - [ ] `worker/wrangler.jsonc` có D1 database ID mới.
 - [ ] `worker/wrangler.jsonc` có KV namespace ID mới.
 - [ ] R2 bucket `opendesign-outputs` đã tồn tại.

@@ -13,15 +13,15 @@
 	"kv_namespaces": [
 		{
 			"binding": "KV",
-			"id": "3f2dbe68177745adb166e03e0aa02cd0"
+			"id": "<kv-namespace-id-from-wrangler-kv-namespace-create>"
 		}
 	],
 	"d1_databases": [
 		{
 			"binding": "DB",
 			"database_name": "opendesign-prod",
-			"database_id": "3004f0ce-74c0-467a-a55e-0b833dd4c4ed",
-			"preview_database_id": "084e9bfc-83d8-479e-bd1e-2df25430fa2c",
+			"database_id": "<d1-production-database-id>",
+			"preview_database_id": "<d1-preview-database-id>",
 			"migrations_dir": "migrations",
 			"migrations_table": "d1_migrations"
 		}
@@ -54,20 +54,6 @@
 			"class_name": "ExtractionWorkflow"
 		}
 	],
-	"migrations": [
-		{
-			"tag": "v1",
-			"new_sqlite_classes": [
-				"DembrandtContainer"
-			]
-		},
-		{
-			"tag": "v2-delete-dembrandt-container",
-			"deleted_classes": [
-				"DembrandtContainer"
-			]
-		}
-	],
 	"triggers": {
 		"crons": [
 			"*/30 * * * *"
@@ -80,8 +66,8 @@
 		"DEV_ORIGINS": "http://localhost:5173,http://127.0.0.1:5173",
 		"FRONTEND_ORIGIN": "https://opendesign.pages.dev",
 		"R2_BUCKET_NAME": "opendesign-outputs",
-		"EXTRACTOR_URL": "https://extractor.dqez.dev",
-		"EMAIL_FROM": "OpenDesign <no-reply@opendesign.dqez.dev>",
+		"EXTRACTOR_URL": "https://extractor.example.com",
+		"EMAIL_FROM": "OpenDesign <no-reply@example.com>",
 		"ORDER_CODE_PREFIX": "OD",
 		"LEGACY_ORDER_CODE_PREFIXES": "2D",
 		"PAID_EXTRACTION_AMOUNT": "25000",
@@ -90,8 +76,8 @@
 		"PAYMENT_REQUIRED_MESSAGE": "Ban da su dung luot mien phi. Chuyen khoan 25.000d de tiep tuc.",
 		"SEPAY_QR_BASE_URL": "https://qr.sepay.vn/img",
 		"SEPAY_ALLOWED_IPS": "172.236.138.20,172.233.83.68,171.244.35.2,151.158.108.68,151.158.109.79,103.255.238.139",
-		"SEPAY_BANK_ACCOUNT": "101877455638",
-		"SEPAY_BANK_NAME": "VIETINBANK",
-		"SEPAY_BANK_ACCOUNT_NAME": "TRAN DINH QUY"
+		"SEPAY_BANK_ACCOUNT": "<bank-account-number>",
+		"SEPAY_BANK_NAME": "<bank-code-or-bank-name>",
+		"SEPAY_BANK_ACCOUNT_NAME": "<bank-account-holder>"
 	}
 }
