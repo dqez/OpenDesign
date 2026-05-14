@@ -11,7 +11,7 @@ Doc nên đọc trước:
 
 - `docs/cloudflare-account-setup.vi.md`
 - `docs/cloudflare-account-setup.md`
-- `worker/wrangler.jsonc`
+- `worker/wrangler.example.jsonc`
 - `worker/r2-cors.json`
 
 ## Thứ Tự Deploy
@@ -58,6 +58,16 @@ cd ..
 ```
 
 Nếu kết quả là tài khoản sai, dừng lại và chạy `npx wrangler login` hoặc set đúng `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID`.
+
+Trước khi deploy lên tài khoản mới, bảo đảm `worker/wrangler.jsonc` tồn tại dưới dạng bản copy local từ file example và đã có các ID/giá trị tạo trong hướng dẫn setup account:
+
+```powershell
+cd worker
+if (-not (Test-Path .\wrangler.jsonc)) { Copy-Item .\wrangler.example.jsonc .\wrangler.jsonc }
+cd ..
+```
+
+Không copy ID từ một `worker/wrangler.jsonc` thuộc tài khoản Cloudflare khác.
 
 ## 2. Kiểm Tra Local
 
@@ -192,7 +202,7 @@ Expose container qua HTTPS bằng một trong các cách:
 - Reverse proxy có TLS, ví dụ Caddy hoặc Nginx.
 - Managed container host có HTTPS.
 
-Sau khi có public URL, cập nhật `worker/wrangler.jsonc`:
+Sau khi có public URL, cập nhật `EXTRACTOR_URL` trong file local `worker/wrangler.jsonc` được copy từ `worker/wrangler.example.jsonc`:
 
 ```jsonc
 "EXTRACTOR_URL": "https://extractor.example.com"
@@ -290,7 +300,7 @@ https://opendesign.pages.dev
 
 Nếu Pages URL cuối cùng khác, cập nhật tất cả nơi sau:
 
-- `worker/wrangler.jsonc` -> `vars.FRONTEND_ORIGIN`
+- file local `worker/wrangler.jsonc` -> `vars.FRONTEND_ORIGIN`
 - `worker/r2-cors.json`
 - Chạy lại `npx wrangler r2 bucket cors set opendesign-outputs --file r2-cors.json`
 - Chạy lại `npm run deploy` trong `worker`
@@ -436,7 +446,7 @@ Cách sửa:
 npx wrangler d1 list
 ```
 
-Copy đúng ID vào `worker/wrangler.jsonc`, sau đó chạy:
+Copy đúng ID vào file local `worker/wrangler.jsonc` được tạo từ `worker/wrangler.example.jsonc`, sau đó chạy:
 
 ```powershell
 npm run types
