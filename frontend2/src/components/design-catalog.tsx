@@ -41,12 +41,12 @@ export function DesignCatalog() {
           <p className="section-kicker">Catalog</p>
           <h2>Browse extracted brand design files</h2>
           <p>
-            Search processed DESIGN.md artifacts, then open a polished show
-            page for the selected brand.
+            Search processed DESIGN.md artifacts, then open a polished show page
+            for the selected brand.
           </p>
         </div>
         <label className="catalog-search">
-          Search brands
+          <span className="field-label">Search brands</span>
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
@@ -72,7 +72,9 @@ export function DesignCatalog() {
           </div>
         ) : null}
 
-        {!loadingDesigns && !catalogUnavailable && filteredDesigns.length === 0 ? (
+        {!loadingDesigns &&
+        !catalogUnavailable &&
+        filteredDesigns.length === 0 ? (
           <div className="catalog-state">
             <p className="section-kicker">No match</p>
             <h2>No extracted brand matches this search.</h2>
@@ -87,7 +89,9 @@ export function DesignCatalog() {
           >
             <span>{design.brand}</span>
             <code>{design.sourceUrl}</code>
-            {design.updatedAt ? <time>{formatDate(design.updatedAt)}</time> : null}
+            {design.updatedAt ? (
+              <time>{formatDate(design.updatedAt)}</time>
+            ) : null}
           </Link>
         ))}
       </section>

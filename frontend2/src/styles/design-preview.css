@@ -89,13 +89,9 @@
 
 .dp-section-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+  grid-template-columns: 1fr;
   gap: 18px;
   align-items: start;
-}
-
-.dp-section-grid .dp-section:first-child {
-  grid-column: 1 / -1;
 }
 
 .dp-section {
@@ -179,10 +175,18 @@
   color: var(--dp-ink);
 }
 
+.dp-card-grid h3 {
+  font-size: clamp(1.05rem, 1.6vw, 1.45rem);
+}
+
 .dp-spec-grid strong {
   display: block;
   font-size: clamp(1.55rem, 3vw, 2.4rem);
   line-height: 1;
+}
+
+.dp-form-grid > * {
+  min-height: 68px;
 }
 
 .dp-form-grid input,
@@ -191,11 +195,12 @@
   border-color: color-mix(in srgb, var(--dp-ink), transparent 72%);
   background: var(--dp-surface);
   color: var(--dp-ink);
+  line-height: 1.35;
+  padding: 12px;
 }
 
 .dp-form-grid textarea {
-  min-height: 88px;
-  padding: 12px;
+  min-height: 68px;
   resize: none;
 }
 
@@ -211,14 +216,6 @@
 }
 
 @media (max-width: 900px) {
-  .dp-section-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .dp-section-grid .dp-section:first-child {
-    grid-column: auto;
-  }
-
   .dp-type-list div {
     grid-template-columns: 1fr;
     align-items: start;

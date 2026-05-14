@@ -1,6 +1,6 @@
 :root {
-  --font-display: -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI Variable Display", "Segoe UI Variable", "Helvetica Neue", Arial, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI Variable Text", "Segoe UI Variable", "Helvetica Neue", Arial, sans-serif;
   --font-mono: "SFMono-Regular", "Cascadia Code", "Cascadia Mono", Consolas, "Liberation Mono", monospace;
 
   --color-canvas: #f6f8fb;
@@ -48,23 +48,14 @@ html {
 body {
   margin: 0;
   min-width: 320px;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   background:
-    linear-gradient(132deg, rgba(230, 243, 247, 0.78) 0%, rgba(255, 255, 255, 0) 38%),
-    linear-gradient(218deg, rgba(246, 238, 226, 0.72) 0%, rgba(255, 255, 255, 0) 34%),
-    linear-gradient(180deg, #fbfcff 0%, var(--color-canvas) 46%, var(--color-canvas-deep) 100%);
-}
-
-body::before {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  content: "";
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.58) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.5) 1px, transparent 1px);
-  background-size: 72px 72px;
-  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.42), transparent 68%);
+    radial-gradient(circle at 14% 12%, rgba(138, 185, 255, 0.68), transparent 32%),
+    radial-gradient(circle at 88% 24%, rgba(255, 217, 171, 0.66), transparent 31%),
+    radial-gradient(circle at 50% 95%, rgba(220, 238, 255, 0.78), transparent 38%),
+    linear-gradient(180deg, #fafdff, #e9eef7);
 }
 
 button,
@@ -119,7 +110,7 @@ pre,
   width: 100%;
   max-width: 100%;
   min-height: 100dvh;
-  overflow-x: hidden;
+  overflow-x: clip;
   padding: 24px;
 }
 
@@ -155,19 +146,29 @@ pre,
 .website-preview-slot,
 .job-preview-toolbar,
 .extract-progress-toast {
-  border: 1px solid var(--glass-rim);
-  background: var(--glass-fill);
+  border: 1px solid transparent;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.02)) padding-box,
+    linear-gradient(135deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.3)) border-box;
   box-shadow:
-    inset 0 1px 0 var(--glass-border),
-    inset 0 -1px 0 rgba(54, 70, 91, 0.05),
-    var(--glass-shadow);
-  backdrop-filter: blur(22px) saturate(1.16);
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
+    0 24px 60px rgba(30, 45, 65, 0.08);
+  backdrop-filter: blur(28px) saturate(1.15);
 }
 
 .site-header {
   position: sticky;
   top: 16px;
-  z-index: 20;
+  z-index: 50;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+
+.site-header.is-hidden {
+  transform: translateY(calc(-100% - 24px));
+  opacity: 0.5;
+  pointer-events: none;
 }
 
 .site-nav {
@@ -214,8 +215,8 @@ button {
   border: 1px solid rgba(255, 255, 255, 0.58);
   border-radius: 16px;
   background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.18), transparent 44%),
-    var(--color-rail);
+    linear-gradient(145deg, rgba(255, 255, 255, 0.25), transparent 44%),
+    rgba(17, 24, 39, 0.75);
   color: var(--color-rail-text);
   font-family: var(--font-mono);
   font-size: 0.76rem;
@@ -224,12 +225,13 @@ button {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.22),
     0 12px 24px rgba(17, 24, 39, 0.16);
+  backdrop-filter: blur(12px);
 }
 
 .brand-wordmark {
   display: inline-flex;
   align-items: baseline;
-  font-size: 1.02rem;
+  font-size: 1.3rem;
   letter-spacing: 0;
 }
 
@@ -245,10 +247,11 @@ button {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.74);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.54);
+  background: rgba(255, 255, 255, 0.1);
   padding: 4px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .nav-links a {
@@ -268,12 +271,14 @@ button {
 button,
 .footer-primary,
 .status-link {
-  border: 1px solid var(--color-rail);
-  background: var(--color-rail);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(17, 24, 39, 0.85);
   color: var(--color-rail-text);
   padding: 0 18px;
   font-weight: 700;
   cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
 }
 
 .nav-links .nav-cta:hover,
@@ -281,7 +286,7 @@ button,
 button:hover:not(:disabled),
 .footer-primary:hover,
 .status-link:hover {
-  background: #1d2738;
+  background: rgba(17, 24, 39, 0.95);
   color: #ffffff;
 }
 
@@ -316,13 +321,13 @@ input,
 textarea {
   width: 100%;
   min-height: 52px;
-  border: 1px solid rgba(76, 92, 114, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.12);
   color: var(--color-ink);
   padding: 0 15px;
   outline: none;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 input::placeholder,
@@ -340,9 +345,9 @@ button:focus-visible {
 
 .section-kicker {
   color: var(--color-accent);
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  font-weight: 700;
+  font-family: var(--font-body);
+  font-size: 0.74rem;
+  font-weight: 720;
   letter-spacing: 0;
 }
 

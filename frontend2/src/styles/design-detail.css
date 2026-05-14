@@ -41,10 +41,12 @@
 
 .design-detail-title h1 {
   font-size: clamp(2.2rem, 4.6vw, 4.9rem);
-  line-height: 0.92;
+  line-height: 0.84;
+  margin-bottom: 0.12em;
 }
 
 .design-source {
+  display: inline-block;
   width: fit-content;
   max-width: 100%;
   color: var(--detail-ink-soft);

@@ -98,7 +98,7 @@ export function Home() {
         </div>
         <form className="extract-panel" onSubmit={onSubmit}>
           <label>
-            Website URL
+            <span className="field-label">Website URL</span>
             <input
               className="url-input"
               value={url}
@@ -111,7 +111,7 @@ export function Home() {
             </span>
           </label>
           <label>
-            Email
+            <span className="field-label">Email</span>
             <input
               value={email}
               onChange={(event) => setEmail(event.target.value)}

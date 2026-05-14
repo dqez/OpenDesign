@@ -36,7 +36,7 @@
   background: rgba(255, 255, 255, 0.74);
   box-shadow: var(--glass-shadow-tight);
   color: var(--color-ink);
-  font-weight: 700;
+  font-weight: 600;
   text-decoration: none;
   padding: 0 14px;
   backdrop-filter: blur(16px) saturate(1.14);
@@ -104,9 +104,10 @@
   color: var(--color-accent);
   font-size: clamp(1.4rem, 1.1rem + 1vw, 2rem);
   font-weight: 900;
-  line-height: 1;
+  line-height: 1.8;
   text-align: center;
   box-shadow: inset 0 0 0 1px var(--color-border);
+
 }
 
 .status-spinner {
@@ -280,6 +281,18 @@
   align-items: center;
   border-radius: var(--radius-xl);
   padding: 14px;
+  background: rgba(255, 255, 255, 0.74);
+  backdrop-filter: blur(16px) saturate(1.14);
+  border: 1px solid var(--glass-rim);
+  box-shadow: var(--glass-shadow-tight);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+
+.job-preview-toolbar.is-hidden {
+  transform: translateY(calc(-100% - 24px));
+  opacity: 0.5;
+  pointer-events: none;
 }
 
 .job-preview-toolbar h1 {

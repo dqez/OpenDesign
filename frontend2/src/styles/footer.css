@@ -1,6 +1,6 @@
 .site-footer {
   display: grid;
-  gap: 18px;
+  gap: 50px;
   padding: clamp(16px, 3vw, 32px) 0 28px;
 }
 
