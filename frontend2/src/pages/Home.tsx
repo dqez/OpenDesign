@@ -101,6 +101,9 @@ export function Home() {
             <span className="field-label">Website URL</span>
             <input
               className="url-input"
+              id="website-url"
+              name="url"
+              autoComplete="url"
               value={url}
               onChange={(event) => setUrl(event.target.value)}
               placeholder="https://neon.com"
@@ -113,6 +116,9 @@ export function Home() {
           <label>
             <span className="field-label">Email</span>
             <input
+              id="email"
+              name="email"
+              autoComplete="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               placeholder="user@example.com"
@@ -123,7 +129,7 @@ export function Home() {
               Extraction results and receipts are sent here.
             </span>
           </label>
-          <button disabled={submitting}>
+          <button disabled={submitting} type="submit">
             {submitting ? "Preparing specimen" : "Extract tokens"}
           </button>
           {error ? <p className="error">{error}</p> : null}

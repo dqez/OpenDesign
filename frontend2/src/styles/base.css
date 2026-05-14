@@ -392,19 +392,41 @@ button:focus-visible {
 
 @media (max-width: 640px) {
   .site-nav {
-    align-items: stretch;
-    flex-direction: column;
+    gap: 6px;
     border-radius: var(--radius-lg);
+    padding: 8px;
   }
 
   .brand-mark {
-    justify-content: flex-start;
+    flex-shrink: 0;
+    padding: 0 6px 0 4px;
+  }
+
+  .brand-wordmark {
+    font-size: 1rem;
   }
 
   .nav-links {
-    display: grid;
-    grid-template-columns: 1fr;
-    border-radius: var(--radius-md);
+    flex: 1;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .nav-links a,
+  .nav-links .nav-cta {
+    flex: 0 0 auto;
+    padding: 0 6px;
+    font-size: 0.74rem;
+    line-height: 1;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 360px) {
+  .brand-name-secondary {
+    display: none;
   }
 }
 

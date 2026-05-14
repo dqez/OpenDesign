@@ -48,6 +48,9 @@ export function DesignCatalog() {
         <label className="catalog-search">
           <span className="field-label">Search brands</span>
           <input
+            id="catalog-search"
+            name="catalog-search"
+            autoComplete="off"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="supabase, neon, gsap..."

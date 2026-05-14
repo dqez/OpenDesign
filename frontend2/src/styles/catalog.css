@@ -87,8 +87,7 @@
 }
 
 @media (max-width: 860px) {
-  .catalog-hero,
-  .brand-catalog {
+  .catalog-hero {
     grid-template-columns: 1fr;
   }
 }
