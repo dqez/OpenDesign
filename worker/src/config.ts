@@ -1,5 +1,5 @@
 export const DEFAULT_APP_NAME = "OpenDesign";
-export const DEFAULT_EMAIL_FROM = "OpenDesign <no-reply@opendesign.dqez.dev>";
+export const DEFAULT_EMAIL_FROM = "OpenDesign <no-reply@example.com>";
 export const DEFAULT_LEGACY_ORDER_CODE_PREFIXES = "2D";
 export const DEFAULT_ORDER_CODE_PREFIX = "OD";
 export const DEFAULT_ORDER_TTL_HOURS = 24;

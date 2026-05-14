@@ -21,7 +21,6 @@ Read these before implementation:
 - `docs/opendesign-backend-prd-vi.md`: product requirements and target Cloudflare architecture.
 - `docs/cloudflare-account-setup.md` and `docs/cloudflare-account-setup.vi.md`: account/resource setup.
 - `docs/opendesign-deploy-runbook.md` and `docs/opendesign-deploy-runbook.vi.md`: current deployment flow.
-- `frontend/design-codex.md`: frontend redesign research and visual direction.
 - Current code and tests in the package you are changing.
 
 Conflict order:
@@ -45,7 +44,7 @@ Worker API:
 - Middleware lives in `worker/src/middleware/`.
 - Workflow orchestration lives in `worker/src/workflows/extraction.ts`.
 - Queue handling lives in `worker/src/queue.ts`.
-- Bindings and vars are declared in `worker/wrangler.jsonc`; generated types are in `worker/worker-configuration.d.ts`.
+- Bindings and vars are declared in local `worker/wrangler.jsonc`; generated `worker/worker-configuration.d.ts` is local-only and ignored because it can contain account-specific values.
 
 Extractor service:
 
@@ -104,7 +103,7 @@ Base path: `/api`.
 - Match existing package style: TypeScript ESM, Hono route modules, service helpers, and Vitest tests.
 - Use TDD for Worker services/routes/middleware/workflows and extractor behavior.
 - Add or update focused tests next to the package behavior being changed.
-- If `worker/wrangler.jsonc` bindings or vars change, run `npm run types` in `worker/` and commit the generated type update when appropriate.
+- If `worker/wrangler.jsonc` bindings or vars change, run `npm run types` in `worker/` to validate the local config, but do not commit generated account-specific types.
 - Keep each package independently installable, testable, and buildable.
 - If changing English/Vietnamese deployment docs, update both language versions unless the user asks for only one.
 - Do not make remote Cloudflare changes unless credentials/resource IDs are intentionally configured and the user asked for deploy/setup work.
@@ -143,25 +142,13 @@ npm run build
 cd ..
 ```
 
-Full local verification, including Docker image build:
-
-```powershell
-.\scripts\verify-planb.ps1
-```
-
-Local Worker smoke helper, when `wrangler dev` is already serving on `127.0.0.1:8787`:
-
-```powershell
-.\scripts\smoke-worker-local.ps1
-```
-
 ## Frontend Guidance
 
 - Preserve the usable extraction flow as the primary screen.
 - Keep route paths stable unless the task explicitly changes navigation.
 - Preserve submission, payment polling, job polling, and artifact download behavior.
 - Avoid adding a separate marketing-only landing page.
-- Current visual direction is documented in `frontend/design-codex.md`: specimen-lab feel, practical artifact preview, no generic AI gradient treatment.
+- Preserve the current specimen-lab feel, practical artifact preview, and avoid generic AI gradient treatment.
 
 ## Cloudflare Guidance
 

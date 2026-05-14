@@ -5,4 +5,8 @@ dist/
 .wrangler/
 .dev.vars
 .env
+.env.*
+!.env.example
+worker/wrangler.jsonc
+worker/worker-configuration.d.ts
 .claude
