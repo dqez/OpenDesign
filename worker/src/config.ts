@@ -1,5 +1,6 @@
 export const DEFAULT_APP_NAME = "OpenDesign";
 export const DEFAULT_EMAIL_FROM = "OpenDesign <no-reply@example.com>";
+export const DEFAULT_FREE_EXTRACTION_LIMIT = 1;
 export const DEFAULT_LEGACY_ORDER_CODE_PREFIXES = "2D";
 export const DEFAULT_ORDER_CODE_PREFIX = "OD";
 export const DEFAULT_ORDER_TTL_HOURS = 24;
@@ -16,6 +17,7 @@ type ConfigKey =
   | "APP_NAME"
   | "CF_ACCOUNT_ID"
   | "EMAIL_FROM"
+  | "FREE_EXTRACTION_LIMIT"
   | "LEGACY_ORDER_CODE_PREFIXES"
   | "ORDER_CODE_PREFIX"
   | "ORDER_TTL_HOURS"
@@ -35,6 +37,13 @@ export function getAppName(env: ConfigEnv) {
 
 export function getEmailFrom(env: ConfigEnv) {
   return nonEmpty(env.EMAIL_FROM) ?? DEFAULT_EMAIL_FROM;
+}
+
+export function getFreeExtractionLimit(env: ConfigEnv) {
+  return nonNegativeNumber(
+    env.FREE_EXTRACTION_LIMIT,
+    DEFAULT_FREE_EXTRACTION_LIMIT,
+  );
 }
 
 export function getLegacyOrderCodePrefixes(env: ConfigEnv) {
@@ -97,6 +106,12 @@ function nonEmpty(value: string | undefined) {
 
 function normalizeOrderCodePrefix(value: string) {
   return value.replace(/[^a-z0-9]/gi, "").toUpperCase();
+}
+
+function nonNegativeNumber(value: string | undefined, fallback: number) {
+  if (!value) return fallback;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
 }
 
 function positiveNumber(value: string | undefined, fallback: number) {

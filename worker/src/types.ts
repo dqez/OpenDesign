@@ -28,6 +28,7 @@ export type Env = {
   EMAIL_FROM?: string;
   ORDER_CODE_PREFIX?: string;
   LEGACY_ORDER_CODE_PREFIXES?: string;
+  FREE_EXTRACTION_LIMIT?: string;
   PAID_EXTRACTION_AMOUNT?: string;
   PAYMENT_CURRENCY?: string;
   ORDER_TTL_HOURS?: string;

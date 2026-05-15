@@ -6,6 +6,7 @@ import {
   getPaymentCurrency,
   getPaymentRequiredMessage,
   getSePayQrBaseUrl,
+  getFreeExtractionLimit,
 } from "../config";
 import { rateLimitMiddleware } from "../middleware/rate-limit";
 import { writeAuditEvent } from "../services/audit";
@@ -25,7 +26,7 @@ export const extractRoute = new Hono<{ Bindings: Env }>().post(
     const ipHash = await hashIp(getClientIp(c.req.raw), c.env.IP_HASH_SALT);
     const usage = await getIpUsage(c.env.KV, ipHash);
 
-    if ((usage?.count ?? 0) >= 1) {
+    if ((usage?.count ?? 0) >= getFreeExtractionLimit(c.env)) {
       const amount = getPaidExtractionAmount(c.env);
       const currency = getPaymentCurrency(c.env);
       const pendingOrder = await getActivePendingOrder(c.env.DB, {
