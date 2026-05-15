@@ -1,0 +1,152 @@
+.legal-shell {
+  display: grid;
+  gap: clamp(42px, 7vw, 86px);
+}
+
+.legal-page {
+  display: grid;
+  gap: clamp(28px, 5vw, 54px);
+  width: min(100%, 1180px);
+  margin-inline: auto;
+  /* padding: clamp(34px, 7vw, 78px) 0 0; */
+}
+
+.legal-hero {
+  display: grid;
+  gap: 14px;
+  max-width: 840px;
+}
+
+.legal-hero h1 {
+  max-width: 11ch;
+  font-size: clamp(3.2rem, 7vw, 6rem);
+  font-weight: 840;
+  line-height: 0.94;
+}
+
+.legal-hero > p:not(.section-kicker) {
+  max-width: 68ch;
+  font-size: 1.02rem;
+  font-weight: 520;
+}
+
+.legal-hero > span {
+  color: var(--color-ink-faint);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+
+.legal-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
+  gap: clamp(20px, 4vw, 42px);
+  align-items: start;
+}
+
+.legal-article,
+.legal-aside {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.58);
+  box-shadow: 0 24px 60px rgba(30, 45, 65, 0.07);
+  backdrop-filter: blur(22px) saturate(1.1);
+}
+
+.legal-article {
+  display: grid;
+  gap: clamp(24px, 4vw, 36px);
+  padding: clamp(24px, 4vw, 46px);
+}
+
+.legal-section {
+  display: grid;
+  gap: 12px;
+}
+
+.legal-section + .legal-section {
+  border-top: 1px solid var(--color-border);
+  padding-top: clamp(24px, 4vw, 36px);
+}
+
+.legal-section h2 {
+  font-size: clamp(1.35rem, 2vw, 2rem);
+  line-height: 1.08;
+}
+
+.legal-section p,
+.legal-section li {
+  color: var(--color-ink-soft);
+  line-height: 1.72;
+}
+
+.legal-section ul {
+  display: grid;
+  gap: 10px;
+  margin: 2px 0 0;
+  padding-left: 22px;
+}
+
+.legal-aside {
+  position: sticky;
+  top: 104px;
+  padding: 18px;
+}
+
+.legal-fact-list {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+}
+
+.legal-fact-list div {
+  display: grid;
+  gap: 4px;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 14px;
+}
+
+.legal-fact-list div:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.legal-fact-list dt {
+  color: var(--color-ink-faint);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.legal-fact-list dd {
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+@media (max-width: 920px) {
+  .legal-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .legal-aside {
+    position: static;
+    order: -1;
+  }
+}
+
+@media (max-width: 560px) {
+  /* .legal-page {
+    padding-top: 28px;
+  } */
+
+  .legal-hero h1 {
+    max-width: 10ch;
+    font-size: 3rem;
+  }
+
+  .legal-article {
+    padding: 20px;
+  }
+}
